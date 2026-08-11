@@ -23,7 +23,7 @@ Site-ul în sine este o carte de vizită: trebuie să demonstreze prin propria e
 | Limbi | **RO (implicit) + EN** | RO la rădăcină (`/`), EN sub `/en/`, comutator în header, `hreflang` pentru SEO |
 | Design | **Dark & premium** | Fundal închis, accente gradient indigo→cyan, tipografie mare |
 | Tip layout | **Single-page landing** (per limbă) | Conversie bună pentru servicii; studiile de caz pot deveni pagini separate în v2 |
-| Hosting | **GitHub Pages** via GitHub Actions | Gratuit, HTTPS, suport domeniu propriu |
+| Hosting | **Cloudflare Pages** | Build automat la fiecare push, CDN global, HTTPS, trafic nelimitat, gratuit. Ales după ce GitHub Actions s-a dovedit blocat la nivel de cont |
 | Formular contact | **Web3Forms**, cu fallback pe `mailto:` | Gratuit și nelimitat, fără backend; fallback-ul face formularul funcțional chiar și neconfigurat |
 | Fonturi | **Self-hosted, commit-uite în repo** | Build determinist, fără dependență de rețea; `latin-ext` separat pentru diacritice |
 | Conținut placeholder | **Sloturi vizibil goale** | Nu publicăm proiecte sau testimoniale inventate — ar fi afirmații false pe un site de business |
@@ -74,11 +74,9 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 Pași care necesită decizii sau conținut de la Alex:
 
-1. **Deblochează publicarea.** Repo-ul e privat și GitHub Actions nu pornește deloc
-   (`startup_failure`, zero job-uri, deși workflow-urile sunt valide). Cel mai simplu
-   e să faci repository-ul public, ceea ce rezolvă și minutele de Actions, și accesul
-   la Pages. Apoi: Settings → Pages → Source: *GitHub Actions*. Detalii și alternative
-   în README, secțiunea „De rezolvat înainte ca deploy-ul să funcționeze".
+1. **Conectează repo-ul la Cloudflare Pages** — pașii exacți sunt în README,
+   secțiunea „Publicare". Durează câteva minute și e singurul lucru care mai
+   stă între site și a fi live.
 2. **Confirmă datele de contact** din `src/data/site.ts`. Acum e folosit
    `alexdelcea1996@gmail.com`; dacă vrei o adresă dedicată de business, schimb-o.
 3. **Confirmă numele brandului** — momentan „Alex Delcea".
@@ -87,7 +85,17 @@ Pași care necesită decizii sau conținut de la Alex:
 5. **Adaugă 2–3 proiecte** în portofoliu, cu problemă, soluție și rezultat.
 6. **Adaugă testimoniale** pe măsură ce le primești de la clienți.
 7. **Activează formularul** cu o cheie Web3Forms (vezi README).
-8. **Cumpără domeniul** și actualizează `SITE_URL` / `BASE_PATH`.
+8. **Cumpără domeniul**, leagă-l în Cloudflare și setează `SITE_URL`.
+
+### Traseul până la Cloudflare
+
+Publicarea a fost planificată inițial pe GitHub Pages. Repo-ul era privat, iar
+GitHub Actions nu pornea deloc. După trecerea la public workflow-urile s-au
+compilat corect, dar job-urile mureau în ~2 secunde fără să primească un runner,
+identic și la reîncercare. Cum pe repo-uri publice runnerele sunt gratuite,
+cauza e la nivel de cont (Actions dezactivat sau restricție de billing), nu în
+configurație. Am mutat publicarea pe Cloudflare Pages, care face build-ul pe
+infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse.
 
 ## 7. Decizii rămase deschise
 

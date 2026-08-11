@@ -2,7 +2,7 @@
 
 Site bilingv (română / engleză) prin care îmi promovez serviciile de creare de
 site-uri și aplicații web. Construit cu [Astro](https://astro.build) și
-[Tailwind CSS](https://tailwindcss.com), livrat static pe GitHub Pages.
+[Tailwind CSS](https://tailwindcss.com), livrat static pe Cloudflare Pages.
 
 Planul complet al proiectului, cu decizii și roadmap, este în [`PLAN.md`](./PLAN.md).
 
@@ -104,8 +104,8 @@ client de e-mail configurat.
 Ca să primești mesajele direct în inbox:
 
 1. Creează un cont gratuit pe [web3forms.com](https://web3forms.com) și ia cheia de acces.
-2. În GitHub: **Settings → Secrets and variables → Actions → New repository secret**,
-   nume `PUBLIC_WEB3FORMS_KEY`, valoare cheia.
+2. În Cloudflare Pages: **Settings → Environment variables → Production**,
+   nume `PUBLIC_WEB3FORMS_KEY`, valoare cheia. Apoi declanșează un redeploy.
 3. Pentru dezvoltare locală, pune-o în `.env`:
    ```
    PUBLIC_WEB3FORMS_KEY=cheia-ta
@@ -113,49 +113,69 @@ Ca să primești mesajele direct în inbox:
 
 Formularul comută automat pe trimitere reală când cheia există.
 
-## Publicare
+## Publicare — Cloudflare Pages
 
-Deploy-ul rulează automat prin GitHub Actions la fiecare push
-(`.github/workflows/deploy.yml`): verifică tipurile, face build și publică.
+Site-ul se publică pe [Cloudflare Pages](https://pages.cloudflare.com): build automat
+la fiecare push, CDN global, HTTPS și trafic nelimitat, gratuit. Nu folosește GitHub
+Actions (care nu pornește pe acest cont — vezi nota de la final).
 
-**Pas necesar o singură dată:** în GitHub, la **Settings → Pages**, setează
-*Source* pe **GitHub Actions**. Fără asta, workflow-ul rulează dar publicarea eșuează.
+### Conectarea, o singură dată
 
-Site-ul apare la `https://alexdelcea1996-alt.github.io/PresentationWebsite/`.
+1. Intră pe [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages**
+   → **Create** → **Pages** → **Connect to Git**.
+2. Autorizează GitHub și alege repository-ul `PresentationWebsite`.
+3. Completează setările de build:
 
-### De rezolvat înainte ca deploy-ul să funcționeze
+   | Câmp | Valoare |
+   |---|---|
+   | Framework preset | `Astro` |
+   | Build command | `npm run build` |
+   | Build output directory | `dist` |
+   | Production branch | `claude/portfolio-website-planning-v7mz1y` |
 
-La momentul scrierii, repository-ul este **privat** și GitHub Actions nu pornește:
-fiecare push produce un run care eșuează instant, cu `startup_failure`, fără niciun
-job executat. Ambele fișiere de workflow sunt valide și prezente în repo, iar
-build-ul trece local — deci cauza este la nivel de cont sau de repository, nu în cod.
+4. **Save and Deploy**. Primul build durează 1–2 minute.
 
-Cele două explicații probabile, ambele legate de faptul că repo-ul e privat:
+Site-ul apare la `https://<numele-proiectului>.pages.dev`. Numele proiectului îl
+alegi tu în pasul 1 — de exemplu `alex-delcea` dă `https://alex-delcea.pages.dev`.
 
-1. **Minute Actions epuizate sau lipsă metodă de plată.** Repo-urile private consumă
-   din cota lunară de minute; când cota e depășită, run-urile eșuează exact așa.
-   Se verifică la **Settings → Billing** pe contul GitHub.
-2. **GitHub Pages nu e disponibil pe repo-uri private** în planul gratuit — e nevoie
-   de GitHub Pro.
+De aici încolo, fiecare push pe branch-ul de producție declanșează un build nou
+automat. Fiecare pull request primește și un link de previzualizare separat.
 
-**Recomandarea mea: fă repository-ul public** (Settings → General → Danger Zone →
-Change visibility). Pentru un site de prezentare e firesc — codul devine el însuși
-o piesă de portofoliu — și rezolvă ambele probleme deodată: minute Actions
-nelimitate și Pages gratuit. Nu am făcut eu schimbarea pentru că trecerea unui
-repository din privat în public e ireversibilă în efecte și e decizia ta.
+### De ce nu trebuie să configurezi adresa site-ului
 
-Alternativ, dacă vrei să rămână privat: activează GitHub Pro, sau publică pe
-Cloudflare Pages / Netlify, care oferă hosting gratuit și pentru repo-uri private.
+Cloudflare injectează `CF_PAGES_URL` la build, iar `astro.config.ts` o folosește
+pentru adresa canonică, `hreflang` și sitemap. Deci linkurile sunt corecte din prima,
+fără să scrii nicăieri domeniul.
+
+### Variabile de mediu
+
+În Cloudflare: **Settings → Environment variables → Production**.
+
+| Variabilă | Când o setezi |
+|---|---|
+| `PUBLIC_WEB3FORMS_KEY` | Ca formularul să trimită în inbox (vezi secțiunea de mai sus) |
+| `SITE_URL` | Doar după ce legi un domeniu propriu |
 
 ### Domeniu propriu
 
-1. Cumpără domeniul și adaugă-l la **Settings → Pages → Custom domain**.
-2. În `.github/workflows/deploy.yml`, schimbă:
-   ```yaml
-   SITE_URL: https://domeniul-tau.ro
-   BASE_PATH: /
-   ```
-3. Actualizează adresa sitemap-ului din `public/robots.txt`.
+1. Cumpără domeniul și adaugă-l în Cloudflare la **Custom domains** (dacă domeniul
+   e deja pe Cloudflare, DNS-ul se configurează singur).
+2. Adaugă variabila `SITE_URL=https://domeniul-tau.ro` la Production și redeploy.
+
+`robots.txt` se generează la build din aceeași valoare, deci se actualizează singur.
+
+### Notă: GitHub Actions nu funcționează pe acest cont
+
+Am încercat întâi publicarea prin GitHub Pages. După ce repo-ul a devenit public,
+workflow-urile se compilează corect, dar job-urile mor în ~2 secunde fără să
+execute niciun pas și fără să primească un runner (`runner_id: 0`). Am reîncercat
+după 8 minute, rezultat identic. Cum pe repo-urile publice runnerele sunt gratuite,
+blocajul e la nivel de cont — cel mai probabil Actions dezactivat din
+**Settings → Actions → General**, sau o restricție de billing.
+
+Am șters workflow-urile ca să nu lase eșecuri roșii pe un repo public care e el
+însuși parte din portofoliu. Dacă rezolvi problema de cont și vrei CI înapoi (build
+și type-check la fiecare push), se readaugă în câteva minute.
 
 ## Fonturi
 

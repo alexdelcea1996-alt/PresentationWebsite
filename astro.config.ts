@@ -3,10 +3,13 @@ import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Deployment target. Defaults to the GitHub Pages project site.
-// For a custom domain later, set SITE_URL=https://exemplu.ro and BASE_PATH=/
-const SITE_URL = process.env.SITE_URL ?? 'https://alexdelcea1996-alt.github.io';
-const BASE_PATH = process.env.BASE_PATH ?? '/PresentationWebsite';
+// Deployment target — Cloudflare Pages, which serves from the domain root.
+// CF_PAGES_URL is injected by Cloudflare at build time, so canonical URLs and
+// the sitemap are correct without hardcoding the project's subdomain.
+// For a custom domain, set SITE_URL=https://exemplu.ro in the Pages settings.
+const SITE_URL =
+  process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'https://presentationwebsite.pages.dev';
+const BASE_PATH = process.env.BASE_PATH ?? '/';
 
 interface FontVariantManifest {
   file: string;
