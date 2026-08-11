@@ -13,7 +13,7 @@ Rulat cu Lighthouse pe build-ul de producție:
 | | Performanță | Accesibilitate | Bune practici | SEO |
 |---|---|---|---|---|
 | Desktop | 100 | 100 | 100 | 100 |
-| Mobil | 99 | 100 | 100 | 100 |
+| Mobil | 98 | 100 | 100 | 100 |
 
 Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
 ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
@@ -39,7 +39,7 @@ src/
 │   ├── ro.ts         # TOT textul în română
 │   ├── en.ts         # TOT textul în engleză
 │   └── index.ts      # helper-e + id-urile de secțiuni
-├── data/site.ts      # nume, e-mail, telefon, rețele sociale
+├── data/site.ts      # nume, e-mail, telefon, WhatsApp, rețele sociale
 ├── components/
 │   ├── sections/     # Hero, Services, Process, Portfolio, …
 │   └── …             # Header, Footer, Icon, LanguageSwitcher
@@ -58,8 +58,20 @@ titlu nu trebuie să atingi cod de interfață.
 
 ### Datele mele de contact
 
-Editează `src/data/site.ts` (nume, e-mail, telefon, GitHub, LinkedIn). Câmpurile
-lăsate goale pur și simplu nu se afișează.
+Editează `src/data/site.ts` (nume, e-mail, telefon, WhatsApp, GitHub, LinkedIn).
+Câmpurile lăsate goale pur și simplu nu se afișează.
+
+Numărul de WhatsApp se scrie exact cum vrei să apară pe site — linkul se
+construiește doar din cifre, deci spațiile și `+`-ul sunt strict cosmetice:
+
+```ts
+whatsapp: '+40 767 079 882',   // afișat aşa, link către wa.me/40767079882
+whatsapp: '',                  // rândul dispare din secțiunea de contact
+```
+
+Conversația pornește cu un mesaj deja scris („Bună! Am văzut site-ul tău…"),
+diferit pe RO și pe EN. Textul e în `contact.whatsappMessage`, în
+`src/i18n/ro.ts` și `src/i18n/en.ts`; șterge-l dacă preferi chat gol.
 
 ### Un text de pe site
 

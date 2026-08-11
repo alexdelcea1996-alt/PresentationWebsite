@@ -418,8 +418,10 @@ export const ro: Content = {
       privacy: 'Datele tale sunt folosite exclusiv ca să îți răspund. Nu le trimit nimănui.',
     },
     directTitle: 'Preferi direct?',
-    directBody: 'Scrie-mi un e-mail și îți răspund personal.',
+    directBody: 'Scrie-mi pe canalul care îți convine. Îți răspund personal.',
     emailLabel: 'E-mail',
+    whatsappLabel: 'WhatsApp',
+    whatsappMessage: 'Bună! Am văzut site-ul tău și aș vrea să discutăm despre un proiect.',
     responseTime: 'Răspund de obicei în aceeași zi lucrătoare.',
   },
 

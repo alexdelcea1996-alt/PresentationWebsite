@@ -66,10 +66,12 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 ### Verificat
 
-- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **99 / 100 / 100 / 100**
-- axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi
+- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
+- axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
 - 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
   ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
+- Suite separate pentru configurator (19), temă (14), hero (12), programare (18)
+  și canale de contact (21)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -77,18 +79,18 @@ Pași care necesită decizii sau conținut de la Alex:
 
 1. ~~Conectează repo-ul la Cloudflare~~ — ✅ făcut. Site-ul e live la
    https://presentationwebsite.alexdelcea1996.workers.dev
-2. **Confirmă datele de contact** din `src/data/site.ts`. Acum e folosit
-   `alexdelcea1996@gmail.com`; dacă vrei o adresă dedicată de business, schimb-o.
+2. **Confirmă datele de contact** din `src/data/site.ts`. Acum sunt folosite
+   `alexdelcea1996@gmail.com` și WhatsApp `+40 767 079 882`; dacă vrei o adresă
+   sau un număr dedicate afacerii, se schimbă de acolo.
 3. **Confirmă numele brandului** — momentan „Alex Delcea".
 4. **Confirmă prețurile** din `pricing.plans`. Valorile actuale (400 € / 900 € /
    2.500 €) sunt exemple, nu o ofertă reală.
 5. **Adaugă 2–3 proiecte** în portofoliu, cu problemă, soluție și rezultat.
 6. **Adaugă testimoniale** pe măsură ce le primești de la clienți.
 7. **Activează formularul** cu o cheie Web3Forms (vezi README).
-   Programarea Cal.com e deja activă: `cal.com/delcea-alexandru-arqdvl/30min`.
-   **De verificat la prima folosire:** că modalul chiar afișează calendarul —
-   Cal.com nu a fost accesibil din mediul de build, deci încadrarea în iframe
-   nu a putut fi testată cu un calendar real.
+   Programarea Cal.com e activă și verificată în producție:
+   `cal.com/delcea-alexandru-arqdvl/30min` — calendarul se afișează corect în
+   modal.
 8. **Cumpără domeniul**, leagă-l în Cloudflare și setează `SITE_URL`.
 
 ### Traseul până la Cloudflare
@@ -116,7 +118,8 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 1. Portofoliu cu proiecte reale + suport de capturi (primul studiu de caz: acest site)
 2. Secțiune „Despre mine" cu fotografie
 3. Activarea livrării reale a formularului (cheie Web3Forms)
-4. WhatsApp / telefon ca și canale de contact
+4. ✅ WhatsApp în secțiunea de contact (link `wa.me` cu mesaj pre-scris, RO/EN).
+   Rămâne opțional un link `tel:` — se activează completând `phone` în `site.ts`
 5. Secțiune FAQ (conversie + long-tail SEO; fără promisiuni de rich snippets)
 6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
 7. Pagină de politică de confidențialitate (GDPR)

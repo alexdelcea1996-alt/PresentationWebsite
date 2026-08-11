@@ -417,9 +417,11 @@ export const en: Content = {
       required: 'required',
       privacy: 'Your details are used only to reply to you. They are never shared.',
     },
-    directTitle: 'Prefer email?',
-    directBody: 'Write to me directly and I will answer personally.',
+    directTitle: 'Prefer to write directly?',
+    directBody: 'Use whichever channel suits you. I answer personally.',
     emailLabel: 'Email',
+    whatsappLabel: 'WhatsApp',
+    whatsappMessage: 'Hi! I came across your site and would like to discuss a project.',
     responseTime: 'I usually reply within the same working day.',
   },
 

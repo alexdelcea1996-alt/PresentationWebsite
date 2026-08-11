@@ -4,6 +4,8 @@ interface Site {
   email: string;
   /** Optional. Leave empty to hide the link. */
   phone: string;
+  /** WhatsApp number. Empty hides the WhatsApp entry. */
+  whatsapp: string;
   /** Cal.com `username/event`. Empty disables booking everywhere. */
   calLink: string;
   areaServed: string;
@@ -26,6 +28,13 @@ export const site: Site = {
 
   /** Optional. Leave empty to hide the link. */
   phone: '',
+
+  /**
+   * WhatsApp number, written the way you want it displayed. The link is built
+   * from the digits alone, so the spaces and the leading + are only cosmetic.
+   * Leave empty and the WhatsApp entry disappears from the contact section.
+   */
+  whatsapp: '+40 767 079 882',
 
   /** Where the business operates, used in the JSON-LD structured data. */
   areaServed: 'România',
