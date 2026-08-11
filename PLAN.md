@@ -23,7 +23,7 @@ Site-ul în sine este o carte de vizită: trebuie să demonstreze prin propria e
 | Limbi | **RO (implicit) + EN** | RO la rădăcină (`/`), EN sub `/en/`, comutator în header, `hreflang` pentru SEO |
 | Design | **Dark & premium** | Fundal închis, accente gradient indigo→cyan, tipografie mare |
 | Tip layout | **Single-page landing** (per limbă) | Conversie bună pentru servicii; studiile de caz pot deveni pagini separate în v2 |
-| Hosting | **Cloudflare Pages** | Build automat la fiecare push, CDN global, HTTPS, trafic nelimitat, gratuit. Ales după ce GitHub Actions s-a dovedit blocat la nivel de cont |
+| Hosting | **Cloudflare (Workers)** | Build automat la fiecare push, CDN global, HTTPS, gratuit. Ales după ce GitHub Actions s-a dovedit blocat la nivel de cont |
 | Formular contact | **Web3Forms**, cu fallback pe `mailto:` | Gratuit și nelimitat, fără backend; fallback-ul face formularul funcțional chiar și neconfigurat |
 | Fonturi | **Self-hosted, commit-uite în repo** | Build determinist, fără dependență de rețea; `latin-ext` separat pentru diacritice |
 | Conținut placeholder | **Sloturi vizibil goale** | Nu publicăm proiecte sau testimoniale inventate — ar fi afirmații false pe un site de business |
@@ -61,7 +61,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 | **M2 — Identitate** | Design tokens, Header, Hero, Footer, comutator limbă | ✅ gata |
 | **M3 — Conținut** | Servicii, Proces, Portofoliu, Testimoniale, Prețuri | ✅ structură gata, conținut real de completat |
 | **M4 — Conversie & finisaj** | Formular, SEO, animații, audit | ✅ gata |
-| **M5 — Lansare** | Conținut real, domeniu, analytics | ⬜ de făcut |
+| **M5 — Lansare** | Conținut real, domeniu, analytics | 🟡 site-ul e live; conținutul real și domeniul lipsesc |
 
 ### Verificat
 
@@ -74,9 +74,8 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 Pași care necesită decizii sau conținut de la Alex:
 
-1. **Conectează repo-ul la Cloudflare Pages** — pașii exacți sunt în README,
-   secțiunea „Publicare". Durează câteva minute și e singurul lucru care mai
-   stă între site și a fi live.
+1. ~~Conectează repo-ul la Cloudflare~~ — ✅ făcut. Site-ul e live la
+   https://presentationwebsite.alexdelcea1996.workers.dev
 2. **Confirmă datele de contact** din `src/data/site.ts`. Acum e folosit
    `alexdelcea1996@gmail.com`; dacă vrei o adresă dedicată de business, schimb-o.
 3. **Confirmă numele brandului** — momentan „Alex Delcea".
@@ -94,7 +93,7 @@ GitHub Actions nu pornea deloc. După trecerea la public workflow-urile s-au
 compilat corect, dar job-urile mureau în ~2 secunde fără să primească un runner,
 identic și la reîncercare. Cum pe repo-uri publice runnerele sunt gratuite,
 cauza e la nivel de cont (Actions dezactivat sau restricție de billing), nu în
-configurație. Am mutat publicarea pe Cloudflare Pages, care face build-ul pe
+configurație. Am mutat publicarea pe Cloudflare (Workers), care face build-ul pe
 infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse.
 
 ## 7. Decizii rămase deschise

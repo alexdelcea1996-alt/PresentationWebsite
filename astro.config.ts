@@ -3,12 +3,18 @@ import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Deployment target — Cloudflare Pages, which serves from the domain root.
-// CF_PAGES_URL is injected by Cloudflare at build time, so canonical URLs and
-// the sitemap are correct without hardcoding the project's subdomain.
-// For a custom domain, set SITE_URL=https://exemplu.ro in the Pages settings.
+// Deployment target — Cloudflare, serving from the domain root.
+//
+// The fallback is the live Workers URL. It has to be spelled out because
+// CF_PAGES_URL is injected only by Cloudflare *Pages* builds, not by Workers
+// ones, and a wrong value here silently poisons every canonical link, hreflang,
+// og:url and the sitemap.
+//
+// Set SITE_URL in the Cloudflare project settings when moving to a custom domain.
 const SITE_URL =
-  process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'https://presentationwebsite.pages.dev';
+  process.env.SITE_URL ??
+  process.env.CF_PAGES_URL ??
+  'https://presentationwebsite.alexdelcea1996.workers.dev';
 const BASE_PATH = process.env.BASE_PATH ?? '/';
 
 interface FontVariantManifest {

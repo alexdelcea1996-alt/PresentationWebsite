@@ -2,7 +2,7 @@
 
 Site bilingv (română / engleză) prin care îmi promovez serviciile de creare de
 site-uri și aplicații web. Construit cu [Astro](https://astro.build) și
-[Tailwind CSS](https://tailwindcss.com), livrat static pe Cloudflare Pages.
+[Tailwind CSS](https://tailwindcss.com), livrat static pe Cloudflare.
 
 Planul complet al proiectului, cu decizii și roadmap, este în [`PLAN.md`](./PLAN.md).
 
@@ -104,7 +104,7 @@ client de e-mail configurat.
 Ca să primești mesajele direct în inbox:
 
 1. Creează un cont gratuit pe [web3forms.com](https://web3forms.com) și ia cheia de acces.
-2. În Cloudflare Pages: **Settings → Environment variables → Production**,
+2. În Cloudflare, la proiect: **Settings → Environment variables → Production**,
    nume `PUBLIC_WEB3FORMS_KEY`, valoare cheia. Apoi declanșează un redeploy.
 3. Pentru dezvoltare locală, pune-o în `.env`:
    ```
@@ -113,39 +113,37 @@ Ca să primești mesajele direct în inbox:
 
 Formularul comută automat pe trimitere reală când cheia există.
 
-## Publicare — Cloudflare Pages
+## Publicare — Cloudflare
 
-Site-ul se publică pe [Cloudflare Pages](https://pages.cloudflare.com): build automat
-la fiecare push, CDN global, HTTPS și trafic nelimitat, gratuit. Nu folosește GitHub
+Site-ul se publică pe Cloudflare (proiectul rulează pe **Workers**, cu build automat
+la fiecare push): CDN global, HTTPS și trafic generos, gratuit. Nu folosește GitHub
 Actions (care nu pornește pe acest cont — vezi nota de la final).
 
-### Conectarea, o singură dată
+Site-ul e live la
+**https://presentationwebsite.alexdelcea1996.workers.dev**
 
-1. Intră pe [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages**
-   → **Create** → **Pages** → **Connect to Git**.
-2. Autorizează GitHub și alege repository-ul `PresentationWebsite`.
-3. Completează setările de build:
+Proiectul e deja conectat la repository în Cloudflare, cu setările:
 
-   | Câmp | Valoare |
-   |---|---|
-   | Framework preset | `Astro` |
-   | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | Production branch | `claude/portfolio-website-planning-v7mz1y` |
+| Câmp | Valoare |
+|---|---|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Production branch | `claude/portfolio-website-planning-v7mz1y` |
 
-4. **Save and Deploy**. Primul build durează 1–2 minute.
+Fiecare push pe branch-ul de producție declanșează un build nou, automat.
 
-Site-ul apare la `https://<numele-proiectului>.pages.dev`. Numele proiectului îl
-alegi tu în pasul 1 — de exemplu `alex-delcea` dă `https://alex-delcea.pages.dev`.
+### Adresa site-ului
 
-De aici încolo, fiecare push pe branch-ul de producție declanșează un build nou
-automat. Fiecare pull request primește și un link de previzualizare separat.
+`astro.config.ts` decide adresa în această ordine: variabila `SITE_URL`, apoi
+`CF_PAGES_URL`, apoi adresa `workers.dev` scrisă explicit ca ultimă variantă.
 
-### De ce nu trebuie să configurezi adresa site-ului
+De ce e scrisă explicit: `CF_PAGES_URL` e injectată doar de build-urile Cloudflare
+**Pages**, nu și de cele **Workers** — iar acest proiect rulează pe Workers. Fără
+valoarea explicită, adresa canonică, `hreflang`, `og:url`, sitemap-ul și `robots.txt`
+ar trimite toate către un domeniu inexistent, ceea ce strică indexarea în Google.
 
-Cloudflare injectează `CF_PAGES_URL` la build, iar `astro.config.ts` o folosește
-pentru adresa canonică, `hreflang` și sitemap. Deci linkurile sunt corecte din prima,
-fără să scrii nicăieri domeniul.
+Dacă schimbi vreodată adresa (domeniu propriu sau alt proiect Cloudflare), setează
+`SITE_URL` în variabilele de mediu — are prioritate și nu trebuie să atingi codul.
 
 ### Variabile de mediu
 
@@ -154,7 +152,7 @@ fără să scrii nicăieri domeniul.
 | Variabilă | Când o setezi |
 |---|---|
 | `PUBLIC_WEB3FORMS_KEY` | Ca formularul să trimită în inbox (vezi secțiunea de mai sus) |
-| `SITE_URL` | Doar după ce legi un domeniu propriu |
+| `SITE_URL` | Când schimbi adresa: domeniu propriu sau alt proiect Cloudflare |
 
 ### Domeniu propriu
 
