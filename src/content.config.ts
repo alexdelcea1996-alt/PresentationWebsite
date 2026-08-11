@@ -72,4 +72,25 @@ const services = defineCollection({
   }),
 });
 
-export const collections = { 'case-studies': caseStudies, services };
+/**
+ * Articles, one file per language under a locale folder. Same convention as the
+ * other collections: the shared file name pairs the two translations.
+ */
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    /** Localised URL segment. Not `slug` — Astro reserves that key. */
+    urlSlug: z.string(),
+    title: z.string(),
+    /** Used on the card and as the meta description, so keep it under ~155 characters. */
+    description: z.string(),
+    publishedAt: z.coerce.date(),
+    updatedAt: z.coerce.date().optional(),
+    /** Short label shown on the card, e.g. "Ghid" / "Guide". */
+    category: z.string(),
+    /** Excluded from listings, feeds and the sitemap while true. */
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { 'case-studies': caseStudies, services, blog };

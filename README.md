@@ -153,6 +153,41 @@ strice:
 Paginile apar la `/servicii/<urlSlug>` și `/en/services/<urlSlug>`, intră în sitemap
 și primesc `hreflang` corect între ele.
 
+### Un articol nou pe blog
+
+Aceeași convenție: două fișiere cu același nume, câte unul per limbă.
+
+```
+src/content/blog/ro/titlu-articol.md
+src/content/blog/en/titlu-articol.md
+```
+
+```yaml
+---
+urlSlug: titlu-articol-in-romana   # segmentul din URL, tradus
+title: Titlul articolului
+description: O frază care apare pe card și ca descriere în Google (sub 155 caractere).
+publishedAt: 2026-09-01
+updatedAt: 2026-10-15              # opțional, se afișează dacă există
+category: Ghid
+draft: false                       # true = invizibil peste tot, inclusiv în RSS
+---
+
+Textul articolului, în Markdown.
+```
+
+Articolele apar la `/blog/<urlSlug>` și `/en/blog/<urlSlug>`, sortate după dată
+(cel mai recent primul), și intră automat în sitemap și în fluxul RSS
+(`/rss.xml` și `/en/rss.xml`). Timpul de citire se calculează singur.
+
+Poți scrie doar într-o limbă: articolul apare atunci doar pe versiunea
+respectivă, fără să strice nimic. Iar `draft: true` îl ține ascuns până e gata.
+
+**Ce subiecte merită.** Articolele nu trebuie să repete paginile de serviciu — dacă
+un articol spune același lucru ca pagina de serviciu, cele două se concurează
+în Google în loc să se ajute. Cele mai utile sunt ghidurile practice la care
+răspunzi oricum la telefon.
+
 ## Formularul de contact
 
 Fără configurare, formularul deschide clientul de e-mail al vizitatorului cu

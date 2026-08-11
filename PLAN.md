@@ -127,7 +127,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 4. ✅ Studii de caz ca pagini dedicate (content collections; primul: acest site, cu cifre reale)
 5. ✅ Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
 6. ✅ Audit gratuit de site ca lead magnet (flux dedicat în formular)
-7. Blog bilingv pe content collections — SEO compus pe termen lung
+7. ✅ Blog bilingv pe content collections, cu RSS — primele 2 articole scrise
 8. Comutator temă light/dark cu persistență, fără flash la încărcare
 9. Pachet performanță & securitate: subsetare fonturi (~-100 kB), Content-Security-Policy, preload-uri
 10. Semnătură vizuală interactivă în hero (reacție la cursor, cu respect pentru prefers-reduced-motion)

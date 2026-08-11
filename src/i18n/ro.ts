@@ -14,6 +14,7 @@ export const ro: Content = {
     portfolio: 'Proiecte',
     pricing: 'Prețuri',
     estimate: 'Estimare',
+    blog: 'Blog',
     contact: 'Contact',
     cta: 'Cere ofertă',
     menuOpen: 'Deschide meniul',
@@ -415,6 +416,24 @@ export const ro: Content = {
     directBody: 'Scrie-mi un e-mail și îți răspund personal.',
     emailLabel: 'E-mail',
     responseTime: 'Răspund de obicei în aceeași zi lucrătoare.',
+  },
+
+  blog: {
+    metaTitle: 'Blog — ghiduri practice despre site-uri și web | Alex Delcea',
+    metaDescription:
+      'Articole despre viteză, SEO și cum decurge realizarea unui site. Scrise pe înțelesul cuiva care conduce o afacere, nu al unui programator.',
+    eyebrow: 'Blog',
+    title: 'Ghiduri scrise pentru cine conduce o afacere',
+    subtitle:
+      'Lucruri pe care le explic oricum la telefon, puse în scris. Fără jargon și fără sfaturi care se termină cu „contactează-ne pentru detalii".',
+    readingSuffix: 'min de citit',
+    updatedLabel: 'Actualizat',
+    backToBlog: 'Înapoi la blog',
+    empty: 'Primul articol e în lucru.',
+    rssLabel: 'Abonează-te prin RSS',
+    ctaTitle: 'Ai o întrebare la care nu răspunde articolul?',
+    ctaBody: 'Scrie-mi. Răspund personal, chiar dacă răspunsul e că nu ai nevoie de serviciile mele.',
+    ctaButton: 'Trimite-mi un mesaj',
   },
 
   footer: {

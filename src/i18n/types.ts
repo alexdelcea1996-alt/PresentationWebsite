@@ -70,6 +70,7 @@ export interface Content {
     portfolio: string;
     pricing: string;
     estimate: string;
+    blog: string;
     contact: string;
     cta: string;
     menuOpen: string;
@@ -221,6 +222,22 @@ export interface Content {
     directBody: string;
     emailLabel: string;
     responseTime: string;
+  };
+  blog: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    /** Appended to the estimated minutes, e.g. "6 min de citit". */
+    readingSuffix: string;
+    updatedLabel: string;
+    backToBlog: string;
+    empty: string;
+    rssLabel: string;
+    ctaTitle: string;
+    ctaBody: string;
+    ctaButton: string;
   };
   footer: {
     tagline: string;

@@ -1,0 +1,130 @@
+---
+import { render } from 'astro:content';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Icon from './Icon.astro';
+import { getContent, localeTags, sectionIds, type Locale } from '../i18n';
+import {
+  blogIndexPath,
+  formatDate,
+  getPostTranslations,
+  postPath,
+  readingMinutes,
+  type Post,
+} from '../data/blog';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+  entry: Post;
+}
+
+const { locale, entry } = Astro.props;
+const t = getContent(locale);
+const { Content } = await render(entry);
+const localeTag = localeTags[locale];
+
+const translations = await getPostTranslations(entry);
+const alternates = Object.fromEntries(
+  Object.entries(translations).map(([code, translated]) => [
+    code,
+    postPath(code as Locale, translated.data.urlSlug),
+  ]),
+) as Partial<Record<Locale, string>>;
+
+const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: entry.data.title,
+  description: entry.data.description,
+  datePublished: entry.data.publishedAt.toISOString(),
+  ...(entry.data.updatedAt ? { dateModified: entry.data.updatedAt.toISOString() } : {}),
+  author: { '@type': 'Person', name: site.name },
+  publisher: { '@type': 'Person', name: site.name },
+  inLanguage: localeTag,
+  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).href,
+};
+---
+
+<Base
+  locale={locale}
+  title={`${entry.data.title} — ${site.name}`}
+  description={entry.data.description}
+  alternates={alternates}
+  ogType="article"
+  extraSchema={articleSchema}
+>
+  <Header locale={locale} />
+
+  <main id="main">
+    <article class="relative overflow-hidden pt-32 pb-20 sm:pt-40">
+      <div
+        class="glow left-1/2 top-[-6rem] size-[30rem] -translate-x-1/2 bg-accent/15"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="container-page">
+        <a
+          href={blogIndexPath(locale)}
+          class="inline-flex items-center gap-2 text-sm font-medium text-fg-muted transition-colors hover:text-accent-alt"
+        >
+          <Icon name="arrow-right" class="size-4 rotate-180" />
+          {t.blog.backToBlog}
+        </a>
+
+        <header class="mt-8 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-3 text-xs text-fg-subtle">
+            <span class="eyebrow text-xs">{entry.data.category}</span>
+            <span aria-hidden="true">·</span>
+            <time datetime={entry.data.publishedAt.toISOString()}>
+              {formatDate(entry.data.publishedAt, localeTag)}
+            </time>
+            <span aria-hidden="true">·</span>
+            <span>{readingMinutes(entry.body)} {t.blog.readingSuffix}</span>
+            {
+              entry.data.updatedAt && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    {t.blog.updatedLabel} {formatDate(entry.data.updatedAt, localeTag)}
+                  </span>
+                </>
+              )
+            }
+          </div>
+
+          <h1 class="mt-5 text-3xl font-semibold sm:text-4xl md:text-[2.75rem] md:leading-[1.12]">
+            {entry.data.title}
+          </h1>
+          <p class="mt-5 text-lg leading-relaxed text-fg-muted">{entry.data.description}</p>
+        </header>
+
+        <div
+          class="mt-12 max-w-3xl text-base leading-relaxed text-fg-muted [&_a]:text-accent-alt [&_a]:underline [&_a:hover]:no-underline [&_code]:rounded [&_code]:bg-ink-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_h2]:mt-12 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-fg [&_li]:mt-2 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mt-4 [&_strong]:text-fg [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6"
+        >
+          <Content />
+        </div>
+
+        <aside
+          class="mt-16 flex max-w-3xl flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-ink-850 to-ink-900 p-8 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="font-display text-xl font-semibold">{t.blog.ctaTitle}</h2>
+            <p class="mt-2 max-w-md text-sm text-fg-muted">{t.blog.ctaBody}</p>
+          </div>
+          <a href={contactAnchor} class="btn btn-primary shrink-0 text-sm">
+            {t.blog.ctaButton}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+        </aside>
+      </div>
+    </article>
+  </main>
+
+  <Footer locale={locale} />
+</Base>

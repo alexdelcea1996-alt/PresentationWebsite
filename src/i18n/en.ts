@@ -14,6 +14,7 @@ export const en: Content = {
     portfolio: 'Work',
     pricing: 'Pricing',
     estimate: 'Estimate',
+    blog: 'Blog',
     contact: 'Contact',
     cta: 'Get a quote',
     menuOpen: 'Open menu',
@@ -415,6 +416,24 @@ export const en: Content = {
     directBody: 'Write to me directly and I will answer personally.',
     emailLabel: 'Email',
     responseTime: 'I usually reply within the same working day.',
+  },
+
+  blog: {
+    metaTitle: 'Blog — practical guides on websites and the web | Alex Delcea',
+    metaDescription:
+      'Articles on speed, SEO and how building a website actually goes. Written for someone running a business, not for a programmer.',
+    eyebrow: 'Blog',
+    title: 'Guides written for people running a business',
+    subtitle:
+      'Things I end up explaining on the phone anyway, written down. No jargon, and no advice that ends in "contact us for details".',
+    readingSuffix: 'min read',
+    updatedLabel: 'Updated',
+    backToBlog: 'Back to the blog',
+    empty: 'The first article is being written.',
+    rssLabel: 'Subscribe via RSS',
+    ctaTitle: 'Got a question the article does not answer?',
+    ctaBody: 'Write to me. I reply personally, even when the answer is that you do not need my services.',
+    ctaButton: 'Send me a message',
   },
 
   footer: {
