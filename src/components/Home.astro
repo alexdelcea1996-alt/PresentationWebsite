@@ -12,6 +12,7 @@ import Services from './sections/Services.astro';
 import Process from './sections/Process.astro';
 import Comparison from './sections/Comparison.astro';
 import Portfolio from './sections/Portfolio.astro';
+import Guarantees from './sections/Guarantees.astro';
 import Testimonials from './sections/Testimonials.astro';
 import Pricing from './sections/Pricing.astro';
 import Configurator from './sections/Configurator.astro';
@@ -38,6 +39,8 @@ const { locale } = Astro.props;
     {/* Objection handling before the proof, so the price list lands on a convinced reader. */}
     <Comparison locale={locale} />
     <Portfolio locale={locale} />
+    <Guarantees locale={locale} />
+    {/* Renders nothing until a real testimonial exists — it self-checks. */}
     <Testimonials locale={locale} />
     <Pricing locale={locale} />
     <Configurator locale={locale} />

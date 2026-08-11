@@ -8,12 +8,17 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale).testimonials;
-
-// Deliberately never pre-filled: a fabricated review would be a lie told in a
-// client's name. Slots stay visibly empty until real quotes arrive.
-const placeholderSlots = 3;
 ---
 
+{/*
+  Nothing renders until a real quote exists. Inventing one would be a lie told
+  in a client's name, and three empty dashed boxes on the landing page were not
+  the honest alternative they looked like — they advertised having no clients.
+  The Guarantees section stands in that space instead; this returns on its own
+  the moment `testimonials.items` has something in it.
+*/}
+{
+  t.items.length > 0 && (
 <section
   id={sectionIds.testimonials}
   class="relative overflow-hidden py-20 sm:py-28"
@@ -25,38 +30,20 @@ const placeholderSlots = 3;
 
     <div class="mt-16 grid gap-6 md:grid-cols-3">
       {
-        t.items.length > 0
-          ? t.items.map((testimonial, index) => (
-              <figure
-                class="card card-hover flex flex-col"
-                data-reveal
-                data-reveal-delay={index * 80}
-              >
-                <blockquote class="grow text-sm leading-relaxed text-fg-muted">
-                  <p>“{testimonial.quote}”</p>
-                </blockquote>
-                <figcaption class="mt-6 border-t border-border pt-5">
-                  <p class="font-display text-sm font-semibold text-fg">{testimonial.name}</p>
-                  <p class="mt-0.5 text-xs text-fg-subtle">{testimonial.role}</p>
-                </figcaption>
-              </figure>
-            ))
-          : Array.from({ length: placeholderSlots }).map((_, index) => (
-              <div
-                class="card-placeholder flex min-h-44 flex-col items-center justify-center text-center"
-                data-reveal
-                data-reveal-delay={index * 80}
-              >
-                <span class="font-display text-4xl leading-none text-border-strong" aria-hidden="true">
-                  ”
-                </span>
-                <p class="mt-3 font-display text-sm font-semibold text-fg-muted">
-                  {t.emptyTitle}
-                </p>
-                <p class="mt-2 max-w-xs text-sm leading-relaxed">{t.emptyBody}</p>
-              </div>
-            ))
+        t.items.map((testimonial, index) => (
+          <figure class="card card-hover flex flex-col" data-reveal data-reveal-delay={index * 80}>
+            <blockquote class="grow text-sm leading-relaxed text-fg-muted">
+              <p>“{testimonial.quote}”</p>
+            </blockquote>
+            <figcaption class="mt-6 border-t border-border pt-5">
+              <p class="font-display text-sm font-semibold text-fg">{testimonial.name}</p>
+              <p class="mt-0.5 text-xs text-fg-subtle">{testimonial.role}</p>
+            </figcaption>
+          </figure>
+        ))
       }
     </div>
   </div>
 </section>
+  )
+}

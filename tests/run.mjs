@@ -25,6 +25,7 @@ const SUITES = [
   'csp',
   'transitions',
   'completeness',
+  'guarantees',
   'interact',
   'channels',
   'metrics',

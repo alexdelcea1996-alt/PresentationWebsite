@@ -26,7 +26,7 @@ Site-ul în sine este o carte de vizită: trebuie să demonstreze prin propria e
 | Hosting | **Cloudflare (Workers)** | Build automat la fiecare push, CDN global, HTTPS, gratuit. Ales după ce GitHub Actions s-a dovedit blocat la nivel de cont |
 | Formular contact | **Web3Forms**, cu fallback pe `mailto:` | Gratuit și nelimitat, fără backend; fallback-ul face formularul funcțional chiar și neconfigurat |
 | Fonturi | **Self-hosted, commit-uite în repo** | Build determinist, fără dependență de rețea; `latin-ext` separat pentru diacritice |
-| Conținut placeholder | **Sloturi vizibil goale** | Nu publicăm proiecte sau testimoniale inventate — ar fi afirmații false pe un site de business |
+| Conținut placeholder | **Sloturi goale la portofoliu, nimic la testimoniale** | Nu publicăm proiecte sau recenzii inventate. Dar casetele goale de testimoniale anunțau lipsa de clienți, deci acolo secțiunea nu se randează deloc |
 
 ## 3. Arhitectura site-ului
 
@@ -66,12 +66,13 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 ### Verificat
 
-- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
+- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98–100 / 100 / 100 / 100**
+  (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **245 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+- **261 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
   dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (53)
+  programare (18), tranziții (15), completitudine (53), garanții (16)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -154,11 +155,13 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 4. ✅ Tranziții între pagini, CSS nativ, zero JavaScript
 5. Imagine OG per pagină, generată în build
 6. Studiul de caz cu slider înainte/după și gauge-uri animate
-7. Secțiune „Garanții" în locul casetelor goale de testimoniale
+7. ✅ Secțiune de garanții în locul casetelor goale — două coloane, ce garantez
+   și ce nu; fiecare rând e preluat din text deja publicat pe site, nicio
+   promisiune nouă
 8. Demo funcțional de aplicație web
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe 14 din 18 URL-uri din sitemap
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 245 de verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 261 de verificări
 
 ## 9. Idei pentru v2
 

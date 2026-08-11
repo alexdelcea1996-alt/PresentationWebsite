@@ -1,6 +1,6 @@
 # Teste
 
-245 de verificări care rulează un browser real peste site-ul construit.
+261 de verificări care rulează un browser real peste site-ul construit.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -13,6 +13,11 @@ npm test hero   # doar una
 **Se testează build-ul, nu sursa.** Multe dintre lucrurile care se pot strica —
 hash-urile CSP, `_headers`, alternativele `hreflang`, imaginile OG — există doar
 după build. Un test peste codul sursă le-ar rata pe toate.
+
+**Serverul de test comprimă ca Cloudflare.** Fără brotli, o măsurătoare
+Lighthouse locală trimite 115 kB de HTML pe o legătură mobilă simulată, când
+producția trimite 18,6 kB — adică măsoară un site care nu există, și îl arată mai
+prost decât e.
 
 **Serverul de test aplică `dist/_headers`.** Site-ul rulează cu un CSP fără
 `unsafe-inline`: fiecare script inline are un hash SHA-256, regenerat la fiecare
@@ -60,6 +65,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion | 15 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap | 53 |
+| `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 
 ## Ce nu e aici
 

@@ -33,6 +33,7 @@ export const sectionIds = {
   process: 'process',
   comparison: 'comparison',
   portfolio: 'portfolio',
+  guarantees: 'guarantees',
   testimonials: 'testimonials',
   pricing: 'pricing',
   estimate: 'estimate',

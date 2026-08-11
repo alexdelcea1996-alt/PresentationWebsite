@@ -9,6 +9,7 @@
  */
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { gzipSync, brotliCompressSync, constants } from 'node:zlib';
 import { join, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -85,7 +86,28 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  res.setHeader('Content-Type', types[extname(path)] ?? 'application/octet-stream');
+  const type = types[extname(path)] ?? 'application/octet-stream';
+  res.setHeader('Content-Type', type);
+
+  // Compress the way Cloudflare does. Without this, a Lighthouse run here
+  // measures a site that does not exist: 110 kB of HTML crossing a throttled
+  // mobile link uncompressed, when production ships roughly a fifth of that.
+  const accepts = req.headers['accept-encoding'] ?? '';
+  const compressible = /^(text\/|application\/(json|xml|manifest))/.test(type) || type.endsWith('+json');
+
+  if (compressible && body.length > 1024) {
+    if (accepts.includes('br')) {
+      body = brotliCompressSync(body, {
+        params: { [constants.BROTLI_PARAM_QUALITY]: 5 },
+      });
+      res.setHeader('Content-Encoding', 'br');
+    } else if (accepts.includes('gzip')) {
+      body = gzipSync(body);
+      res.setHeader('Content-Encoding', 'gzip');
+    }
+    res.setHeader('Vary', 'Accept-Encoding');
+  }
+
   res.writeHead(status);
   res.end(body);
 });

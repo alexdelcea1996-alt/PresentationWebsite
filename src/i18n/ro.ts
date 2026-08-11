@@ -471,6 +471,55 @@ export const ro: Content = {
     nav: 'Navigare',
   },
 
+  guarantees: {
+    eyebrow: 'Garanții',
+    title: 'Ce îți garantez și ce nu',
+    subtitle:
+      'Fiecare rând de mai jos e o promisiune pe care o găsești și în ofertă. Inclusiv cele din dreapta — mai ales cele din dreapta.',
+    yesTitle: 'Îți garantez',
+    noTitle: 'Nu îți garantez',
+    yes: [
+      {
+        title: 'Preț fix, agreat înainte',
+        body: 'Primești în scris ce conține proiectul, prețul final și termenul. Prețul nu se schimbă pe parcurs dacă nu schimbăm împreună cerințele.',
+      },
+      {
+        title: 'Codul și conturile sunt ale tale',
+        body: 'Din prima zi, pe numele tău. Nu îți țin site-ul ostatic: dacă vrei să lucrezi mâine cu altcineva, iei tot și pleci.',
+      },
+      {
+        title: 'Fără abonament obligatoriu',
+        body: 'După perioada de suport inclusă nu ai nimic de plătit. Modificările ulterioare le facem la oră sau pe contract lunar — alegi tu.',
+      },
+      {
+        title: 'Răspuns în cel mult 24 de ore',
+        body: 'De obicei în aceeași zi lucrătoare, și îți răspund personal. Nu primești un mesaj automat.',
+      },
+      {
+        title: 'Prima discuție e gratuită',
+        body: '30 de minute despre afacerea ta, fără obligații. Dacă îmi dau seama că ai nevoie de altceva — sau de nimic — îți spun direct.',
+      },
+      {
+        title: 'Măsurători, nu afirmații',
+        body: 'Măsor cu Lighthouse înainte de livrare și îți trimit raportul. La optimizări, aceleași măsurători înainte și după.',
+      },
+    ],
+    no: [
+      {
+        title: 'Locul întâi în Google',
+        body: 'Nimeni onest nu poate, și nu ai încredere în cine îți garantează. Pot garanta că partea tehnică nu te încurcă; poziția depinde și de conținut, și de concurență.',
+      },
+      {
+        title: 'Textele juridice',
+        body: 'Pregătesc structura și îți explic ce înseamnă fiecare document, dar confirmarea finală o dă un jurist. Sunt dezvoltator, nu avocat.',
+      },
+      {
+        title: 'Termenul, dacă întârzie conținutul',
+        body: 'Respect data din ofertă. Dar dacă textele și pozele vin pe bucăți, se mută și termenul — și îți spun din timp, nu în ultima zi.',
+      },
+    ],
+  },
+
   notFound: {
     metaTitle: 'Pagina nu există (404) | Alex Delcea',
     code: '404',

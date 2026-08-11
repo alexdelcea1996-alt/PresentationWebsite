@@ -25,6 +25,12 @@ export interface ProcessStep {
   description: string;
 }
 
+/** One commitment, or one deliberate refusal to commit. */
+export interface Promise_ {
+  title: string;
+  body: string;
+}
+
 export interface Testimonial {
   quote: string;
   name: string;
@@ -273,6 +279,20 @@ export interface Content {
     rights: string;
     builtWith: string;
     nav: string;
+  };
+  /**
+   * Commitments already made elsewhere on the site, gathered in one place —
+   * including the ones deliberately *not* made. Nothing here may be a new
+   * promise: every line has to be traceable to existing copy.
+   */
+  guarantees: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    yesTitle: string;
+    noTitle: string;
+    yes: Promise_[];
+    no: Promise_[];
   };
   notFound: {
     metaTitle: string;

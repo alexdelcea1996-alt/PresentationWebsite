@@ -13,7 +13,11 @@ Rulat cu Lighthouse pe build-ul de producție:
 | | Performanță | Accesibilitate | Bune practici | SEO |
 |---|---|---|---|---|
 | Desktop | 100 | 100 | 100 | 100 |
-| Mobil | 98 | 100 | 100 | 100 |
+| Mobil | 98–100 | 100 | 100 | 100 |
+
+Măsurat pe un server care comprimă ca Cloudflare (brotli): prima pagină trece
+prin rețea în **18,6 kB**, nu în 115. Fără compresie, măsurătoarea locală arăta
+un scor mobil mai mic decât realitatea de pe site-ul live.
 
 Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
 ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
@@ -27,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 245 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 261 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run og` | Regenerează imaginile de partajare pe social media |
@@ -148,9 +152,26 @@ Notă tehnică: câmpul se numește `urlSlug`, nu `slug`, pentru că Astro rezer
 
 ### Un testimonial
 
-La fel, în `testimonials.items`. Aceeași regulă, mai strictă: pune aici doar
-păreri reale, primite de la clienți reali. O recenzie inventată e o minciună
-spusă în numele altcuiva.
+În `testimonials.items`, în ambele fișiere de limbă. Aceeași regulă ca la
+portofoliu, mai strictă: pune aici doar păreri reale, primite de la clienți
+reali. O recenzie inventată e o minciună spusă în numele altcuiva.
+
+Cât timp lista e goală, **secțiunea nu se randează deloc** și în locul ei stă
+secțiunea de garanții. Trei casete punctate goale nu semnalau onestitate —
+anunțau că nu ai clienți. La primul testimonial real, secțiunea reapare singură.
+
+### Garanțiile
+
+`guarantees` în `src/i18n/ro.ts` și `en.ts`, două liste: `yes` și `no`.
+
+Regula acestei secțiuni: **nu are voie să conțină nicio promisiune nouă**.
+Fiecare rând trebuie să existe deja altundeva pe site — în proces, în prețuri sau
+în întrebările frecvente de pe paginile de serviciu. Secțiunea doar le adună la
+un loc, unde le citește cineva.
+
+Coloana `no` nu e decor. Site-ul spune în două locuri că nimeni onest nu poate
+garanta locul întâi în Google; o secțiune de garanții care ar sări peste asta ar
+contrazice restul site-ului și ar arăta ca oricare alta.
 
 ### Prețurile
 

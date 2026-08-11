@@ -471,6 +471,55 @@ export const en: Content = {
     nav: 'Navigation',
   },
 
+  guarantees: {
+    eyebrow: 'Guarantees',
+    title: 'What I guarantee, and what I do not',
+    subtitle:
+      'Every line below is a promise you will also find in the quote. Including the ones on the right — especially those.',
+    yesTitle: 'I guarantee',
+    noTitle: 'I do not guarantee',
+    yes: [
+      {
+        title: 'A fixed price, agreed upfront',
+        body: 'You get the scope, the final price and the delivery date in writing. The price does not move unless we change the requirements together.',
+      },
+      {
+        title: 'The code and accounts are yours',
+        body: 'From day one, in your name. I do not hold your site hostage: if you want to work with someone else tomorrow, you take everything and go.',
+      },
+      {
+        title: 'No mandatory retainer',
+        body: 'Once the included support runs out you owe nothing. Later changes are hourly or on a monthly contract — your call.',
+      },
+      {
+        title: 'A reply within 24 hours',
+        body: 'Usually the same working day, and it is me replying. You will not get an autoresponder.',
+      },
+      {
+        title: 'The first conversation is free',
+        body: '30 minutes on your business, no strings. If I work out that you need something else — or nothing at all — I will say so plainly.',
+      },
+      {
+        title: 'Measurements, not claims',
+        body: 'I measure with Lighthouse before handover and send you the report. On optimisation work, the same measurements before and after.',
+      },
+    ],
+    no: [
+      {
+        title: 'First place on Google',
+        body: 'Nobody honest can, and do not trust anyone who does. I can guarantee the technical side will not hold you back; ranking also depends on content and competition.',
+      },
+      {
+        title: 'The legal texts',
+        body: 'I prepare the structure and explain what each document means, but a lawyer signs off on the final wording. I am a developer, not one.',
+      },
+      {
+        title: 'The date, if the content is late',
+        body: 'I keep to the date in the quote. But if text and images arrive in pieces, the date moves with them — and you hear it early, not on the last day.',
+      },
+    ],
+  },
+
   notFound: {
     metaTitle: 'Page not found (404) | Alex Delcea',
     code: '404',
