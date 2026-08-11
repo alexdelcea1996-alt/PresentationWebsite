@@ -13,6 +13,8 @@ export interface Stat {
 export interface Service {
   /** Key into the icon map in `src/components/Icon.astro`. */
   icon: 'browser' | 'cart' | 'app' | 'gauge';
+  /** Links the card to its landing page in the `services` collection, when one exists. */
+  key?: 'presentation' | 'shop' | 'webapp' | 'optimization';
   title: string;
   description: string;
   features: string[];
@@ -97,6 +99,8 @@ export interface Content {
     title: string;
     subtitle: string;
     items: Service[];
+    readMore: string;
+    backToOverview: string;
   };
   process: {
     eyebrow: string;

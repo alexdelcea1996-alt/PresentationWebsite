@@ -50,9 +50,12 @@ export const ro: Content = {
     title: 'Ce pot construi pentru tine',
     subtitle:
       'De la o primă prezență online până la aplicații pe care echipa ta le folosește zilnic. Fiecare proiect vine cu cod curat, viteză și posibilitatea de a crește ulterior.',
+    readMore: 'Vezi detalii și prețuri',
+    backToOverview: 'Înapoi la servicii',
     items: [
       {
         icon: 'browser',
+        key: 'presentation',
         title: 'Site de prezentare',
         description:
           'Site-ul care îți spune povestea și transformă vizitatorii în cereri de ofertă. Structură clară, text convingător, apel la acțiune vizibil pe fiecare ecran.',
@@ -65,6 +68,7 @@ export const ro: Content = {
       },
       {
         icon: 'cart',
+        key: 'shop',
         title: 'Magazin online',
         description:
           'Vinde direct de pe site, fără comisioane de marketplace. Proces de cumpărare scurt, plăți sigure și un panou simplu din care îți gestionezi produsele.',
@@ -77,6 +81,7 @@ export const ro: Content = {
       },
       {
         icon: 'app',
+        key: 'webapp',
         title: 'Aplicație web custom',
         description:
           'Când un site nu e de ajuns: platforme interne, dashboard-uri, portaluri pentru clienți sau instrumente care automatizează munca repetitivă din firmă.',
@@ -89,6 +94,7 @@ export const ro: Content = {
       },
       {
         icon: 'gauge',
+        key: 'optimization',
         title: 'Optimizare și mentenanță',
         description:
           'Ai deja un site, dar se încarcă greu, nu apare în Google sau arată prost pe telefon? Îl analizez, îl repar și rămân disponibil pe termen lung.',

@@ -123,6 +123,36 @@ spusă în numele altcuiva.
 `pricing.plans` în ambele fișiere de limbă. Valorile actuale sunt orientative
 și trebuie confirmate înainte de lansare.
 
+### O pagină nouă de serviciu
+
+Fiecare serviciu poate avea o pagină dedicată, care țintește căutări cu intenție
+comercială („creare magazin online preț"). La fel ca studiile de caz: două fișiere
+cu același nume, câte unul per limbă.
+
+```
+src/content/services/ro/online-store.md
+src/content/services/en/online-store.md
+```
+
+Câmpul `key` (`presentation` | `shop` | `webapp` | `optimization`) leagă pagina de
+cardul corespunzător din secțiunea de servicii — cardul devine automat link când
+pagina există. Structura completă a frontmatter-ului se vede în
+`src/content/services/ro/business-website.md`, care e tiparul de urmat.
+
+Două lucruri contează la scris, dacă vrei ca paginile să ajute la SEO și nu să
+strice:
+
+1. **Conținut genuin diferit per pagină.** Patru pagini care sunt variații pe
+   aceleași fraze sunt tratate de Google drept conținut duplicat și fac rău. Fiecare
+   pagină are nevoie de propriile obiecții, propriile întrebări frecvente și propriile
+   exemple.
+2. **Secțiunea „nu ți se potrivește dacă" nu e opțională.** Faptul că trimiți
+   deschis un vizitator către altceva — sau către un concurent — construiește mai
+   multă încredere decât pierzi în trafic.
+
+Paginile apar la `/servicii/<urlSlug>` și `/en/services/<urlSlug>`, intră în sitemap
+și primesc `hreflang` corect între ele.
+
 ## Formularul de contact
 
 Fără configurare, formularul deschide clientul de e-mail al vizitatorului cu

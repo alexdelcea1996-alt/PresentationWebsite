@@ -50,9 +50,12 @@ export const en: Content = {
     title: 'What I can build for you',
     subtitle:
       'From a first online presence to applications your team uses every day. Every project ships with clean code, real speed and room to grow.',
+    readMore: 'See details and pricing',
+    backToOverview: 'Back to services',
     items: [
       {
         icon: 'browser',
+        key: 'presentation',
         title: 'Business website',
         description:
           'The site that tells your story and turns visitors into enquiries. Clear structure, persuasive copy and a visible call to action on every screen.',
@@ -65,6 +68,7 @@ export const en: Content = {
       },
       {
         icon: 'cart',
+        key: 'shop',
         title: 'Online store',
         description:
           'Sell straight from your own site, without marketplace commissions. A short path to checkout, secure payments and a simple panel to manage products.',
@@ -77,6 +81,7 @@ export const en: Content = {
       },
       {
         icon: 'app',
+        key: 'webapp',
         title: 'Custom web app',
         description:
           'For when a website is not enough: internal platforms, dashboards, client portals or tools that automate the repetitive work in your company.',
@@ -89,6 +94,7 @@ export const en: Content = {
       },
       {
         icon: 'gauge',
+        key: 'optimization',
         title: 'Optimisation and maintenance',
         description:
           'Already have a site that loads slowly, never shows up on Google or breaks on phones? I audit it, fix it and stay available long term.',
