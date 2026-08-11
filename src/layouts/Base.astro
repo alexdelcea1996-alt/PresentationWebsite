@@ -1,0 +1,125 @@
+---
+import { Font } from 'astro:assets';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import '../styles/global.css';
+import { getContent, localeTags, locales, type Locale } from '../i18n';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale);
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+/** Join the configured `base` with a file in `public/`, collapsing double slashes. */
+const asset = (file: string) => `${import.meta.env.BASE_URL}/${file}`.replace(/\/{2,}/g, '/');
+
+const ogImage = new URL(asset(locale === 'en' ? 'og-image-en.png' : 'og-image.png'), Astro.site);
+const faviconHref = asset('favicon.svg');
+
+// One <link rel="alternate"> per language, plus x-default pointing at Romanian.
+const alternates = locales.map((code) => ({
+  code,
+  tag: localeTags[code],
+  href: new URL(getRelativeLocaleUrl(code), Astro.site).href,
+}));
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  description: t.meta.description,
+  url: canonical.href,
+  email: `mailto:${site.email}`,
+  areaServed: site.areaServed,
+  address: { '@type': 'PostalAddress', addressCountry: 'RO', addressLocality: site.locality },
+  knowsLanguage: ['ro', 'en'],
+  serviceType: t.services.items.map((service) => service.title),
+  ...(site.phone ? { telephone: site.phone } : {}),
+  ...(site.social.github || site.social.linkedin
+    ? { sameAs: [site.social.github, site.social.linkedin].filter(Boolean) }
+    : {}),
+};
+---
+
+<!doctype html>
+<html lang={localeTags[locale]} class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <link rel="canonical" href={canonical.href} />
+
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.tag} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates[0]!.href} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content={localeTags[locale].replace('-', '_')} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogAlt} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={t.meta.title} />
+    <meta name="twitter:description" content={t.meta.description} />
+    <meta name="twitter:image" content={ogImage.href} />
+
+    <meta name="theme-color" content="#0b0f1a" />
+    <link rel="icon" href={faviconHref} type="image/svg+xml" />
+
+    <Font cssVariable="--ff-display" preload />
+    <Font cssVariable="--ff-body" preload />
+
+    <script is:inline set:html={JSON.stringify(structuredData)} type="application/ld+json" />
+
+    {/* Flag JS availability before first paint so reveal animations never hide content for no-JS readers. */}
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body class="min-h-screen antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-ink-800 focus:px-4 focus:py-2 focus:text-fg"
+    >
+      {t.nav.skipToContent}
+    </a>
+
+    <slot />
+
+    <script>
+      // Reveal-on-scroll. One observer for the whole page, unobserving as it goes.
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-visible'));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target as HTMLElement;
+              el.style.transitionDelay = `${el.dataset.revealDelay ?? 0}ms`;
+              el.classList.add('is-visible');
+              observer.unobserve(el);
+            }
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.1 },
+        );
+        targets.forEach((el) => observer.observe(el));
+      }
+    </script>
+  </body>
+</html>

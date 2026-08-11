@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Design tokens — "dark & premium"
+   Deep blue-black canvas, indigo→cyan accent, generous type scale.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces */
+  --color-ink-950: #070a12;
+  --color-ink-900: #0b0f1a;
+  --color-ink-850: #0f1420;
+  --color-ink-800: #131a29;
+  --color-ink-700: #1c2436;
+  --color-ink-600: #2a3448;
+
+  /* Foreground */
+  --color-fg: #f1f5f9;
+  --color-fg-muted: #9aa8be;
+  /* Lightened from #6b7a92 to clear WCAG AA (4.5:1) for small text on the footer surface. */
+  --color-fg-subtle: #8592a8;
+
+  /* Accent */
+  --color-accent: #6366f1;
+  --color-accent-bright: #818cf8;
+  --color-accent-alt: #22d3ee;
+
+  /* Typography — families come from Astro's font pipeline (self-hosted) */
+  --font-display: var(--ff-display);
+  --font-body: var(--ff-body);
+  --font-sans: var(--ff-body);
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header clearance for anchor jumps */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink-900);
+    color: var(--color-fg);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+    color: #fff;
+  }
+
+  /* Visible, on-brand focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-alt);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Respect the OS "reduce motion" setting everywhere */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Components
+--------------------------------------------------------------------------- */
+@layer components {
+  /* --- Buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+      transform 0.2s var(--ease-out-soft),
+      box-shadow 0.2s var(--ease-out-soft),
+      background-color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft);
+  }
+
+  .btn-primary {
+    background-image: linear-gradient(
+      110deg,
+      var(--color-accent) 0%,
+      var(--color-accent-alt) 100%
+    );
+    color: #05070d;
+    box-shadow: 0 6px 24px -8px color-mix(in oklab, var(--color-accent) 70%, transparent);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px -8px color-mix(in oklab, var(--color-accent) 85%, transparent);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--color-ink-600);
+    background-color: color-mix(in oklab, var(--color-ink-800) 60%, transparent);
+    color: var(--color-fg);
+  }
+
+  .btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-accent-alt) 60%, transparent);
+    background-color: var(--color-ink-800);
+  }
+
+  /* --- Cards --- */
+  .card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-ink-700);
+    border-radius: 1rem;
+    background-color: color-mix(in oklab, var(--color-ink-850) 85%, transparent);
+    padding: 1.75rem;
+    transition:
+      transform 0.3s var(--ease-out-soft),
+      border-color 0.3s var(--ease-out-soft),
+      background-color 0.3s var(--ease-out-soft);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-ink-700));
+    background-color: var(--color-ink-800);
+  }
+
+  /* Placeholder slot: visibly unfinished on purpose, so nothing fake ships */
+  .card-placeholder {
+    border: 1px dashed var(--color-ink-600);
+    border-radius: 1rem;
+    background-color: color-mix(in oklab, var(--color-ink-850) 40%, transparent);
+    padding: 1.75rem;
+    color: var(--color-fg-subtle);
+  }
+
+  /* --- Text helpers --- */
+  .text-gradient {
+    background-image: linear-gradient(
+      110deg,
+      var(--color-accent-bright) 0%,
+      var(--color-accent-alt) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent-alt);
+  }
+
+  /* --- Layout --- */
+  .container-page {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  /* --- Decorative background glow --- */
+  .glow {
+    position: absolute;
+    z-index: -1;
+    border-radius: 9999px;
+    filter: blur(90px);
+    pointer-events: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll reveal — CSS-first. Elements start hidden only when JS is available
+   to reveal them, so the page stays readable without JS.
+--------------------------------------------------------------------------- */
+@layer utilities {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.6s var(--ease-out-soft),
+      transform 0.6s var(--ease-out-soft);
+  }
+
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .js [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

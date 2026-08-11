@@ -1,0 +1,96 @@
+---
+import Icon from '../Icon.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).hero;
+---
+
+<section class="relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+  {/* Ambient gradient wash behind the headline */}
+  <div
+    class="glow left-1/2 top-[-6rem] size-[38rem] -translate-x-1/2 bg-accent/25"
+    aria-hidden="true"
+  >
+  </div>
+  <div class="glow right-[-8rem] top-40 size-[26rem] bg-accent-alt/15" aria-hidden="true"></div>
+
+  {/* Subtle grid, faded out towards the edges */}
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-page">
+    <div class="mx-auto max-w-3xl text-center">
+      <p
+        class="inline-flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850/60 px-3.5 py-1.5 text-xs font-medium text-fg-muted"
+        data-reveal
+      >
+        <span class="relative flex size-2">
+          <span
+            class="absolute inline-flex size-full animate-ping rounded-full bg-accent-alt opacity-75"
+          ></span>
+          <span class="relative inline-flex size-2 rounded-full bg-accent-alt"></span>
+        </span>
+        {t.badge}
+      </p>
+
+      <h1
+        class="mt-7 text-4xl font-semibold leading-[1.08] sm:text-5xl md:text-6xl lg:text-[4.25rem]"
+        data-reveal
+        data-reveal-delay="60"
+      >
+        {t.titleLead}{' '}
+        <span class="text-gradient">{t.titleAccent}</span>{t.titleTail}
+      </h1>
+
+      <p
+        class="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg"
+        data-reveal
+        data-reveal-delay="120"
+      >
+        {t.subtitle}
+      </p>
+
+      <div
+        class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        data-reveal
+        data-reveal-delay="180"
+      >
+        <a href={`#${sectionIds.contact}`} class="btn btn-primary w-full sm:w-auto">
+          {t.ctaPrimary}
+          <Icon name="arrow-right" class="size-4" />
+        </a>
+        <a href={`#${sectionIds.process}`} class="btn btn-ghost w-full sm:w-auto">
+          {t.ctaSecondary}
+        </a>
+      </div>
+    </div>
+
+    <dl
+      class="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink-700 bg-ink-700 sm:grid-cols-3"
+      data-reveal
+      data-reveal-delay="240"
+    >
+      {
+        t.stats.map((stat) => (
+          <div class="bg-ink-850 px-6 py-7 text-center">
+            <dt class="sr-only">{stat.label}</dt>
+            <dd>
+              <span class="block font-display text-3xl font-semibold text-gradient sm:text-4xl">
+                {stat.value}
+              </span>
+              <span class="mt-2 block text-sm text-fg-muted">{stat.label}</span>
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

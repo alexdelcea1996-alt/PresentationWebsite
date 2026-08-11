@@ -1,0 +1,88 @@
+---
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).portfolio;
+
+// Until real case studies land in `src/i18n/*.ts`, the section shows honest
+// empty slots rather than invented client work.
+const placeholderSlots = 2;
+---
+
+<section id={sectionIds.portfolio} class="py-20 sm:py-28">
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mt-16 grid gap-6 lg:grid-cols-2">
+      {
+        t.items.length > 0
+          ? t.items.map((project, index) => (
+              <article
+                class="card card-hover flex flex-col"
+                data-reveal
+                data-reveal-delay={index * 80}
+              >
+                <p class="eyebrow text-xs">{project.category}</p>
+                <h3 class="mt-3 text-xl font-semibold">{project.name}</h3>
+
+                <dl class="mt-6 space-y-4 text-sm">
+                  <div>
+                    <dt class="font-semibold text-fg">{t.labels.problem}</dt>
+                    <dd class="mt-1 leading-relaxed text-fg-muted">{project.problem}</dd>
+                  </div>
+                  <div>
+                    <dt class="font-semibold text-fg">{t.labels.solution}</dt>
+                    <dd class="mt-1 leading-relaxed text-fg-muted">{project.solution}</dd>
+                  </div>
+                  <div>
+                    <dt class="font-semibold text-accent-alt">{t.labels.result}</dt>
+                    <dd class="mt-1 leading-relaxed text-fg-muted">{project.result}</dd>
+                  </div>
+                </dl>
+
+                <ul class="mt-6 flex flex-wrap gap-2 border-t border-ink-700 pt-6">
+                  {project.tech.map((tech) => (
+                    <li class="rounded-md border border-ink-700 bg-ink-800 px-2.5 py-1 text-xs text-fg-muted">
+                      {tech}
+                    </li>
+                  ))}
+                </ul>
+
+                {project.url && (
+                  <a
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-alt hover:underline"
+                  >
+                    {t.labels.visit}
+                    <Icon name="arrow-right" class="size-4" />
+                  </a>
+                )}
+              </article>
+            ))
+          : Array.from({ length: placeholderSlots }).map((_, index) => (
+              <div
+                class="card-placeholder flex min-h-56 flex-col items-center justify-center text-center"
+                data-reveal
+                data-reveal-delay={index * 80}
+              >
+                <span class="grid size-11 place-items-center rounded-xl border border-ink-600 text-fg-subtle">
+                  <Icon name="browser" class="size-5" />
+                </span>
+                <p class="mt-4 font-display text-base font-semibold text-fg-muted">
+                  {t.emptyTitle}
+                </p>
+                <p class="mt-2 max-w-xs text-sm leading-relaxed">{t.emptyBody}</p>
+              </div>
+            ))
+      }
+    </div>
+  </div>
+</section>

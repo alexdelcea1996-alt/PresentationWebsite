@@ -1,0 +1,68 @@
+---
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).pricing;
+---
+
+<section id={sectionIds.pricing} class="py-20 sm:py-28">
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mt-16 grid items-start gap-6 lg:grid-cols-3">
+      {
+        t.plans.map((plan, index) => (
+          <article
+            class:list={[
+              'card flex h-full flex-col',
+              plan.featured
+                ? 'border-accent/45 bg-ink-800 shadow-[0_24px_60px_-30px] shadow-accent/60 lg:-mt-4 lg:pb-10'
+                : 'card-hover',
+            ]}
+            data-reveal
+            data-reveal-delay={index * 80}
+          >
+            {plan.featured && (
+              <p class="mb-5 inline-flex w-fit items-center gap-1.5 rounded-full bg-linear-110 from-accent to-accent-alt px-3 py-1 text-xs font-semibold text-ink-950">
+                {t.popular}
+              </p>
+            )}
+
+            <h3 class="font-display text-lg font-semibold">{plan.name}</h3>
+
+            <p class="mt-4 font-display text-3xl font-semibold text-fg">{plan.price}</p>
+            <p class="mt-1.5 text-xs text-fg-subtle">{plan.priceNote}</p>
+
+            <p class="mt-5 text-sm leading-relaxed text-fg-muted">{plan.description}</p>
+
+            <ul class="mt-6 grow space-y-2.5 border-t border-ink-700 pt-6">
+              {plan.features.map((feature) => (
+                <li class="flex items-start gap-2.5 text-sm text-fg-muted">
+                  <Icon name="check" class="mt-0.5 size-4 shrink-0 text-accent-alt" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href={`#${sectionIds.contact}`}
+              class:list={['btn mt-8 w-full', plan.featured ? 'btn-primary' : 'btn-ghost']}
+            >
+              {plan.cta}
+            </a>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-fg-subtle" data-reveal>
+      {t.note}
+    </p>
+  </div>
+</section>

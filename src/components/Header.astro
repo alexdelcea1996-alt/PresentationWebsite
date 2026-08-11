@@ -1,0 +1,154 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icon from './Icon.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getContent, sectionIds, type Locale } from '../i18n';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale);
+const home = getRelativeLocaleUrl(locale);
+
+const links = [
+  { href: `#${sectionIds.services}`, label: t.nav.services },
+  { href: `#${sectionIds.process}`, label: t.nav.process },
+  { href: `#${sectionIds.portfolio}`, label: t.nav.portfolio },
+  { href: `#${sectionIds.pricing}`, label: t.nav.pricing },
+  { href: `#${sectionIds.contact}`, label: t.nav.contact },
+];
+---
+
+<header
+  class="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
+  data-header
+>
+  <div
+    class="border-b border-transparent transition-all duration-300 data-[scrolled]:border-ink-700 data-[scrolled]:bg-ink-900/80 data-[scrolled]:backdrop-blur-xl"
+    data-header-bar
+  >
+    <div class="container-page flex h-16 items-center justify-between gap-4 md:h-18">
+      <a
+        href={home}
+        class="group flex items-center gap-2.5 font-display text-base font-semibold tracking-tight"
+      >
+        <span
+          class="grid size-8 place-items-center rounded-lg bg-linear-110 from-accent to-accent-alt text-ink-950"
+        >
+          <Icon name="spark" class="size-4" />
+        </span>
+        <span class="text-fg">{site.name}</span>
+      </a>
+
+      <nav class="hidden items-center gap-1 lg:flex" aria-label={t.nav.ariaPrimary}>
+        {
+          links.map((link) => (
+            <a
+              href={link.href}
+              class="rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-ink-800 hover:text-fg"
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <LanguageSwitcher locale={locale} class="hidden sm:flex" />
+        <a href={`#${sectionIds.contact}`} class="btn btn-primary hidden text-sm sm:inline-flex">
+          {t.nav.cta}
+        </a>
+
+        <button
+          type="button"
+          class="grid size-10 place-items-center rounded-lg border border-ink-700 text-fg-muted transition-colors hover:text-fg lg:hidden"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          aria-label={t.nav.menuOpen}
+          data-menu-toggle
+          data-label-open={t.nav.menuOpen}
+          data-label-close={t.nav.menuClose}
+        >
+          <Icon name="menu" class="size-5" data-menu-icon-open />
+          <Icon name="close" class="hidden size-5" data-menu-icon-close />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="hidden border-b border-ink-700 bg-ink-900/95 backdrop-blur-xl lg:hidden"
+    data-mobile-menu
+  >
+    <nav class="container-page flex flex-col gap-1 py-4" aria-label={t.nav.ariaMobile}>
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class="rounded-lg px-3 py-2.5 text-base font-medium text-fg-muted transition-colors hover:bg-ink-800 hover:text-fg"
+            data-menu-link
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <div class="mt-3 flex items-center justify-between gap-3 border-t border-ink-700 pt-4">
+        <LanguageSwitcher locale={locale} />
+        <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm" data-menu-link>
+          {t.nav.cta}
+        </a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // --- Condense the header once the reader scrolls past the hero fold ---
+  const bar = document.querySelector<HTMLElement>('[data-header-bar]');
+
+  if (bar) {
+    const onScroll = () => {
+      if (window.scrollY > 12) bar.setAttribute('data-scrolled', '');
+      else bar.removeAttribute('data-scrolled');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // --- Mobile menu ---
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  const iconOpen = document.querySelector<SVGElement>('[data-menu-icon-open]');
+  const iconClose = document.querySelector<SVGElement>('[data-menu-icon-close]');
+
+  if (toggle && menu && iconOpen && iconClose) {
+    const setOpen = (open: boolean) => {
+      menu.classList.toggle('hidden', !open);
+      iconOpen.classList.toggle('hidden', open);
+      iconClose.classList.toggle('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+      const label = open ? toggle.dataset.labelClose : toggle.dataset.labelOpen;
+      if (label) toggle.setAttribute('aria-label', label);
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(menu.classList.contains('hidden'));
+    });
+
+    // Tapping a link navigates within the page, so close the menu behind it.
+    menu.querySelectorAll('[data-menu-link]').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

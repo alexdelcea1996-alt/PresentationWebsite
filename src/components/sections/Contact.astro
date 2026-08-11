@@ -1,0 +1,231 @@
+---
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+import { site } from '../../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).contact;
+
+const fieldClass =
+  'w-full rounded-xl border border-ink-700 bg-ink-900/70 px-4 py-3 text-sm text-fg placeholder:text-fg-subtle transition-colors focus:border-accent focus:outline-none';
+const labelClass = 'block text-sm font-medium text-fg';
+---
+
+<section id={sectionIds.contact} class="relative overflow-hidden py-20 sm:py-28">
+  <div
+    class="glow left-1/2 bottom-[-8rem] size-[34rem] -translate-x-1/2 bg-accent/18"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mx-auto mt-16 grid max-w-5xl gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
+      <form
+        class="card space-y-5"
+        data-contact-form
+        data-access-key={site.web3formsKey}
+        data-mailto={site.email}
+        novalidate
+        data-reveal
+      >
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label class={labelClass} for="field-name">
+              {t.form.name}
+              <span class="text-accent-alt" aria-hidden="true">*</span>
+              <span class="sr-only">({t.form.required})</span>
+            </label>
+            <input
+              class={`mt-2 ${fieldClass}`}
+              id="field-name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              placeholder={t.form.namePlaceholder}
+            />
+          </div>
+
+          <div>
+            <label class={labelClass} for="field-email">
+              {t.form.email}
+              <span class="text-accent-alt" aria-hidden="true">*</span>
+              <span class="sr-only">({t.form.required})</span>
+            </label>
+            <input
+              class={`mt-2 ${fieldClass}`}
+              id="field-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+              placeholder={t.form.emailPlaceholder}
+            />
+          </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label class={labelClass} for="field-type">{t.form.projectType}</label>
+            <select class={`mt-2 ${fieldClass}`} id="field-type" name="project_type">
+              {t.form.projectTypeOptions.map((option) => <option value={option}>{option}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label class={labelClass} for="field-budget">{t.form.budget}</label>
+            <select class={`mt-2 ${fieldClass}`} id="field-budget" name="budget">
+              {t.form.budgetOptions.map((option) => <option value={option}>{option}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class={labelClass} for="field-message">
+            {t.form.message}
+            <span class="text-accent-alt" aria-hidden="true">*</span>
+            <span class="sr-only">({t.form.required})</span>
+          </label>
+          <textarea
+            class={`mt-2 resize-y ${fieldClass}`}
+            id="field-message"
+            name="message"
+            rows="5"
+            required
+            placeholder={t.form.messagePlaceholder}></textarea>
+        </div>
+
+        {/* Honeypot: hidden from people, tempting to bots. */}
+        <input
+          type="checkbox"
+          name="botcheck"
+          class="hidden"
+          style="display:none"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+        />
+
+        <button type="submit" class="btn btn-primary w-full" data-submit>
+          <span data-submit-idle>{t.form.submit}</span>
+          <span class="hidden" data-submit-busy>{t.form.sending}</span>
+        </button>
+
+        <p
+          class="hidden rounded-xl border border-accent-alt/40 bg-accent-alt/10 px-4 py-3 text-sm text-fg"
+          role="status"
+          data-form-success
+        >
+          {t.form.success}
+        </p>
+        <p
+          class="hidden rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-fg"
+          role="alert"
+          data-form-error
+        >
+          {t.form.error}
+        </p>
+
+        <p class="text-xs leading-relaxed text-fg-subtle">{t.form.privacy}</p>
+      </form>
+
+      <aside class="card" data-reveal data-reveal-delay="100">
+        <h3 class="font-display text-lg font-semibold">{t.directTitle}</h3>
+        <p class="mt-3 text-sm leading-relaxed text-fg-muted">{t.directBody}</p>
+
+        <a
+          href={`mailto:${site.email}`}
+          class="mt-6 flex items-start gap-3 rounded-xl border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-accent/40"
+        >
+          <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent-alt">
+            <Icon name="mail" class="size-4" />
+          </span>
+          <span class="min-w-0">
+            <span class="block text-xs text-fg-subtle">{t.emailLabel}</span>
+            <span class="block truncate text-sm font-medium text-fg">{site.email}</span>
+          </span>
+        </a>
+
+        <p class="mt-5 flex items-start gap-2 text-xs leading-relaxed text-fg-subtle">
+          <Icon name="check" class="mt-0.5 size-3.5 shrink-0 text-accent-alt" />
+          {t.responseTime}
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+
+  if (form) {
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const idle = form.querySelector<HTMLElement>('[data-submit-idle]')!;
+    const busy = form.querySelector<HTMLElement>('[data-submit-busy]')!;
+    const successBox = form.querySelector<HTMLElement>('[data-form-success]')!;
+    const errorBox = form.querySelector<HTMLElement>('[data-form-error]')!;
+
+    const setBusy = (state: boolean) => {
+      submit.disabled = state;
+      idle.classList.toggle('hidden', state);
+      busy.classList.toggle('hidden', !state);
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      successBox.classList.add('hidden');
+      errorBox.classList.add('hidden');
+
+      if (!form.reportValidity()) return;
+
+      const data = new FormData(form);
+      const accessKey = form.dataset.accessKey;
+
+      // No form service configured yet: hand the message over to the visitor's
+      // mail client instead of silently dropping it.
+      if (!accessKey) {
+        const lines = [
+          `${data.get('name')} <${data.get('email')}>`,
+          `${data.get('project_type')} — ${data.get('budget')}`,
+          '',
+          String(data.get('message') ?? ''),
+        ];
+        const to = form.dataset.mailto ?? '';
+        const subject = encodeURIComponent(`Website enquiry — ${data.get('name')}`);
+        const body = encodeURIComponent(lines.join('\n'));
+        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+        successBox.classList.remove('hidden');
+        return;
+      }
+
+      setBusy(true);
+      data.append('access_key', accessKey);
+      data.append('subject', `Website enquiry — ${data.get('name')}`);
+      data.append('from_name', String(data.get('name') ?? ''));
+
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+
+        if (!response.ok) throw new Error(`Request failed with ${response.status}`);
+
+        successBox.classList.remove('hidden');
+        form.reset();
+      } catch {
+        errorBox.classList.remove('hidden');
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+</script>

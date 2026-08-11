@@ -1,0 +1,116 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icon from './Icon.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getContent, sectionIds, type Locale } from '../i18n';
+import { site } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale);
+const year = new Date().getFullYear();
+
+const links = [
+  { href: `#${sectionIds.services}`, label: t.nav.services },
+  { href: `#${sectionIds.process}`, label: t.nav.process },
+  { href: `#${sectionIds.portfolio}`, label: t.nav.portfolio },
+  { href: `#${sectionIds.pricing}`, label: t.nav.pricing },
+  { href: `#${sectionIds.contact}`, label: t.nav.contact },
+];
+
+const socials = [
+  { href: site.social.github, label: 'GitHub' },
+  { href: site.social.linkedin, label: 'LinkedIn' },
+].filter((social) => social.href);
+---
+
+<footer class="border-t border-ink-700 bg-ink-950/60 py-14">
+  <div class="container-page">
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
+      <div>
+        <a
+          href={getRelativeLocaleUrl(locale)}
+          class="flex w-fit items-center gap-2.5 font-display text-base font-semibold"
+        >
+          <span
+            class="grid size-8 place-items-center rounded-lg bg-linear-110 from-accent to-accent-alt text-ink-950"
+          >
+            <Icon name="spark" class="size-4" />
+          </span>
+          <span class="text-fg">{site.name}</span>
+        </a>
+        <p class="mt-4 max-w-xs text-sm leading-relaxed text-fg-muted">{t.footer.tagline}</p>
+      </div>
+
+      <nav aria-label={t.footer.nav}>
+        <h2 class="font-display text-sm font-semibold text-fg">{t.footer.nav}</h2>
+        <ul class="mt-4 space-y-2.5">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div>
+        <h2 class="font-display text-sm font-semibold text-fg">{t.nav.contact}</h2>
+        <ul class="mt-4 space-y-2.5">
+          <li>
+            <a
+              href={`mailto:${site.email}`}
+              class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
+            >
+              {site.email}
+            </a>
+          </li>
+          {
+            site.phone && (
+              <li>
+                <a
+                  href={`tel:${site.phone.replace(/\s+/g, '')}`}
+                  class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
+                >
+                  {site.phone}
+                </a>
+              </li>
+            )
+          }
+          {
+            socials.map((social) => (
+              <li>
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
+                >
+                  {social.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <LanguageSwitcher locale={locale} class="mt-6 w-fit" />
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col gap-2 border-t border-ink-700 pt-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {site.name}. {t.footer.rights}</p>
+      <p>{t.footer.builtWith}</p>
+    </div>
+  </div>
+</footer>
