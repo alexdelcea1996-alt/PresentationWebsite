@@ -46,7 +46,9 @@ export const projectTypes: readonly ProjectTypeOption[] = [
   { id: 'landing', basePrice: 400, baseWeeks: 1 },
   { id: 'presentation', basePrice: 900, baseWeeks: 3 },
   { id: 'shop', basePrice: 2200, baseWeeks: 5 },
-  { id: 'webapp', basePrice: 3500, baseWeeks: 8 },
+  // Must match the "from" figure on the pricing card and the service page:
+  // a visitor can see all three, and a mismatch reads as a bait price.
+  { id: 'webapp', basePrice: 2500, baseWeeks: 8 },
 ];
 
 export const features: readonly FeatureOption[] = [
