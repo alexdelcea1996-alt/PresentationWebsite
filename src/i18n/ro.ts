@@ -441,6 +441,15 @@ export const ro: Content = {
     ctaButton: 'Trimite-mi un mesaj',
   },
 
+  booking: {
+    title: 'Sau alege direct o oră',
+    body: 'Prima discuție durează 30 de minute și e gratuită. Vezi când sunt liber și rezervă fără să mai aștepți un răspuns.',
+    cta: 'Vezi orele disponibile',
+    modalTitle: 'Programează o discuție',
+    openInNewTab: 'Deschide în filă nouă',
+    close: 'Închide',
+  },
+
   footer: {
     tagline: 'Site-uri și aplicații web pentru afaceri care vor să fie găsite.',
     rights: 'Toate drepturile rezervate.',

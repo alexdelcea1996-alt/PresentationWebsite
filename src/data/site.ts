@@ -4,6 +4,8 @@ interface Site {
   email: string;
   /** Optional. Leave empty to hide the link. */
   phone: string;
+  /** Cal.com `username/event`. Empty disables booking everywhere. */
+  calLink: string;
   areaServed: string;
   locality: string;
   social: { github: string; linkedin: string };
@@ -33,6 +35,13 @@ export const site: Site = {
     github: '',
     linkedin: '',
   },
+
+  /**
+   * Cal.com booking link, as `username/event` — for example `alex-delcea/30min`.
+   * Leave empty and every booking affordance disappears from the site; nothing
+   * renders a dead button.
+   */
+  calLink: '',
 
   /**
    * Web3Forms access key for the contact form (https://web3forms.com — free).

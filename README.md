@@ -207,6 +207,53 @@ Ca să primești mesajele direct în inbox:
 
 Formularul comută automat pe trimitere reală când cheia există.
 
+## Programare directă (Cal.com)
+
+Dezactivată implicit. Ca s-o activezi:
+
+1. Fă-ți cont pe [cal.com](https://cal.com) și creează un tip de eveniment de 30
+   de minute pentru discuția inițială.
+2. În `src/data/site.ts`, pune calea din linkul tău public:
+   ```ts
+   calLink: 'numele-tau/30min',
+   ```
+
+Atât. Apare un card în secțiunea de contact, iar calendarul se deschide într-un
+modal peste pagină, fără să părăsești site-ul.
+
+**Cât timp `calLink` e gol, nu se randează absolut nimic** — nici markup, nici
+JavaScript, iar politica de securitate rămâne cu `frame-src 'none'`. Nu există
+buton mort.
+
+### De ce nu folosesc scriptul de embed al Cal.com
+
+Cal.com oferă un script care injectează calendarul în pagină. L-am evitat
+deliberat, din trei motive:
+
+1. **Ar aduce ~100 kB de JavaScript străin** pe un site care se laudă cu zero
+   JavaScript de framework. Ar fi trebuit încărcat de toți vizitatorii, ca să
+   servească pe cei câțiva care chiar programează.
+2. **Ar fi slăbit CSP-ul** cu `script-src` către un domeniu terț și, foarte
+   probabil, cu `style-src 'unsafe-inline'` — pentru stilurile pe care embed-ul
+   le injectează în pagina gazdă. Adică exact lucrul pe care l-am evitat.
+3. Nu l-aș fi putut testa: din mediul în care a fost construit site-ul,
+   `cal.com` era inaccesibil.
+
+În loc de asta, pagina de programare Cal.com e încărcată direct într-un `iframe`,
+la cerere, când apeși butonul. Costul pentru restul vizitatorilor e zero, iar CSP
+are nevoie doar de `frame-src` — fără script terț și fără `unsafe-inline`.
+
+### Ce rămâne de verificat de tine
+
+Nu am putut testa cu un calendar real. **La prima activare, verifică două
+lucruri:** că respectivul calendar chiar se afișează în modal (dacă Cal.com
+refuză încadrarea în iframe, rămâne alb), și că rezervarea merge până la capăt.
+
+Dacă modalul rămâne gol, ai deja plasa de siguranță: în antetul lui e un link
+„Deschide în filă nouă", iar butonul principal e oricum un link real către
+pagina ta Cal.com — deci fără JavaScript, sau dacă ceva pică, programarea
+funcționează în continuare, doar într-o filă nouă.
+
 ## Publicare — Cloudflare
 
 Site-ul se publică pe Cloudflare (proiectul rulează pe **Workers**, cu build automat

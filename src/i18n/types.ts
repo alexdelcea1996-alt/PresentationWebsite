@@ -243,6 +243,14 @@ export interface Content {
     ctaBody: string;
     ctaButton: string;
   };
+  booking: {
+    title: string;
+    body: string;
+    cta: string;
+    modalTitle: string;
+    openInNewTab: string;
+    close: string;
+  };
   footer: {
     tagline: string;
     rights: string;

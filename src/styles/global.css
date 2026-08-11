@@ -282,6 +282,33 @@
     opacity: var(--spotlight-opacity, 1);
   }
 
+  /* --- Booking modal --- */
+  .booking-dialog {
+    width: min(46rem, 100vw - 2rem);
+    height: min(46rem, 100vh - 3rem);
+    /* Tailwind's reset zeroes margins, which is what a native <dialog> relies
+       on to centre itself in the top layer. */
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    background-color: var(--color-surface-raised);
+    color: var(--color-fg);
+  }
+
+  .booking-dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .booking-frame {
+    width: 100%;
+    /* Fills whatever the dialog leaves after the header row. */
+    height: calc(100% - 3.25rem);
+    border: 0;
+  }
+
   /* --- Decorative background glow --- */
   .glow {
     position: absolute;

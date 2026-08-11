@@ -441,6 +441,15 @@ export const en: Content = {
     ctaButton: 'Send me a message',
   },
 
+  booking: {
+    title: 'Or just pick a time',
+    body: 'The first conversation takes 30 minutes and is free. See when I am available and book without waiting for a reply.',
+    cta: 'See available times',
+    modalTitle: 'Book a conversation',
+    openInNewTab: 'Open in a new tab',
+    close: 'Close',
+  },
+
   footer: {
     tagline: 'Websites and web apps for businesses that want to be found.',
     rights: 'All rights reserved.',

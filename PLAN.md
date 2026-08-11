@@ -123,7 +123,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 ### B. Implementări noi (propuse 2026-08-11)
 
 1. ✅ Configurator de ofertă interactiv — wizard în 3 pași cu estimare de preț, pre-completează formularul; servește și ca demo de webapp
-2. Programare directă a discuției inițiale (Cal.com embed)
+2. ✅ Programare directă a discuției inițiale — modal cu iframe la cerere, fără scriptul lor de embed; se activează dintr-o linie în `site.ts`
 3. ✅ Landing pages dedicate per serviciu — toate 4, RO+EN (8 pagini, sub 1% suprapunere de conținut între ele)
 4. ✅ Studii de caz ca pagini dedicate (content collections; primul: acest site, cu cifre reale)
 5. ✅ Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală

@@ -3,6 +3,7 @@ import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { site } from '../../data/site';
+import BookingCard from '../BookingCard.astro';
 
 interface Props {
   locale: Locale;
@@ -184,6 +185,8 @@ const labelClass = 'block text-sm font-medium text-fg';
           <Icon name="check" class="mt-0.5 size-3.5 shrink-0 text-accent-alt" />
           {t.responseTime}
         </p>
+
+        {site.calLink && <BookingCard locale={locale} />}
       </aside>
     </div>
   </div>
