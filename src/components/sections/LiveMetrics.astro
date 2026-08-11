@@ -135,10 +135,8 @@ const metrics = [
       band.dataset.ready = 'true';
     };
 
-    // Measure once the page has gone quiet, not on `load`. Late arrivals — the
-    // favicon in particular — can land either side of that event, and a figure
-    // that changes by a kilobyte depending on the race is not a figure worth
-    // showing. Idle also gives LCP time to settle on its final candidate.
+    // Measure once the page has gone quiet rather than on `load`, which also
+    // gives LCP time to settle on its final candidate.
     // Safari only shipped requestIdleCallback in 17, hence the timeout fallback.
     const settle = () => {
       if (typeof window.requestIdleCallback === 'function') {
@@ -147,6 +145,20 @@ const metrics = [
         window.setTimeout(report, 400);
       }
     };
+
+    // Idle is still not late enough for everything: the favicon is fetched at
+    // low priority and reliably lands after it, leaving the total a kilobyte
+    // short. Rather than publish a number we know is wrong, keep watching and
+    // correct it. Five seconds is well past anything a static page will fetch.
+    try {
+      const watcher = new PerformanceObserver(() => {
+        if (band.dataset.ready === 'true') report();
+      });
+      watcher.observe({ type: 'resource', buffered: false });
+      window.setTimeout(() => watcher.disconnect(), 5000);
+    } catch {
+      // No resource timing: the idle reading stands.
+    }
 
     if (document.readyState === 'complete') settle();
     else window.addEventListener('load', settle, { once: true });

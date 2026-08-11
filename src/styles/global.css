@@ -120,6 +120,32 @@
     border-radius: 4px;
   }
 
+  /* Cross-document view transitions: the page-to-page fade is done by the
+     browser, natively, with no JavaScript at all — deliberately not Astro's
+     <ClientRouter />, which would ship a router to buy the same effect.
+     Browsers without support (Firefox, for now) just navigate normally. */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 220ms;
+      animation-timing-function: var(--ease-out-soft);
+    }
+
+    /* The header is identical on every page, so giving it its own name lifts it
+       out of the cross-fade and it simply stays put while the body changes. */
+    [data-header] {
+      view-transition-name: site-header;
+    }
+
+    ::view-transition-group(site-header) {
+      animation-duration: 220ms;
+    }
+  }
+
   /* Respect the OS "reduce motion" setting everywhere */
   @media (prefers-reduced-motion: reduce) {
     html {

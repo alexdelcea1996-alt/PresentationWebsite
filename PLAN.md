@@ -68,10 +68,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **177 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+- **192 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
   dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18)
+  programare (18), tranziții (15)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -151,13 +151,13 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 2. ✅ Bandă care se măsoară singură — LCP, greutate și JS, măsurate în browserul
    vizitatorului, sub afirmația din hero
 3. Auditul gratuit devine instrument real (Google PageSpeed API din browser)
-4. Tranziții între pagini, CSS nativ, zero JavaScript
+4. ✅ Tranziții între pagini, CSS nativ, zero JavaScript
 5. Imagine OG per pagină, generată în build
 6. Studiul de caz cu slider înainte/după și gauge-uri animate
 7. Secțiune „Garanții" în locul casetelor goale de testimoniale
 8. Demo funcțional de aplicație web
 9. Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 177 de verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 192 de verificări
 
 ## 9. Idei pentru v2
 

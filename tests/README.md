@@ -1,6 +1,6 @@
 # Teste
 
-177 de verificări care rulează un browser real peste site-ul construit.
+192 de verificări care rulează un browser real peste site-ul construit.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -58,6 +58,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `theme` | light/dark, persistență, fără flash la încărcare | 14 |
 | `hero` | parallax la cursor, oprit sub `prefers-reduced-motion` și pe pointer grosier | 12 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
+| `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion | 15 |
 
 ## Ce nu e aici
 

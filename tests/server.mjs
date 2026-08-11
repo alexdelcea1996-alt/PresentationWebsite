@@ -81,4 +81,19 @@ const server = createServer(async (req, res) => {
   res.end(body);
 });
 
+// Refuse to carry on if the port is taken. Something else on 4331 would serve a
+// different — possibly stale — build, and the suites would pass against it while
+// telling you nothing about the code you just changed.
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(
+      `Port ${PORT} is already in use. Stop whatever is listening there, or set ` +
+        'TEST_PORT to a free port.',
+    );
+  } else {
+    console.error(error.message);
+  }
+  process.exit(1);
+});
+
 server.listen(PORT, () => console.log(`test server on ${PORT}`));

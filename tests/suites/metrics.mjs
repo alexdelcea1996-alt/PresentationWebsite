@@ -55,14 +55,20 @@ ck('weight is in a plausible range (100-400 kB)', num(weight) >= 100 && num(weig
 ck('JS is a small slice of the page (< 25 kB)', num(js) > 0 && num(js) < 25, js);
 ck('JS is counted as part of the page, not on top of it', num(js) < num(weight), `${js} < ${weight}`);
 
-// The claim is "measured in your browser" — so it must track reality.
+// The claim is "measured in your browser" — so it must track reality, including
+// stragglers like the favicon that land after the page goes idle. The band keeps
+// a resource observer running for a few seconds to catch them; give it that long.
+await p.waitForTimeout(1500);
 const truth = await p.evaluate(() => {
   const nav = performance.getEntriesByType('navigation')[0];
   let total = nav.decodedBodySize;
   for (const r of performance.getEntriesByType('resource')) total += r.decodedBodySize || 0;
   return Math.round(total / 1024);
 });
-ck('the number shown equals what the browser reports', num(weight) === truth, `shown ${num(weight)}, actual ${truth}`);
+// Re-read: the value on screen may have been corrected since the first look.
+const finalWeight = await read('weight');
+ck('the number shown equals what the browser reports', num(finalWeight) === truth,
+  `shown ${num(finalWeight)}, actual ${truth}`);
 
 // --- The verify link ---
 const verify = band.locator('a[href*="pagespeed"]');

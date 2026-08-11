@@ -27,7 +27,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 177 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 192 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run og` | Regenerează imaginile de partajare pe social media |
 
@@ -426,6 +426,31 @@ Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textel
 
 **De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
 cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
+## Tranziții între pagini
+
+Navigarea dintre pagini face un fade scurt în loc de un reload alb. E făcut de
+browser, nativ, din trei reguli CSS în `src/styles/global.css` — **zero
+JavaScript**:
+
+```css
+@view-transition { navigation: auto; }
+```
+
+Deliberat **nu** folosim `<ClientRouter />` din Astro: ar aduce un router în
+pagină ca să cumpere exact același efect pe care browserul îl face gratis.
+
+- **Header-ul are nume propriu** (`view-transition-name: site-header`), deci nu
+  intră în fade — rămâne pe loc cât se schimbă conținutul.
+- **Sub `prefers-reduced-motion` nu se întâmplă nimic** — toată regula stă într-un
+  `@media (prefers-reduced-motion: no-preference)`.
+- **Browserele fără suport** (Firefox, deocamdată) navighează normal. Nu e nimic
+  de reparat pentru ele.
+
+Un lucru care putea trece neobservat: Tailwind v4 minifică prin Lightning CSS,
+care ar fi putut arunca un at-rule pe care nu-l cunoaște. Îl păstrează (testat pe
+1.32), iar suita `transitions` verifică la fiecare rulare că regula chiar ajunge
+în CSS-ul livrat — altfel efectul ar dispărea tăcut la un upgrade.
 
 ## Mișcarea din hero
 

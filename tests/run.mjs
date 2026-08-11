@@ -23,6 +23,7 @@ const SUITES = [
   'a11y',
   'a11y-light',
   'csp',
+  'transitions',
   'interact',
   'channels',
   'metrics',
@@ -47,28 +48,37 @@ if (!existsSync(join(root, 'dist', '_headers'))) {
 }
 
 const server = spawn(process.execPath, [join(here, 'server.mjs')], {
-  stdio: ['ignore', 'ignore', 'inherit'],
+  stdio: ['ignore', 'pipe', 'inherit'],
   env: { ...process.env, TEST_PORT: String(PORT) },
 });
+
 const stopServer = () => server.kill();
 process.on('exit', stopServer);
 process.on('SIGINT', () => { stopServer(); process.exit(130); });
 
-async function waitForServer() {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    try {
-      const response = await fetch(`${BASE}/`);
-      if (response.ok) return true;
-    } catch {
-      /* not up yet */
-    }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  return false;
+/**
+ * Wait for *our* server to announce itself, rather than for the port to answer.
+ * Polling with fetch cannot tell our server from someone else's: if the port is
+ * already taken, the squatter replies, the poll succeeds, and the whole suite
+ * runs against a build we did not make — passing, and proving nothing.
+ */
+function waitForServer() {
+  return new Promise((resolve) => {
+    const done = (ok) => { clearTimeout(timer); resolve(ok); };
+    const timer = setTimeout(() => done(false), 10_000);
+
+    server.stdout.on('data', (chunk) => {
+      if (String(chunk).includes('test server on')) done(true);
+    });
+    server.on('exit', () => done(false));
+  });
 }
 
 if (!(await waitForServer())) {
-  console.error(`Test server never came up on ${BASE}`);
+  console.error(
+    '\nThe test server did not start (see the message above). Aborting rather than\n' +
+      'running against whatever else may be on the port.',
+  );
   stopServer();
   process.exit(2);
 }
