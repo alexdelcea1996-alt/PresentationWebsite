@@ -49,8 +49,9 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - **Accent:** gradient indigo (`#6366F1`) → cyan (`#22D3EE`)
 - **Fonturi:** Space Grotesk (titluri) + Inter (text), variabile, self-hosted
 - **Componente:** carduri cu borduri subtile, butoane cu glow la hover
-- **Animații:** reveal la scroll printr-un singur `IntersectionObserver`; conținutul
-  rămâne vizibil fără JavaScript
+- **Animații:** reveal la scroll printr-un singur `IntersectionObserver`; parallax
+  la cursor în hero, doar `transform`, cu bucla oprită când pagina e inactivă;
+  conținutul rămâne vizibil fără JavaScript
 - **Accesibilitate:** contrast AA, focus vizibil, `prefers-reduced-motion` respectat
 
 ## 5. Stare curentă
@@ -130,7 +131,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 7. ✅ Blog bilingv pe content collections, cu RSS — primele 2 articole scrise
 8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
 9. ✅ Pachet performanță & securitate: fonturi subsetate (170 → 57 kB), CSP cu hash-uri SHA-256, header-e de securitate
-10. Semnătură vizuală interactivă în hero (reacție la cursor, cu respect pentru prefers-reduced-motion)
+10. ✅ Semnătură vizuală interactivă în hero (parallax la cursor + spotlight; oprit pentru reduced-motion și pointer grosier)
 
 ## 9. Idei pentru v2
 

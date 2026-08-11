@@ -320,6 +320,24 @@ Fiecare familie are două fișiere separate pe `unicode-range`: `latin` și
 `latin-ext` — al doilea se descarcă doar pe paginile care chiar folosesc
 diacritice.
 
+## Mișcarea din hero
+
+Cele două halouri de gradient din hero se deplasează ușor în direcții opuse după
+cursor, iar un al treilea, difuz, îl urmărește direct. Efectul e construit ca să
+nu coste nimic:
+
+- **rulează doar pe pointer fin** — pe telefon nu există cursor, iar ascultătorii
+  ar consuma baterie degeaba;
+- **nu pornește deloc** dacă sistemul cere `prefers-reduced-motion: reduce`, iar
+  dacă setarea e activată cât timp pagina e deschisă, efectul se oprește și se
+  resetează;
+- **scrie exclusiv `transform`**, deci fiecare cadru rămâne pe compositor: zero
+  layout, zero repaint;
+- **bucla se oprește** când cursorul iese din hero și mișcarea s-a așezat — o
+  filă lăsată deschisă nu consumă nimic.
+
+Intensitatea în tema light e redusă la 40%, altfel ar arăta ca o pată pe alb.
+
 ## Securitate
 
 Header-ele HTTP sunt generate la build de `scripts/build-headers.mjs`, care

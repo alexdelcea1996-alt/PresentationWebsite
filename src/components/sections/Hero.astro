@@ -10,14 +10,29 @@ const { locale } = Astro.props;
 const t = getContent(locale).hero;
 ---
 
-<section class="relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
-  {/* Ambient gradient wash behind the headline */}
+<section class="relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28" data-hero>
+  {/*
+    Ambient gradient wash behind the headline. Centred with a negative margin
+    rather than -translate-x-1/2, so the pointer-parallax script below owns
+    `transform` outright and never has to compose with a utility class.
+  */}
   <div
-    class="glow left-1/2 top-[-6rem] size-[38rem] -translate-x-1/2 bg-accent/25"
+    class="glow left-1/2 top-[-6rem] ml-[-19rem] size-[38rem] bg-accent/25"
+    data-hero-glow
+    data-depth="0.05"
     aria-hidden="true"
   >
   </div>
-  <div class="glow right-[-8rem] top-40 size-[26rem] bg-accent-alt/15" aria-hidden="true"></div>
+  <div
+    class="glow right-[-8rem] top-40 size-[26rem] bg-accent-alt/15"
+    data-hero-glow
+    data-depth="-0.035"
+    aria-hidden="true"
+  >
+  </div>
+
+  {/* Follows the cursor. Purely decorative, and only ever shown on a fine pointer. */}
+  <div class="hero-spotlight" data-hero-spotlight aria-hidden="true"></div>
 
   {/* Subtle grid, faded out towards the edges */}
   <div
@@ -94,3 +109,113 @@ const t = getContent(locale).hero;
     </dl>
   </div>
 </section>
+
+<script>
+  /**
+   * Pointer parallax in the hero: the two ambient washes drift in opposite
+   * directions and a soft spotlight follows the cursor.
+   *
+   * Constraints this respects, in order of importance:
+   *  - never runs for someone who asked for reduced motion;
+   *  - never runs on a coarse pointer, where there is no cursor to follow and
+   *    the listeners would only cost battery;
+   *  - only ever writes `transform`, so no frame touches layout;
+   *  - the loop stops once the pointer leaves and the motion has settled, so an
+   *    idle tab does no work at all.
+   */
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const finePointer = window.matchMedia('(pointer: fine)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (hero && finePointer.matches && !reduceMotion.matches) {
+    const spotlight = hero.querySelector<HTMLElement>('[data-hero-spotlight]');
+    const glows = [...hero.querySelectorAll<HTMLElement>('[data-hero-glow]')].map((el) => ({
+      el,
+      depth: Number(el.dataset.depth ?? 0),
+    }));
+
+    // Target is where the pointer is; current eases towards it each frame.
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    let inside = false;
+    let frame = 0;
+
+    const EASING = 0.09;
+    // Below a pixel of travel nothing is visible on a 34rem blurred wash, so
+    // snap to the target and end the loop rather than easing forever towards it.
+    const SETTLED = 1;
+
+    const render = () => {
+      const restX = targetX - currentX;
+      const restY = targetY - currentY;
+      const settled = Math.abs(restX) < SETTLED && Math.abs(restY) < SETTLED;
+
+      if (settled) {
+        currentX = targetX;
+        currentY = targetY;
+      } else {
+        currentX += restX * EASING;
+        currentY += restY * EASING;
+      }
+
+      if (spotlight) {
+        spotlight.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      }
+      for (const { el, depth } of glows) {
+        el.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0)`;
+      }
+
+      // Keep going while the cursor is in the hero; otherwise only until the
+      // drift back to centre has finished.
+      if (inside || !settled) frame = requestAnimationFrame(render);
+      else frame = 0;
+    };
+
+    const start = () => {
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    hero.addEventListener(
+      'pointermove',
+      (event) => {
+        if (event.pointerType !== 'mouse') return;
+        const box = hero.getBoundingClientRect();
+        targetX = event.clientX - box.left;
+        targetY = event.clientY - box.top;
+
+        if (!inside) {
+          inside = true;
+          // Appear where the cursor entered rather than sliding in from 0,0.
+          currentX = targetX;
+          currentY = targetY;
+          spotlight?.setAttribute('data-active', '');
+        }
+        start();
+      },
+      { passive: true },
+    );
+
+    hero.addEventListener('pointerleave', () => {
+      inside = false;
+      spotlight?.removeAttribute('data-active');
+      // Drift the washes back to centre instead of freezing mid-travel.
+      const box = hero.getBoundingClientRect();
+      targetX = box.width / 2;
+      targetY = box.height / 2;
+      start();
+    });
+
+    // Someone can turn reduced motion on while the page is open.
+    reduceMotion.addEventListener('change', (event) => {
+      if (!event.matches) return;
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      inside = false;
+      spotlight?.removeAttribute('data-active');
+      for (const { el } of glows) el.style.transform = '';
+      if (spotlight) spotlight.style.transform = '';
+    });
+  }
+</script>

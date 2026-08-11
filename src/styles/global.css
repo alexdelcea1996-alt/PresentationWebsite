@@ -47,12 +47,14 @@
   color-scheme: dark;
   /* Ambient gradient washes read as heavy smudges on a light page. */
   --glow-opacity: 1;
+  --spotlight-opacity: 1;
   --grid-line: rgb(255 255 255 / 0.6);
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
   --glow-opacity: 0.45;
+  --spotlight-opacity: 0.4;
   --grid-line: rgb(15 23 42 / 0.5);
 
   --color-surface-deep: #eef2f7;
@@ -248,6 +250,36 @@
     max-width: 72rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
+  }
+
+  /*
+    Cursor-following wash in the hero. Sized once and moved only with
+    `transform`, so every frame stays on the compositor: no layout, no repaint.
+    Hidden until the script marks it active, which it only does for a fine
+    pointer and when the reader has not asked for reduced motion.
+  */
+  .hero-spotlight {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    width: 34rem;
+    height: 34rem;
+    margin: -17rem 0 0 -17rem;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle closest-side,
+      color-mix(in oklab, var(--color-accent-alt) 20%, transparent),
+      transparent 70%
+    );
+    filter: blur(40px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s var(--ease-out-soft);
+  }
+
+  .hero-spotlight[data-active] {
+    opacity: var(--spotlight-opacity, 1);
   }
 
   /* --- Decorative background glow --- */
