@@ -71,8 +71,10 @@ phone: '',                     // rândul dispare peste tot
 ```
 
 Ambele apar în cardul de contact **și** în footer, deci și pe paginile care nu
-au secțiune de contact (servicii, blog, studii de caz). În footer WhatsApp e
-scris pe litere, nu ca număr — numărul e deja pe rândul de deasupra.
+au secțiune de contact (servicii, blog, studii de caz). Numărul e scris o
+singură dată în fiecare loc, pe rândul de telefon; linkul de WhatsApp poartă un
+îndemn („Scrie-mi pe WhatsApp") în loc să-l repete. Textul e în
+`contact.whatsappAction`.
 
 Golirea lui `phone` scoate și `telephone` din datele structurate. Acolo se
 publică forma apelabilă (`+40767079882`), nu cea cu spații — pe aia o citesc

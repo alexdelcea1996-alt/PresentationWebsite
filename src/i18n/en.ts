@@ -422,6 +422,7 @@ export const en: Content = {
     emailLabel: 'Email',
     phoneLabel: 'Phone',
     whatsappLabel: 'WhatsApp',
+    whatsappAction: 'Message me on WhatsApp',
     whatsappMessage: 'Hi! I came across your site and would like to discuss a project.',
     responseTime: 'I usually reply within the same working day.',
   },

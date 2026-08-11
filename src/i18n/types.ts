@@ -227,6 +227,8 @@ export interface Content {
     emailLabel: string;
     phoneLabel: string;
     whatsappLabel: string;
+    /** Call to action on the WhatsApp link, in place of repeating the number. */
+    whatsappAction: string;
     /** Pre-filled first message in the WhatsApp chat. */
     whatsappMessage: string;
     responseTime: string;

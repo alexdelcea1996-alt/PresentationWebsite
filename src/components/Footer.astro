@@ -27,12 +27,12 @@ const links = [
 
 // One list for every way of reaching Alex. Entries with an empty href are
 // dropped, so an unset phone or social profile simply does not appear.
-// WhatsApp is labelled by name rather than by number: the number is already
-// on the line above it, and repeating it reads like a mistake.
+// WhatsApp carries a call to action rather than the number: the number is
+// already on the line above it, and repeating it reads like a mistake.
 const contacts = [
   { href: `mailto:${site.email}`, label: site.email, external: false },
   { href: telHref(), label: site.phone, external: false },
-  { href: whatsappHref(t.contact.whatsappMessage), label: 'WhatsApp', external: true },
+  { href: whatsappHref(t.contact.whatsappMessage), label: t.contact.whatsappAction, external: true },
   { href: site.social.github, label: 'GitHub', external: true },
   { href: site.social.linkedin, label: 'LinkedIn', external: true },
 ].filter((contact) => contact.href);

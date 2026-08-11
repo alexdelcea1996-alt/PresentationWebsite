@@ -71,7 +71,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
   ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
 - Suite separate pentru configurator (19), temă (14), hero (12), programare (18)
-  și canale de contact (35)
+  și canale de contact (39)
 
 ## 6. Ce mai e de făcut înainte de lansare
 

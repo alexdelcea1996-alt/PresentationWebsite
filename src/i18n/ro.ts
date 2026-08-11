@@ -422,6 +422,7 @@ export const ro: Content = {
     emailLabel: 'E-mail',
     phoneLabel: 'Telefon',
     whatsappLabel: 'WhatsApp',
+    whatsappAction: 'Scrie-mi pe WhatsApp',
     whatsappMessage: 'Bună! Am văzut site-ul tău și aș vrea să discutăm despre un proiect.',
     responseTime: 'Răspund de obicei în aceeași zi lucrătoare.',
   },

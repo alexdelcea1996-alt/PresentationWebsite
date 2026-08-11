@@ -211,7 +211,9 @@ const labelClass = 'block text-sm font-medium text-fg';
               </span>
               <span class="min-w-0">
                 <span class="block text-xs text-fg-subtle">{t.whatsappLabel}</span>
-                <span class="block truncate text-sm font-medium text-fg">{site.whatsapp}</span>
+                {/* The number is already on the phone row above; this one
+                    carries the action instead of repeating it. */}
+                <span class="block truncate text-sm font-medium text-fg">{t.whatsappAction}</span>
               </span>
             </a>
           )
