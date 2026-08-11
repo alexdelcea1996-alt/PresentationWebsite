@@ -274,4 +274,12 @@ export interface Content {
     builtWith: string;
     nav: string;
   };
+  notFound: {
+    metaTitle: string;
+    code: string;
+    title: string;
+    body: string;
+    home: string;
+    linksTitle: string;
+  };
 }

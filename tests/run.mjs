@@ -24,6 +24,7 @@ const SUITES = [
   'a11y-light',
   'csp',
   'transitions',
+  'completeness',
   'interact',
   'channels',
   'metrics',

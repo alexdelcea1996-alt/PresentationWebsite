@@ -470,4 +470,13 @@ export const ro: Content = {
     builtWith: 'Construit cu Astro. Fără șabloane cumpărate.',
     nav: 'Navigare',
   },
+
+  notFound: {
+    metaTitle: 'Pagina nu există (404) | Alex Delcea',
+    code: '404',
+    title: 'Pagina asta nu există',
+    body: 'Ori linkul e greșit, ori am mutat pagina și am uitat să pun o redirecționare. A doua variantă e vina mea — scrie-mi și o repar.',
+    home: 'Înapoi la prima pagină',
+    linksTitle: 'Sau mergi direct la',
+  },
 };

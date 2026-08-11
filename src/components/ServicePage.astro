@@ -29,6 +29,20 @@ const alternates = Object.fromEntries(
 
 const home = getRelativeLocaleUrl(locale);
 const anchor = (id: string) => `${home}#${id}`.replace(/\/{2,}/g, '/');
+
+// The questions are already written and already on the page — this just states
+// them in the form search engines read. Built as an object and serialised by
+// JSON.stringify, because the answers contain both „…" and "…" quotes and a
+// hand-assembled JSON string would break on them.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: d.faq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
 ---
 
 <Base
@@ -36,6 +50,7 @@ const anchor = (id: string) => `${home}#${id}`.replace(/\/{2,}/g, '/');
   title={d.metaTitle}
   description={d.metaDescription}
   alternates={alternates}
+  extraSchema={faqSchema}
 >
   <Header locale={locale} />
 

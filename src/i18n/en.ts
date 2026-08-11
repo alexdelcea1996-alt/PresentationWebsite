@@ -470,4 +470,13 @@ export const en: Content = {
     builtWith: 'Built with Astro. No purchased templates.',
     nav: 'Navigation',
   },
+
+  notFound: {
+    metaTitle: 'Page not found (404) | Alex Delcea',
+    code: '404',
+    title: 'This page does not exist',
+    body: 'Either the link is wrong, or I moved the page and forgot to leave a redirect. The second one is on me — tell me and I will fix it.',
+    home: 'Back to the home page',
+    linksTitle: 'Or go straight to',
+  },
 };

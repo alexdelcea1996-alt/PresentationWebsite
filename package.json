@@ -5,18 +5,20 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/build-headers.mjs",
+    "build": "astro build && node scripts/build-sitemap-alternates.mjs && node scripts/build-headers.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "og": "node scripts/generate-og-image.mjs",
     "fonts": "node scripts/fetch-fonts.mjs",
-    "test": "node tests/run.mjs"
+    "test": "node tests/run.mjs",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.0",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {

@@ -48,6 +48,7 @@ const types = {
   '.avif': 'image/avif',
   '.xml': 'application/xml',
   '.json': 'application/json',
+  '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain',
   '.ico': 'image/x-icon',
 };
@@ -57,6 +58,7 @@ const server = createServer(async (req, res) => {
   if (path.endsWith('/')) path += 'index.html';
 
   let body;
+  let status = 200;
   try {
     body = await readFile(join(DIST, path));
   } catch {
@@ -64,8 +66,15 @@ const server = createServer(async (req, res) => {
       body = await readFile(join(DIST, path, 'index.html'));
       path += '/index.html';
     } catch {
-      res.writeHead(404);
-      return res.end('not found');
+      // Same as Cloudflare: unknown paths get 404.html with a 404 status.
+      try {
+        body = await readFile(join(DIST, '404.html'));
+        path = '/404.html';
+        status = 404;
+      } catch {
+        res.writeHead(404);
+        return res.end('not found');
+      }
     }
   }
 
@@ -77,7 +86,7 @@ const server = createServer(async (req, res) => {
   }
 
   res.setHeader('Content-Type', types[extname(path)] ?? 'application/octet-stream');
-  res.writeHead(200);
+  res.writeHead(status);
   res.end(body);
 });
 

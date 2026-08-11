@@ -68,10 +68,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **192 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+- **245 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
   dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18), tranziții (15)
+  programare (18), tranziții (15), completitudine (53)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -121,10 +121,10 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 4. ✅ WhatsApp și telefon ca și canale de contact — în cardul de contact și în
    footer (deci pe toate paginile). WhatsApp cu mesaj pre-scris, RO/EN;
    telefonul și ca `telephone` în datele structurate
-5. Secțiune FAQ (conversie + long-tail SEO; fără promisiuni de rich snippets)
+5. Secțiune FAQ pe prima pagină (cea de pe paginile de serviciu e deja emisă ca `FAQPage`)
 6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
 7. Pagină de politică de confidențialitate (GDPR)
-8. Pagină 404 + set complet de iconuri (apple-touch-icon, manifest)
+8. ✅ Pagină 404 + set complet de iconuri (apple-touch-icon, maskable, manifest)
 9. Cloudflare Web Analytics (gratuit, fără cookie-uri)
 10. Micro-optimizări de conversie (bandă CTA finală, „răspund în 24h" la buton, CTA sticky pe mobil)
 
@@ -156,8 +156,9 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 6. Studiul de caz cu slider înainte/după și gauge-uri animate
 7. Secțiune „Garanții" în locul casetelor goale de testimoniale
 8. Demo funcțional de aplicație web
-9. Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 192 de verificări
+9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
+   (56 de întrebări), `hreflang` reparat pe 14 din 18 URL-uri din sitemap
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 245 de verificări
 
 ## 9. Idei pentru v2
 

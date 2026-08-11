@@ -21,6 +21,8 @@ interface Props {
   extraSchema?: unknown;
   /** Path to an RSS feed to advertise for this page. */
   feed?: string;
+  /** Keeps the page out of search results — the 404 has nothing to rank for. */
+  noindex?: boolean;
 }
 
 const {
@@ -31,6 +33,7 @@ const {
   ogType = 'website',
   extraSchema,
   feed,
+  noindex = false,
 } = Astro.props;
 const t = getContent(locale);
 
@@ -81,10 +84,21 @@ const structuredData = {
 
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
-    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
-    {alternates.map((alt) => <link rel="alternate" hreflang={alt.tag} href={alt.href} />)}
-    <link rel="alternate" hreflang="x-default" href={alternates[0]!.href} />
+    {/* A 404 is served under every wrong address there is, so a canonical or an
+        hreflang pair would be claiming things about URLs that do not exist. */}
+    {
+      !noindex && (
+        <>
+          <link rel="canonical" href={canonical.href} />
+          {alternates.map((alt) => (
+            <link rel="alternate" hreflang={alt.tag} href={alt.href} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={alternates[0]!.href} />
+        </>
+      )
+    }
 
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
@@ -103,7 +117,11 @@ const structuredData = {
     <meta name="twitter:image" content={ogImage.href} />
 
     <meta name="theme-color" content="#0b0f1a" />
+    {/* SVG first for anything modern; the PNG is there for what is not. */}
     <link rel="icon" href={faviconHref} type="image/svg+xml" />
+    <link rel="icon" href={asset('favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+    <link rel="manifest" href={asset('site.webmanifest')} />
 
     <Font cssVariable="--ff-display" preload />
     <Font cssVariable="--ff-body" preload />

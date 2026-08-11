@@ -27,8 +27,9 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 192 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 245 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
+| `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run og` | Regenerează imaginile de partajare pe social media |
 
 `npm test` are nevoie de un build recent — testele verifică ce e în `dist/`, nu
@@ -426,6 +427,24 @@ Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textel
 
 **De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
 cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
+## Iconuri, manifest și pagina 404
+
+**Iconurile** se generează din `public/favicon.svg` cu `npm run icons` și se
+commit-uiesc, la fel ca fonturile — build-ul rămâne determinist. Rezultă
+`apple-touch-icon.png`, `icon-192`, `icon-512`, `icon-maskable-512`,
+`favicon-32` și `site.webmanifest`, deci site-ul se poate instala pe telefon.
+
+Iconul maskable e fișier separat din motiv practic: Android decupează iconul
+după forma lansatorului și garantează doar 80% din mijloc. Iconul normal ar
+rămâne fără colțuri; ăsta e desenat mai mic, pe fundal plin, ca să aibă ce
+decupa. Dacă schimbi `favicon.svg`, rulezi `npm run icons` din nou.
+
+**Pagina 404** e `src/pages/404.astro`. Cloudflare o servește pentru orice
+adresă greșită, în orice limbă, deci le conține pe amândouă: română principal,
+engleză pe un rând. E marcată `noindex` și **nu** emite `canonical` sau
+`hreflang` — un 404 răspunde la orice adresă greșită, deci ar afirma lucruri
+despre URL-uri care nu există.
 
 ## Tranziții între pagini
 
