@@ -41,7 +41,7 @@ export const site: Site = {
    * Leave empty and every booking affordance disappears from the site; nothing
    * renders a dead button.
    */
-  calLink: '',
+  calLink: 'delcea-alexandru-arqdvl/30min',
 
   /**
    * Web3Forms access key for the contact form (https://web3forms.com — free).

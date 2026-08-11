@@ -209,19 +209,19 @@ Formularul comută automat pe trimitere reală când cheia există.
 
 ## Programare directă (Cal.com)
 
-Dezactivată implicit. Ca s-o activezi:
+**Activă.** Calendarul conectat e
+`cal.com/delcea-alexandru-arqdvl/30min`, setat prin `calLink` în
+`src/data/site.ts`. Apare un card în secțiunea de contact, iar calendarul se
+deschide într-un modal peste pagină, fără să părăsești site-ul.
 
-1. Fă-ți cont pe [cal.com](https://cal.com) și creează un tip de eveniment de 30
-   de minute pentru discuția inițială.
-2. În `src/data/site.ts`, pune calea din linkul tău public:
-   ```ts
-   calLink: 'numele-tau/30min',
-   ```
+Ca s-o schimbi sau s-o oprești, editezi aceeași linie:
 
-Atât. Apare un card în secțiunea de contact, iar calendarul se deschide într-un
-modal peste pagină, fără să părăsești site-ul.
+```ts
+calLink: 'alt-nume/60min',   // altă adresă
+calLink: '',                 // oprită complet
+```
 
-**Cât timp `calLink` e gol, nu se randează absolut nimic** — nici markup, nici
+**Cu `calLink` gol nu se randează absolut nimic** — nici markup, nici
 JavaScript, iar politica de securitate rămâne cu `frame-src 'none'`. Nu există
 buton mort.
 

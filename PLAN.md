@@ -85,6 +85,10 @@ Pași care necesită decizii sau conținut de la Alex:
 5. **Adaugă 2–3 proiecte** în portofoliu, cu problemă, soluție și rezultat.
 6. **Adaugă testimoniale** pe măsură ce le primești de la clienți.
 7. **Activează formularul** cu o cheie Web3Forms (vezi README).
+   Programarea Cal.com e deja activă: `cal.com/delcea-alexandru-arqdvl/30min`.
+   **De verificat la prima folosire:** că modalul chiar afișează calendarul —
+   Cal.com nu a fost accesibil din mediul de build, deci încadrarea în iframe
+   nu a putut fi testată cu un calendar real.
 8. **Cumpără domeniul**, leagă-l în Cloudflare și setează `SITE_URL`.
 
 ### Traseul până la Cloudflare
