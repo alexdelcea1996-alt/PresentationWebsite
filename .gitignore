@@ -20,3 +20,7 @@ pnpm-debug.log*
 .DS_Store
 .vscode/
 .idea/
+
+# generated intermediates from `npm run fonts`
+src/assets/fonts/.raw-*
+src/assets/fonts/.charset.txt

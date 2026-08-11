@@ -13,9 +13,10 @@ Rulat cu Lighthouse pe build-ul de producție:
 | | Performanță | Accesibilitate | Bune practici | SEO |
 |---|---|---|---|---|
 | Desktop | 100 | 100 | 100 | 100 |
-| Mobil | 98 | 100 | 100 | 100 |
+| Mobil | 99 | 100 | 100 | 100 |
 
-Zero încălcări axe-core (WCAG 2.1 AA) pe ambele limbi.
+Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
+ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 
 ## Comenzi
 
@@ -26,7 +27,7 @@ Zero încălcări axe-core (WCAG 2.1 AA) pe ambele limbi.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm run fonts` | Redescarcă fonturile brandului (vezi mai jos) |
+| `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run og` | Regenerează imaginile de partajare pe social media |
 
 ## Structura
@@ -298,10 +299,46 @@ luminos în ambele teme.
 
 ## Fonturi
 
-Space Grotesk și Inter sunt descărcate ca fonturi variabile și **commit-uite în
-repo**, în `src/assets/fonts/`. Astfel build-ul nu depinde de rețea și dă
-același rezultat oriunde. Fiecare familie are două fișiere separate pe
-`unicode-range`: `latin` și `latin-ext` — al doilea conține diacriticele
-românești (ă, ș, ț) și se descarcă doar pe paginile care le folosesc.
+Space Grotesk și Inter sunt descărcate ca fonturi variabile, **subsetate la
+caracterele pe care site-ul le folosește efectiv** și commit-uite în repo, în
+`src/assets/fonts/`. Build-ul nu depinde de rețea și dă același rezultat oriunde.
 
-Rulează `npm run fonts` doar dacă schimbi tipografia sau intervalul de greutăți.
+Subsetarea taie 170 kB la **57 kB** (−66%). Cel mai mare câștig e la fișierul
+`latin-ext` al lui Inter: 83 kB → 7 kB, pentru că din tot alfabetul extins
+european site-ul are nevoie doar de diacriticele românești.
+
+`npm run fonts` reia tot lanțul: descarcă de la Google, adună caracterele din
+`src/i18n/`, `src/content/` și `src/data/`, le unește cu o listă de bază
+(ASCII, Latin-1, setul românesc complet — și cu virgulă, și cu sedilă — plus
+semnele tipografice folosite în design) și rulează `pyftsubset`.
+
+**Când trebuie rulat din nou:** dacă adaugi conținut în altă limbă, cu litere
+care nu sunt în lista de bază (de exemplu poloneză sau maghiară). Altfel acele
+câteva litere se vor afișa cu fontul de sistem. Necesită `pip install fonttools brotli`.
+
+Fiecare familie are două fișiere separate pe `unicode-range`: `latin` și
+`latin-ext` — al doilea se descarcă doar pe paginile care chiar folosesc
+diacritice.
+
+## Securitate
+
+Header-ele HTTP sunt generate la build de `scripts/build-headers.mjs`, care
+scrie `dist/_headers` (formatul citit de Cloudflare). Rulează automat ca parte
+din `npm run build`.
+
+Politica de securitate a conținutului (CSP) nu folosește `unsafe-inline`.
+Site-ul are câteva scripturi inline de care nu se poate lipsi — în primul rând
+cel care stabilește tema înainte de primul paint — iar a permite tot codul
+inline ca să le acopere ar anula aproape tot rostul unui CSP. Un site static nu
+poate folosi nonce-uri, pentru că HTML-ul nu se generează la fiecare cerere, așa
+că scriptul calculează **hash-uri SHA-256** din blocurile inline pe care Astro
+chiar le-a emis și le trece în politică.
+
+Consecința practică: **dacă modifici un script inline sau CSS-ul fonturilor,
+hash-urile se regenerează singure la următorul build.** Nu ai ce întreține
+manual. Dar dacă adaugi un serviciu extern (analytics, hartă, widget), trebuie
+adăugat explicit în `scripts/build-headers.mjs` — altfel browserul îl blochează.
+
+Pe lângă CSP: `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`,
+`Permissions-Policy` care refuză cameră, microfon și localizare, și
+`Cross-Origin-Opener-Policy`.

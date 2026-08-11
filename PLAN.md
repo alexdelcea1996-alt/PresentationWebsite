@@ -65,7 +65,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 ### Verificat
 
-- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
+- Lighthouse desktop **100 / 100 / 100 / 100**, mobil **99 / 100 / 100 / 100**
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi
 - 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
   ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
@@ -129,13 +129,11 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 6. ✅ Audit gratuit de site ca lead magnet (flux dedicat în formular)
 7. ✅ Blog bilingv pe content collections, cu RSS — primele 2 articole scrise
 8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
-9. Pachet performanță & securitate: subsetare fonturi (~-100 kB), Content-Security-Policy, preload-uri
+9. ✅ Pachet performanță & securitate: fonturi subsetate (170 → 57 kB), CSP cu hash-uri SHA-256, header-e de securitate
 10. Semnătură vizuală interactivă în hero (reacție la cursor, cu respect pentru prefers-reduced-motion)
 
 ## 9. Idei pentru v2
 
 - Pagini dedicate de studiu de caz, cu capturi și detalii tehnice
 - Blog / articole scurte (util pentru SEO pe termen lung)
-- Subsetarea fonturilor la caracterele folosite efectiv (ar tăia ~100 kB din cele
-  170 kB de fonturi; nu e urgent, scorul e deja 98–100)
 - Pagină 404 personalizată
