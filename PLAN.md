@@ -74,8 +74,11 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 Pași care necesită decizii sau conținut de la Alex:
 
-1. **Activează GitHub Pages** — Settings → Pages → Source: *GitHub Actions*. Fără
-   acest pas, workflow-ul rulează dar publicarea eșuează. (o singură dată)
+1. **Deblochează publicarea.** Repo-ul e privat și GitHub Actions nu pornește deloc
+   (`startup_failure`, zero job-uri, deși workflow-urile sunt valide). Cel mai simplu
+   e să faci repository-ul public, ceea ce rezolvă și minutele de Actions, și accesul
+   la Pages. Apoi: Settings → Pages → Source: *GitHub Actions*. Detalii și alternative
+   în README, secțiunea „De rezolvat înainte ca deploy-ul să funcționeze".
 2. **Confirmă datele de contact** din `src/data/site.ts`. Acum e folosit
    `alexdelcea1996@gmail.com`; dacă vrei o adresă dedicată de business, schimb-o.
 3. **Confirmă numele brandului** — momentan „Alex Delcea".

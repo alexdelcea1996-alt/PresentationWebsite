@@ -123,6 +123,30 @@ Deploy-ul rulează automat prin GitHub Actions la fiecare push
 
 Site-ul apare la `https://alexdelcea1996-alt.github.io/PresentationWebsite/`.
 
+### De rezolvat înainte ca deploy-ul să funcționeze
+
+La momentul scrierii, repository-ul este **privat** și GitHub Actions nu pornește:
+fiecare push produce un run care eșuează instant, cu `startup_failure`, fără niciun
+job executat. Ambele fișiere de workflow sunt valide și prezente în repo, iar
+build-ul trece local — deci cauza este la nivel de cont sau de repository, nu în cod.
+
+Cele două explicații probabile, ambele legate de faptul că repo-ul e privat:
+
+1. **Minute Actions epuizate sau lipsă metodă de plată.** Repo-urile private consumă
+   din cota lunară de minute; când cota e depășită, run-urile eșuează exact așa.
+   Se verifică la **Settings → Billing** pe contul GitHub.
+2. **GitHub Pages nu e disponibil pe repo-uri private** în planul gratuit — e nevoie
+   de GitHub Pro.
+
+**Recomandarea mea: fă repository-ul public** (Settings → General → Danger Zone →
+Change visibility). Pentru un site de prezentare e firesc — codul devine el însuși
+o piesă de portofoliu — și rezolvă ambele probleme deodată: minute Actions
+nelimitate și Pages gratuit. Nu am făcut eu schimbarea pentru că trecerea unui
+repository din privat în public e ireversibilă în efecte și e decizia ta.
+
+Alternativ, dacă vrei să rămână privat: activează GitHub Pro, sau publică pe
+Cloudflare Pages / Netlify, care oferă hosting gratuit și pentru repo-uri private.
+
 ### Domeniu propriu
 
 1. Cumpără domeniul și adaugă-l la **Settings → Pages → Custom domain**.
