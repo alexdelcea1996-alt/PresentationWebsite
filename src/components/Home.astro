@@ -7,6 +7,7 @@ import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Hero from './sections/Hero.astro';
+import LiveMetrics from './sections/LiveMetrics.astro';
 import Services from './sections/Services.astro';
 import Process from './sections/Process.astro';
 import Comparison from './sections/Comparison.astro';
@@ -30,6 +31,8 @@ const { locale } = Astro.props;
 
   <main id="main">
     <Hero locale={locale} />
+    {/* Directly under the hero's "95+ Lighthouse" claim, so the proof sits next to it. */}
+    <LiveMetrics locale={locale} />
     <Services locale={locale} />
     <Process locale={locale} />
     {/* Objection handling before the proof, so the price list lands on a convinced reader. */}

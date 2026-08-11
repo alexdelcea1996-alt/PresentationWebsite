@@ -390,6 +390,34 @@ Fiecare familie are două fișiere separate pe `unicode-range`: `latin` și
 `latin-ext` — al doilea se descarcă doar pe paginile care chiar folosesc
 diacritice.
 
+## Banda cu măsurători (sub hero)
+
+Hero-ul promite „95+ scor Lighthouse". Banda de sub el dovedește, măsurând chiar
+pagina pe care stă, în browserul vizitatorului. Nimic nu e scris de mână la build:
+
+- **Conținut afișat în** — Largest Contentful Paint, exact metrica pe care o
+  folosește Google
+- **Cât cântărește** — suma `decodedBodySize` pe toate resursele plus documentul
+- **Din care JavaScript** — scripturile externe plus textul celor inline (JSON-LD
+  nu intră, e date, nu cod)
+
+Trei detalii care contează dacă umbli la ea:
+
+1. Folosește `decodedBodySize`, **nu `transferSize`**. Cu `transferSize`, un
+   vizitator care revine ar vedea „2 kB", fiindcă totul vine din cache — adevărat,
+   dar arată a defect.
+2. Măsoară **când pagina s-a liniștit** (`requestIdleCallback`), nu la `load`.
+   Favicon-ul aterizează exact în jurul lui `load`, iar o cifră care variază cu un
+   kilobyte de la o încărcare la alta nu merită arătată.
+3. Fără JavaScript banda **nu se afișează deloc** — nu există măsurători, deci nu
+   are ce arăta. Clasa `.js-only` se ocupă de asta.
+
+Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textele sunt
+în `liveMetrics`, în `src/i18n/ro.ts` și `en.ts`.
+
+**De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
+cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
 ## Mișcarea din hero
 
 Cele două halouri de gradient din hero se deplasează ușor în direcții opuse după

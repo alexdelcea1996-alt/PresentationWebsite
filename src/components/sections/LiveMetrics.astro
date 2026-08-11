@@ -1,0 +1,154 @@
+---
+/**
+ * The hero above claims the site is fast. This band proves it, using the
+ * visitor's own browser to measure the page they are currently looking at.
+ * Nothing here is baked in at build time.
+ */
+import Icon from '../Icon.astro';
+import { getContent, localeTags, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).liveMetrics;
+
+// Point PageSpeed at the canonical URL, not at whichever host ran the build.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const pageSpeedUrl = `https://pagespeed.web.dev/analysis?url=${encodeURIComponent(canonical)}`;
+
+const metrics = [
+  { id: 'lcp', label: t.lcpLabel },
+  { id: 'weight', label: t.weightLabel },
+  { id: 'js', label: t.jsLabel },
+];
+---
+
+{/* Nothing to show without scripting — the numbers only exist once measured. */}
+<section class="js-only pb-6" aria-labelledby="live-metrics-title" data-live-metrics data-locale={localeTags[locale]}>
+  <div class="container-page">
+    <div
+      class="flex flex-col gap-6 rounded-2xl border border-border bg-surface/50 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10"
+      data-reveal
+    >
+      <div class="min-w-0 lg:max-w-xs">
+        <h2 id="live-metrics-title" class="flex items-center gap-2 text-sm font-semibold text-fg">
+          <Icon name="gauge" class="size-4 shrink-0 text-accent-alt" />
+          {t.title}
+        </h2>
+        <p class="mt-1.5 text-xs leading-relaxed text-fg-subtle">{t.note}</p>
+      </div>
+
+      {/* Subgrid keeps every label on one row and every value on the next, so a
+          label that wraps on a narrow screen cannot knock the numbers out of
+          line with each other. */}
+      <dl class="grid grid-cols-3 grid-rows-[auto_auto] gap-x-4 gap-y-1 sm:gap-x-8 lg:ml-auto">
+        {
+          metrics.map((metric) => (
+            <div class="row-span-2 grid min-w-0 grid-rows-subgrid">
+              <dt class="text-xs leading-tight text-fg-subtle">{metric.label}</dt>
+              <dd
+                class="self-end font-display text-lg font-semibold tabular-nums text-fg sm:text-xl"
+                data-metric={metric.id}
+              >
+                {t.pending}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <a
+        href={pageSpeedUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-ghost shrink-0 text-sm"
+      >
+        {t.verify}
+        <Icon name="arrow-right" class="size-4" />
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const band = document.querySelector<HTMLElement>('[data-live-metrics]');
+
+  if (band && typeof performance?.getEntriesByType === 'function') {
+    const locale = band.dataset.locale ?? 'ro';
+    const kilobytes = (bytes: number) =>
+      `${new Intl.NumberFormat(locale).format(Math.round(bytes / 1024))} kB`;
+    const seconds = (ms: number) =>
+      `${new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(ms / 1000)} s`;
+
+    const set = (name: string, value: string) => {
+      const cell = band.querySelector(`[data-metric="${name}"]`);
+      if (cell) cell.textContent = value;
+    };
+
+    // The moment the page looked finished, as Google measures it.
+    let lcp = 0;
+    try {
+      new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        lcp = entries[entries.length - 1]?.startTime ?? lcp;
+      }).observe({ type: 'largest-contentful-paint', buffered: true });
+    } catch {
+      // Older Safari has no LCP; the load timestamp stands in below.
+    }
+
+    const report = () => {
+      const nav = performance.getEntriesByType('navigation')[0] as
+        | PerformanceNavigationTiming
+        | undefined;
+      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+
+      // decodedBodySize rather than transferSize: it reads the same whether or
+      // not the visit hit the cache, so a returning visitor is not shown a
+      // meaningless "2 kB". It also keeps the JS figure below in the same unit.
+      let total = nav?.decodedBodySize ?? 0;
+      let js = 0;
+
+      for (const resource of resources) {
+        total += resource.decodedBodySize || 0;
+        if (resource.initiatorType === 'script') js += resource.decodedBodySize || 0;
+      }
+
+      // Inline scripts ship inside the HTML, so they are already counted in
+      // `total`; measuring their text just breaks out how much of the page is
+      // JavaScript. JSON-LD is data, not code, so it stays out.
+      const encoder = new TextEncoder();
+      for (const script of document.querySelectorAll('script')) {
+        if (!script.src && script.type !== 'application/ld+json') {
+          js += encoder.encode(script.textContent ?? '').length;
+        }
+      }
+
+      const paint = lcp || nav?.domContentLoadedEventEnd || 0;
+      if (paint) set('lcp', seconds(paint));
+      if (total) set('weight', kilobytes(total));
+      if (js) set('js', kilobytes(js));
+      band.dataset.ready = 'true';
+    };
+
+    // Measure once the page has gone quiet, not on `load`. Late arrivals — the
+    // favicon in particular — can land either side of that event, and a figure
+    // that changes by a kilobyte depending on the race is not a figure worth
+    // showing. Idle also gives LCP time to settle on its final candidate.
+    // Safari only shipped requestIdleCallback in 17, hence the timeout fallback.
+    const settle = () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(report, { timeout: 1200 });
+      } else {
+        window.setTimeout(report, 400);
+      }
+    };
+
+    if (document.readyState === 'complete') settle();
+    else window.addEventListener('load', settle, { once: true });
+  }
+</script>

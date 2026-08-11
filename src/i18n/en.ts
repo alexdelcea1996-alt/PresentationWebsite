@@ -51,6 +51,16 @@ export const en: Content = {
     ],
   },
 
+  liveMetrics: {
+    title: 'This page, measured just now',
+    note: 'Not marketing numbers. Your own browser measured them on this visit.',
+    lcpLabel: 'Content shown in',
+    weightLabel: 'Total size',
+    jsLabel: 'Of which JavaScript',
+    pending: '—',
+    verify: 'Check it yourself',
+  },
+
   services: {
     eyebrow: 'Services',
     title: 'What I can build for you',

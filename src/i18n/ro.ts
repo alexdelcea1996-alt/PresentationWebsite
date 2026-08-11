@@ -51,6 +51,16 @@ export const ro: Content = {
     ],
   },
 
+  liveMetrics: {
+    title: 'Pagina asta, măsurată acum',
+    note: 'Nu sunt cifre de prezentare. Le-a măsurat browserul tău, la vizita asta.',
+    lcpLabel: 'Conținut afișat în',
+    weightLabel: 'Cât cântărește',
+    jsLabel: 'Din care JavaScript',
+    pending: '—',
+    verify: 'Verifică singur',
+  },
+
   services: {
     eyebrow: 'Servicii',
     title: 'Ce pot construi pentru tine',

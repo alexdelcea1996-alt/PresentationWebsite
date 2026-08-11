@@ -70,8 +70,8 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
 - 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
   ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
-- Suite separate pentru configurator (19), temă (14), hero (12), programare (18)
-  și canale de contact (39)
+- Suite separate pentru configurator (19), temă (14), hero (12), programare (18),
+  canale de contact (39) și banda de măsurători (24)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -140,6 +140,24 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
 9. ✅ Pachet performanță & securitate: fonturi subsetate (170 → 57 kB), CSP cu hash-uri SHA-256, header-e de securitate
 10. ✅ Semnătură vizuală interactivă în hero (parallax la cursor + spotlight; oprit pentru reduced-motion și pointer grosier)
+
+### C. Pachetul „impresionăm" (propus 2026-08-11)
+
+Analiză pornită de la trei constatări: site-ul nu are **nicio imagine**, dovezile
+lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploatate.
+
+1. Imagini reale + pipeline de imagini (`sharp`, `astro:assets`, secțiune „Despre
+   mine", proiecte reale în portofoliu) — *așteaptă materiale de la Alex*
+2. ✅ Bandă care se măsoară singură — LCP, greutate și JS, măsurate în browserul
+   vizitatorului, sub afirmația din hero
+3. Auditul gratuit devine instrument real (Google PageSpeed API din browser)
+4. Tranziții între pagini, CSS nativ, zero JavaScript
+5. Imagine OG per pagină, generată în build
+6. Studiul de caz cu slider înainte/după și gauge-uri animate
+7. Secțiune „Garanții" în locul casetelor goale de testimoniale
+8. Demo funcțional de aplicație web
+9. Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
+10. Suita de teste publicată în repo, cu `npm test`
 
 ## 9. Idei pentru v2
 

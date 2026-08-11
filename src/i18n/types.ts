@@ -99,6 +99,17 @@ export interface Content {
     ctaSecondary: string;
     stats: Stat[];
   };
+  /** The band that measures the page it is sitting on. */
+  liveMetrics: {
+    title: string;
+    note: string;
+    lcpLabel: string;
+    weightLabel: string;
+    jsLabel: string;
+    /** Placeholder held until the measurements land. */
+    pending: string;
+    verify: string;
+  };
   services: {
     eyebrow: string;
     title: string;
