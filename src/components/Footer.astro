@@ -31,7 +31,7 @@ const socials = [
 ].filter((social) => social.href);
 ---
 
-<footer class="border-t border-ink-700 bg-ink-950/60 py-14">
+<footer class="border-t border-border bg-surface-deep/60 py-14">
   <div class="container-page">
     <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]">
       <div>
@@ -40,7 +40,7 @@ const socials = [
           class="flex w-fit items-center gap-2.5 font-display text-base font-semibold"
         >
           <span
-            class="grid size-8 place-items-center rounded-lg bg-linear-110 from-accent to-accent-alt text-ink-950"
+            class="grid size-8 place-items-center rounded-lg bg-linear-110 from-accent to-accent-alt text-on-accent"
           >
             <Icon name="spark" class="size-4" />
           </span>
@@ -111,7 +111,7 @@ const socials = [
     </div>
 
     <div
-      class="mt-12 flex flex-col gap-2 border-t border-ink-700 pt-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between"
+      class="mt-12 flex flex-col gap-2 border-t border-border pt-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between"
     >
       <p>© {year} {site.name}. {t.footer.rights}</p>
       <p>{t.footer.builtWith}</p>

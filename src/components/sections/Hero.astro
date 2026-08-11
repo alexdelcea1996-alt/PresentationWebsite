@@ -21,7 +21,7 @@ const t = getContent(locale).hero;
 
   {/* Subtle grid, faded out towards the edges */}
   <div
-    class="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
+    class="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
     aria-hidden="true"
   >
   </div>
@@ -29,7 +29,7 @@ const t = getContent(locale).hero;
   <div class="container-page">
     <div class="mx-auto max-w-3xl text-center">
       <p
-        class="inline-flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850/60 px-3.5 py-1.5 text-xs font-medium text-fg-muted"
+        class="inline-flex items-center gap-2 rounded-full border border-border bg-surface-raised/60 px-3.5 py-1.5 text-xs font-medium text-fg-muted"
         data-reveal
       >
         <span class="relative flex size-2">
@@ -74,13 +74,13 @@ const t = getContent(locale).hero;
     </div>
 
     <dl
-      class="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink-700 bg-ink-700 sm:grid-cols-3"
+      class="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3"
       data-reveal
       data-reveal-delay="240"
     >
       {
         t.stats.map((stat) => (
-          <div class="bg-ink-850 px-6 py-7 text-center">
+          <div class="bg-surface-raised px-6 py-7 text-center">
             <dt class="sr-only">{stat.label}</dt>
             <dd>
               <span class="block font-display text-3xl font-semibold text-gradient sm:text-4xl">

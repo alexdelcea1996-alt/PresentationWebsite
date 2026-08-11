@@ -42,7 +42,7 @@ const placeholderSlots = 2;
                 {entry.data.metrics.length > 0 && (
                   <dl class="mt-6 grid grid-cols-2 gap-3">
                     {entry.data.metrics.slice(0, 4).map((metric) => (
-                      <div class="rounded-lg border border-ink-700 bg-ink-900/50 px-3 py-2.5">
+                      <div class="rounded-lg border border-border bg-surface/50 px-3 py-2.5">
                         <dd class="font-display text-base font-semibold text-gradient">
                           {metric.value}
                         </dd>
@@ -52,9 +52,9 @@ const placeholderSlots = 2;
                   </dl>
                 )}
 
-                <ul class="mt-6 flex flex-wrap gap-2 border-t border-ink-700 pt-6">
+                <ul class="mt-6 flex flex-wrap gap-2 border-t border-border pt-6">
                   {entry.data.tech.map((tech) => (
-                    <li class="rounded-md border border-ink-700 bg-ink-800 px-2.5 py-1 text-xs text-fg-muted">
+                    <li class="rounded-md border border-border bg-surface-hover px-2.5 py-1 text-xs text-fg-muted">
                       {tech}
                     </li>
                   ))}
@@ -72,7 +72,7 @@ const placeholderSlots = 2;
                 data-reveal
                 data-reveal-delay={index * 80}
               >
-                <span class="grid size-11 place-items-center rounded-xl border border-ink-600 text-fg-subtle">
+                <span class="grid size-11 place-items-center rounded-xl border border-border-strong text-fg-subtle">
                   <Icon name="browser" class="size-5" />
                 </span>
                 <p class="mt-4 font-display text-base font-semibold text-fg-muted">

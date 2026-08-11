@@ -95,18 +95,18 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
         </header>
 
         <!-- Facts -->
-        <dl class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-ink-700 bg-ink-700 sm:grid-cols-3">
-          <div class="bg-ink-850 px-5 py-4">
+        <dl class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
+          <div class="bg-surface-raised px-5 py-4">
             <dt class="text-xs uppercase tracking-wider text-fg-subtle">
               {t.caseStudy.clientLabel}
             </dt>
             <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.client}</dd>
           </div>
-          <div class="bg-ink-850 px-5 py-4">
+          <div class="bg-surface-raised px-5 py-4">
             <dt class="text-xs uppercase tracking-wider text-fg-subtle">{t.caseStudy.yearLabel}</dt>
             <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.year}</dd>
           </div>
-          <div class="bg-ink-850 px-5 py-4">
+          <div class="bg-surface-raised px-5 py-4">
             <dt class="text-xs uppercase tracking-wider text-fg-subtle">{t.caseStudy.techLabel}</dt>
             <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.tech.join(', ')}</dd>
           </div>
@@ -143,7 +143,7 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
               <h2 class="font-display text-lg font-semibold">{t.caseStudy.metricsTitle}</h2>
               <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {entry.data.metrics.map((metric) => (
-                  <div class="rounded-xl border border-ink-700 bg-ink-850/70 p-5 text-center">
+                  <div class="rounded-xl border border-border bg-surface-raised/70 p-5 text-center">
                     <dd class="font-display text-2xl font-semibold text-gradient">{metric.value}</dd>
                     <dt class="mt-2 text-xs text-fg-muted">{metric.label}</dt>
                   </div>
@@ -162,7 +162,7 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
 
         <!-- Closing CTA -->
         <aside
-          class="mt-16 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-ink-850 to-ink-900 p-8 sm:flex-row sm:items-center sm:justify-between"
+          class="mt-16 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2 class="font-display text-xl font-semibold">{t.caseStudy.ctaTitle}</h2>

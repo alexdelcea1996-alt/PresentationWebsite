@@ -24,6 +24,11 @@ export const en: Content = {
     ariaMobile: 'Mobile menu',
   },
 
+  theme: {
+    switchToLight: 'Switch to the light theme',
+    switchToDark: 'Switch to the dark theme',
+  },
+
   langSwitch: {
     label: 'Change language',
     ro: 'Română',

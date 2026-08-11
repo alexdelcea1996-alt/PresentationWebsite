@@ -24,6 +24,11 @@ export const ro: Content = {
     ariaMobile: 'Meniu mobil',
   },
 
+  theme: {
+    switchToLight: 'Comută pe tema luminoasă',
+    switchToDark: 'Comută pe tema întunecată',
+  },
+
   langSwitch: {
     label: 'Schimbă limba',
     ro: 'Română',

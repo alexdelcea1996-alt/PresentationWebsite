@@ -268,6 +268,34 @@ Am șters workflow-urile ca să nu lase eșecuri roșii pe un repo public care e
 însuși parte din portofoliu. Dacă rezolvi problema de cont și vrei CI înapoi (build
 și type-check la fiecare push), se readaugă în câteva minute.
 
+## Teme (light / dark)
+
+Site-ul pornește pe tema preferată de sistemul vizitatorului și reține alegerea
+făcută din butonul de soare/lună din header. Tema e aplicată de un script inline
+în `<head>`, înainte de primul paint, deci nu apare niciodată un flash de culoare
+greșită la încărcare.
+
+**Cum sunt organizate culorile.** Toți tokenii de culoare sunt definiți în
+`src/styles/global.css`, o singură dată, iar tema light doar le schimbă valorile.
+Numele sunt date după **rol, nu după cât de închise sunt**:
+
+| Token | Rol |
+|---|---|
+| `surface` | fundalul paginii |
+| `surface-raised` | carduri |
+| `surface-hover` | carduri la hover, elemente ridicate |
+| `surface-deep` | footer și panouri mai adânci |
+| `border` / `border-strong` | contururi |
+| `fg` / `fg-muted` / `fg-subtle` | text principal / secundar / discret |
+| `on-accent` | text peste gradientul accent — **nu se schimbă cu tema** |
+
+Consecința practică: ca să adaugi o componentă nouă care funcționează în ambele
+teme, folosești tokenii de mai sus și nu scrii nicio culoare fixă. Nicio
+componentă nu știe că există teme.
+
+`on-accent` e singurul fixat, pentru că stă peste gradientul indigo→cyan, care e
+luminos în ambele teme.
+
 ## Fonturi
 
 Space Grotesk și Inter sunt descărcate ca fonturi variabile și **commit-uite în

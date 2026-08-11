@@ -80,6 +80,10 @@ export interface Content {
     ariaPrimary: string;
     ariaMobile: string;
   };
+  theme: {
+    switchToLight: string;
+    switchToDark: string;
+  };
   langSwitch: {
     label: string;
     ro: string;

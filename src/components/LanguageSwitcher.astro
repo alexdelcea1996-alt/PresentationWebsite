@@ -20,7 +20,7 @@ const options = locales.map((code) => ({
 ---
 
 <div
-  class={`flex items-center gap-0.5 rounded-lg border border-ink-700 bg-ink-850/70 p-0.5 ${className}`}
+  class={`flex items-center gap-0.5 rounded-lg border border-border bg-surface-raised/70 p-0.5 ${className}`}
   role="group"
   aria-label={t.langSwitch.label}
   data-lang-switcher
@@ -37,7 +37,7 @@ const options = locales.map((code) => ({
           'rounded-md px-2.5 py-1 text-xs font-semibold transition-colors',
           option.active
             ? 'bg-accent/20 text-fg'
-            : 'text-fg-subtle hover:bg-ink-700 hover:text-fg',
+            : 'text-fg-subtle hover:bg-border hover:text-fg',
         ]}
       >
         <span class="sr-only">{option.full}</span>

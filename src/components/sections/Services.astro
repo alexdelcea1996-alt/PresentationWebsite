@@ -48,7 +48,7 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
             </h3>
             <p class="mt-3 text-sm leading-relaxed text-fg-muted">{service.description}</p>
 
-            <ul class="mt-6 grow space-y-2.5 border-t border-ink-700 pt-6">
+            <ul class="mt-6 grow space-y-2.5 border-t border-border pt-6">
               {service.features.map((feature) => (
                 <li class="flex items-start gap-2.5 text-sm text-fg-muted">
                   <Icon name="check" class="mt-0.5 size-4 shrink-0 text-accent-alt" />

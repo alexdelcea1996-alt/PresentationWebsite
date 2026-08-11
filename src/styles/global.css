@@ -1,28 +1,37 @@
 @import 'tailwindcss';
 
 /* ---------------------------------------------------------------------------
-   Design tokens — "dark & premium"
-   Deep blue-black canvas, indigo→cyan accent, generous type scale.
+   Design tokens.
+
+   The surface scale is named by ROLE, not by darkness, because the values flip
+   between themes: `surface-deep` is the darkest panel in dark mode and the
+   subtly tinted one in light mode. Only `on-accent` is fixed — it sits on the
+   bright indigo→cyan gradient, which needs dark text in both themes.
+
+   Dark is the brand default and lives on bare `:root`; the light theme
+   overrides the same names. Nothing else in the codebase knows a theme exists.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Surfaces */
-  --color-ink-950: #070a12;
-  --color-ink-900: #0b0f1a;
-  --color-ink-850: #0f1420;
-  --color-ink-800: #131a29;
-  --color-ink-700: #1c2436;
-  --color-ink-600: #2a3448;
+  /* Surfaces (dark theme values) */
+  --color-surface-deep: #070a12;
+  --color-surface: #0b0f1a;
+  --color-surface-raised: #0f1420;
+  --color-surface-hover: #131a29;
+  --color-border: #1c2436;
+  --color-border-strong: #2a3448;
 
   /* Foreground */
   --color-fg: #f1f5f9;
   --color-fg-muted: #9aa8be;
-  /* Lightened from #6b7a92 to clear WCAG AA (4.5:1) for small text on the footer surface. */
   --color-fg-subtle: #8592a8;
 
   /* Accent */
   --color-accent: #6366f1;
   --color-accent-bright: #818cf8;
   --color-accent-alt: #22d3ee;
+
+  /* Always dark: this sits on top of the accent gradient in both themes. */
+  --color-on-accent: #05070d;
 
   /* Typography — families come from Astro's font pipeline (self-hosted) */
   --font-display: var(--ff-display);
@@ -31,6 +40,36 @@
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Non-colour theme knobs that Tailwind does not need to generate utilities for. */
+:root {
+  color-scheme: dark;
+  /* Ambient gradient washes read as heavy smudges on a light page. */
+  --glow-opacity: 1;
+  --grid-line: rgb(255 255 255 / 0.6);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --glow-opacity: 0.45;
+  --grid-line: rgb(15 23 42 / 0.5);
+
+  --color-surface-deep: #eef2f7;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f8fafc;
+  --color-surface-hover: #eff3f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  --color-fg: #0f172a;
+  --color-fg-muted: #475569;
+  --color-fg-subtle: #5b6b82;
+
+  /* Darkened so text and thin strokes still clear AA on a white page. */
+  --color-accent: #4f46e5;
+  --color-accent-bright: #4338ca;
+  --color-accent-alt: #0e7490;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -43,11 +82,14 @@
   }
 
   body {
-    background-color: var(--color-ink-900);
+    background-color: var(--color-surface);
     color: var(--color-fg);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    transition:
+      background-color 0.25s var(--ease-out-soft),
+      color 0.25s var(--ease-out-soft);
   }
 
   h1,
@@ -71,7 +113,7 @@
 
   /* Visible, on-brand focus ring for keyboard users */
   :focus-visible {
-    outline: 2px solid var(--color-accent-alt);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -121,8 +163,13 @@
       var(--color-accent) 0%,
       var(--color-accent-alt) 100%
     );
-    color: #05070d;
+    color: var(--color-on-accent);
     box-shadow: 0 6px 24px -8px color-mix(in oklab, var(--color-accent) 70%, transparent);
+  }
+
+  /* The light palette darkens the gradient, so light text reads better on it. */
+  :root[data-theme='light'] .btn-primary {
+    color: #fff;
   }
 
   .btn-primary:hover {
@@ -131,24 +178,24 @@
   }
 
   .btn-ghost {
-    border: 1px solid var(--color-ink-600);
-    background-color: color-mix(in oklab, var(--color-ink-800) 60%, transparent);
+    border: 1px solid var(--color-border-strong);
+    background-color: color-mix(in oklab, var(--color-surface-hover) 60%, transparent);
     color: var(--color-fg);
   }
 
   .btn-ghost:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in oklab, var(--color-accent-alt) 60%, transparent);
-    background-color: var(--color-ink-800);
+    border-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+    background-color: var(--color-surface-hover);
   }
 
   /* --- Cards --- */
   .card {
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--color-ink-700);
+    border: 1px solid var(--color-border);
     border-radius: 1rem;
-    background-color: color-mix(in oklab, var(--color-ink-850) 85%, transparent);
+    background-color: color-mix(in oklab, var(--color-surface-raised) 85%, transparent);
     padding: 1.75rem;
     transition:
       transform 0.3s var(--ease-out-soft),
@@ -158,15 +205,15 @@
 
   .card-hover:hover {
     transform: translateY(-4px);
-    border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-ink-700));
-    background-color: var(--color-ink-800);
+    border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-border));
+    background-color: var(--color-surface-hover);
   }
 
   /* Placeholder slot: visibly unfinished on purpose, so nothing fake ships */
   .card-placeholder {
-    border: 1px dashed var(--color-ink-600);
+    border: 1px dashed var(--color-border-strong);
     border-radius: 1rem;
-    background-color: color-mix(in oklab, var(--color-ink-850) 40%, transparent);
+    background-color: color-mix(in oklab, var(--color-surface-raised) 40%, transparent);
     padding: 1.75rem;
     color: var(--color-fg-subtle);
   }
@@ -209,6 +256,7 @@
     z-index: -1;
     border-radius: 9999px;
     filter: blur(90px);
+    opacity: var(--glow-opacity);
     pointer-events: none;
   }
 }

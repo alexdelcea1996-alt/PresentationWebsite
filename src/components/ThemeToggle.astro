@@ -1,0 +1,80 @@
+---
+import Icon from './Icon.astro';
+import { getContent, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+
+const { locale, class: className = '' } = Astro.props;
+const t = getContent(locale).theme;
+---
+
+{/*
+  Rendered as dark by default; the inline script in Base.astro has already set
+  data-theme on <html> before this paints, and the script below syncs the icon.
+*/}
+<button
+  type="button"
+  class={`grid size-9 shrink-0 place-items-center rounded-lg border border-border text-fg-muted transition-colors hover:border-accent/50 hover:text-fg ${className}`}
+  data-theme-toggle
+  data-label-light={t.switchToLight}
+  data-label-dark={t.switchToDark}
+  aria-label={t.switchToLight}
+  title={t.switchToLight}
+>
+  <Icon name="sun" class="hidden size-4" data-theme-icon-sun />
+  <Icon name="moon" class="size-4" data-theme-icon-moon />
+</button>
+
+<script>
+  const STORAGE_KEY = 'theme';
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+
+  /** Keep every toggle on the page (header and mobile menu) showing the same state. */
+  const syncButtons = (theme: 'light' | 'dark') => {
+    for (const button of buttons) {
+      // Showing the moon means "switch to dark", so it belongs in light mode.
+      const nextIsDark = theme === 'light';
+      button.querySelector('[data-theme-icon-sun]')?.classList.toggle('hidden', nextIsDark);
+      button.querySelector('[data-theme-icon-moon]')?.classList.toggle('hidden', !nextIsDark);
+
+      const label = nextIsDark ? button.dataset.labelDark : button.dataset.labelLight;
+      if (label) {
+        button.setAttribute('aria-label', label);
+        button.setAttribute('title', label);
+      }
+    }
+  };
+
+  const applyTheme = (theme: 'light' | 'dark', persist: boolean) => {
+    document.documentElement.dataset.theme = theme;
+    if (persist) localStorage.setItem(STORAGE_KEY, theme);
+
+    // Keep the browser chrome (mobile address bar) in step with the page.
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'light' ? '#ffffff' : '#0b0f1a');
+
+    syncButtons(theme);
+  };
+
+  syncButtons((document.documentElement.dataset.theme as 'light' | 'dark') ?? 'dark');
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+      applyTheme(next, true);
+    });
+  }
+
+  // Follow the OS while the visitor has not made an explicit choice.
+  window
+    .matchMedia('(prefers-color-scheme: light)')
+    .addEventListener('change', (event) => {
+      if (localStorage.getItem(STORAGE_KEY)) return;
+      applyTheme(event.matches ? 'light' : 'dark', false);
+    });
+</script>

@@ -115,16 +115,35 @@ const structuredData = {
     }
     {feed && <link rel="alternate" type="application/rss+xml" title={pageTitle} href={feed} />}
 
-    {/* Flag JS availability before first paint so reveal animations never hide content for no-JS readers. */}
+    {/* Runs before first paint: flags JS availability so reveal animations never
+        hide content for no-JS readers, and resolves the theme so the page never
+        flashes the wrong palette. Stored choice wins over the OS setting. */}
     <script is:inline>
       document.documentElement.classList.add('js');
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem('theme');
+        } catch {
+          // Private mode or blocked storage: fall through to the OS preference.
+        }
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = theme;
+        if (theme === 'light') {
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', '#ffffff');
+        }
+      })();
     </script>
   </head>
 
   <body class="min-h-screen antialiased">
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-ink-800 focus:px-4 focus:py-2 focus:text-fg"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-surface-hover focus:px-4 focus:py-2 focus:text-fg"
     >
       {t.nav.skipToContent}
     </a>

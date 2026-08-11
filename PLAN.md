@@ -21,7 +21,7 @@ Site-ul în sine este o carte de vizită: trebuie să demonstreze prin propria e
 |---|---|---|
 | Framework | **Astro 7 + Tailwind CSS 4** | Site static ultra-rapid (zero JS de framework), SEO excelent; se pot adăuga ulterior insule interactive |
 | Limbi | **RO (implicit) + EN** | RO la rădăcină (`/`), EN sub `/en/`, comutator în header, `hreflang` pentru SEO |
-| Design | **Dark & premium** | Fundal închis, accente gradient indigo→cyan, tipografie mare |
+| Design | **Dark & premium**, cu temă light opțională | Dark e implicit; tema light urmează setarea sistemului și poate fi comutată manual. Tokenii sunt numiți după rol, nu după luminozitate |
 | Tip layout | **Single-page landing** (per limbă) | Conversie bună pentru servicii; studiile de caz pot deveni pagini separate în v2 |
 | Hosting | **Cloudflare (Workers)** | Build automat la fiecare push, CDN global, HTTPS, gratuit. Ales după ce GitHub Actions s-a dovedit blocat la nivel de cont |
 | Formular contact | **Web3Forms**, cu fallback pe `mailto:` | Gratuit și nelimitat, fără backend; fallback-ul face formularul funcțional chiar și neconfigurat |
@@ -128,7 +128,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 5. ✅ Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
 6. ✅ Audit gratuit de site ca lead magnet (flux dedicat în formular)
 7. ✅ Blog bilingv pe content collections, cu RSS — primele 2 articole scrise
-8. Comutator temă light/dark cu persistență, fără flash la încărcare
+8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
 9. Pachet performanță & securitate: subsetare fonturi (~-100 kB), Content-Security-Policy, preload-uri
 10. Semnătură vizuală interactivă în hero (reacție la cursor, cu respect pentru prefers-reduced-motion)
 
