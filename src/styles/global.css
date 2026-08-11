@@ -218,6 +218,20 @@
    to reveal them, so the page stays readable without JS.
 --------------------------------------------------------------------------- */
 @layer utilities {
+  /* The quote configurator is interactive by nature: show it only when scripting
+     is available, and offer a plain link to the pricing table otherwise. */
+  .js-only {
+    display: none;
+  }
+
+  .js .js-only {
+    display: block;
+  }
+
+  .js .no-js-only {
+    display: none;
+  }
+
   .js [data-reveal] {
     opacity: 0;
     transform: translateY(18px);

@@ -9,9 +9,12 @@ import Footer from './Footer.astro';
 import Hero from './sections/Hero.astro';
 import Services from './sections/Services.astro';
 import Process from './sections/Process.astro';
+import Comparison from './sections/Comparison.astro';
 import Portfolio from './sections/Portfolio.astro';
 import Testimonials from './sections/Testimonials.astro';
 import Pricing from './sections/Pricing.astro';
+import Configurator from './sections/Configurator.astro';
+import Audit from './sections/Audit.astro';
 import Contact from './sections/Contact.astro';
 import type { Locale } from '../i18n';
 
@@ -29,9 +32,13 @@ const { locale } = Astro.props;
     <Hero locale={locale} />
     <Services locale={locale} />
     <Process locale={locale} />
+    {/* Objection handling before the proof, so the price list lands on a convinced reader. */}
+    <Comparison locale={locale} />
     <Portfolio locale={locale} />
     <Testimonials locale={locale} />
     <Pricing locale={locale} />
+    <Configurator locale={locale} />
+    <Audit locale={locale} />
     <Contact locale={locale} />
   </main>
 

@@ -1,0 +1,445 @@
+---
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, localeTags, sectionIds, type Locale } from '../../i18n';
+import {
+  features,
+  projectTypes,
+  RANGE_MULTIPLIER,
+  ROUNDING_STEP,
+} from '../../data/configurator';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const content = getContent(locale);
+const t = content.configurator;
+
+// Handed to the client script as JSON rather than duplicated in it, so prices
+// and labels have exactly one source.
+const configuratorData = {
+  locale: localeTags[locale],
+  rangeMultiplier: RANGE_MULTIPLIER,
+  roundingStep: ROUNDING_STEP,
+  types: projectTypes.map((type) => ({
+    id: type.id,
+    basePrice: type.basePrice,
+    baseWeeks: type.baseWeeks,
+    label: t.typeLabels[type.id].label,
+  })),
+  features: features.map((feature) => ({
+    id: feature.id,
+    price: feature.price,
+    weeks: feature.weeks,
+    appliesTo: feature.appliesTo,
+    label: t.featureLabels[feature.id],
+  })),
+  strings: {
+    weeks: t.resultWeeks,
+    noFeatures: t.resultNoFeatures,
+    messageTemplate: t.messageTemplate,
+    priceLabel: t.resultPriceLabel,
+    timeLabel: t.resultTimeLabel,
+  },
+};
+
+const optionCardClass =
+  'group relative flex cursor-pointer flex-col rounded-xl border border-ink-700 bg-ink-900/60 p-4 transition-colors hover:border-accent/50 has-checked:border-accent has-checked:bg-accent/10';
+---
+
+<section id={sectionIds.estimate} class="relative overflow-hidden py-20 sm:py-28">
+  <div class="glow left-1/2 top-1/4 size-[30rem] -translate-x-1/2 bg-accent/12" aria-hidden="true">
+  </div>
+
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    {/* Without JavaScript the wizard cannot work, so point at the price list instead. */}
+    <p class="no-js-only mx-auto mt-10 max-w-xl text-center text-sm text-fg-muted">
+      <a href={`#${sectionIds.pricing}`} class="text-accent-alt underline">
+        {content.pricing.title}
+      </a>
+    </p>
+
+    <div
+      class="js-only mx-auto mt-14 max-w-3xl"
+      data-configurator
+      data-config={JSON.stringify(configuratorData)}
+      data-reveal
+    >
+      <!-- Progress -->
+      <div class="mb-8 flex items-center gap-3">
+        {
+          t.stepTitles.map((title, index) => (
+            <div class="flex flex-1 items-center gap-3">
+              <div class="flex min-w-0 items-center gap-2.5">
+                <span
+                  class="grid size-8 shrink-0 place-items-center rounded-full border border-ink-600 font-display text-xs font-semibold text-fg-subtle transition-colors data-[state=active]:border-accent data-[state=active]:bg-accent data-[state=active]:text-ink-950 data-[state=done]:border-accent/50 data-[state=done]:text-accent-alt"
+                  data-step-dot={index}
+                >
+                  {index + 1}
+                </span>
+                <span
+                  class="hidden truncate text-sm font-medium text-fg-subtle transition-colors data-[state=active]:text-fg sm:block"
+                  data-step-name={index}
+                >
+                  {title}
+                </span>
+              </div>
+              {index < t.stepTitles.length - 1 && (
+                <span class="h-px flex-1 bg-ink-700" aria-hidden="true" />
+              )}
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="card">
+        <!-- Step 1: project type -->
+        <fieldset data-step="0">
+          <legend class="font-display text-lg font-semibold">{t.typeQuestion}</legend>
+
+          <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            {
+              projectTypes.map((type) => (
+                <label class={optionCardClass}>
+                  <input
+                    type="radio"
+                    name="project-type"
+                    value={type.id}
+                    class="sr-only"
+                    data-type-input
+                  />
+                  <span class="flex items-start justify-between gap-3">
+                    <span class="font-display text-base font-semibold text-fg">
+                      {t.typeLabels[type.id].label}
+                    </span>
+                    <span
+                      class="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border border-ink-600 group-has-checked:border-accent group-has-checked:bg-accent"
+                      aria-hidden="true"
+                    >
+                      <span class="size-1.5 rounded-full bg-ink-950 opacity-0 group-has-checked:opacity-100" />
+                    </span>
+                  </span>
+                  <span class="mt-1.5 text-sm text-fg-muted">
+                    {t.typeLabels[type.id].description}
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <!-- Step 2: features -->
+        <fieldset data-step="1" hidden>
+          <legend class="font-display text-lg font-semibold">{t.featureQuestion}</legend>
+          <p class="mt-2 text-sm text-fg-subtle">{t.featureHint}</p>
+
+          <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            {
+              features.map((feature) => (
+                <label
+                  class={`${optionCardClass} flex-row items-center gap-3`}
+                  data-feature-card={feature.id}
+                  hidden
+                >
+                  <input
+                    type="checkbox"
+                    name="features"
+                    value={feature.id}
+                    class="sr-only"
+                    data-feature-input
+                  />
+                  <span
+                    class="grid size-5 shrink-0 place-items-center rounded-md border border-ink-600 text-ink-950 group-has-checked:border-accent group-has-checked:bg-accent"
+                    aria-hidden="true"
+                  >
+                    <Icon name="check" class="size-3 opacity-0 group-has-checked:opacity-100" />
+                  </span>
+                  <span class="text-sm text-fg">{t.featureLabels[feature.id]}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <!-- Step 3: result -->
+        <div data-step="2" hidden>
+          <h3 class="font-display text-lg font-semibold">{t.resultTitle}</h3>
+
+          <div class="mt-6 grid gap-4 sm:grid-cols-2" aria-live="polite" data-result>
+            <div class="rounded-xl border border-accent/30 bg-accent/10 p-5">
+              <p class="text-xs font-medium uppercase tracking-wider text-accent-alt">
+                {t.resultPriceLabel}
+              </p>
+              <p class="mt-2 font-display text-2xl font-semibold text-fg" data-result-price></p>
+            </div>
+            <div class="rounded-xl border border-ink-700 bg-ink-900/60 p-5">
+              <p class="text-xs font-medium uppercase tracking-wider text-fg-subtle">
+                {t.resultTimeLabel}
+              </p>
+              <p class="mt-2 font-display text-2xl font-semibold text-fg" data-result-time></p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-sm font-semibold text-fg">{t.resultSummaryTitle}</p>
+            <ul class="mt-3 space-y-2" data-result-summary></ul>
+          </div>
+
+          <p class="mt-6 rounded-xl border border-ink-700 bg-ink-900/40 p-4 text-xs leading-relaxed text-fg-subtle">
+            {t.disclaimer}
+          </p>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-8 flex flex-col gap-3 border-t border-ink-700 pt-6 sm:flex-row sm:justify-between">
+          <button type="button" class="btn btn-ghost text-sm" data-action="back" hidden>
+            {t.back}
+          </button>
+          <button type="button" class="btn btn-ghost text-sm" data-action="restart" hidden>
+            {t.restart}
+          </button>
+          <button type="button" class="btn btn-primary text-sm sm:ml-auto" data-action="next">
+            {t.next}
+            <Icon name="arrow-right" class="size-4" />
+          </button>
+          <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm sm:ml-auto" data-action="send" hidden>
+            {t.cta}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  interface ConfiguratorType {
+    id: string;
+    basePrice: number;
+    baseWeeks: number;
+    label: string;
+  }
+
+  interface ConfiguratorFeature {
+    id: string;
+    price: number;
+    weeks: number;
+    appliesTo: string[];
+    label: string;
+  }
+
+  interface ConfiguratorData {
+    locale: string;
+    rangeMultiplier: number;
+    roundingStep: number;
+    types: ConfiguratorType[];
+    features: ConfiguratorFeature[];
+    strings: {
+      weeks: string;
+      noFeatures: string;
+      messageTemplate: string;
+      priceLabel: string;
+      timeLabel: string;
+    };
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-configurator]');
+
+  if (root) {
+    const data: ConfiguratorData = JSON.parse(root.dataset.config!);
+
+    const steps = Array.from(root.querySelectorAll<HTMLElement>('[data-step]'));
+    const typeInputs = Array.from(root.querySelectorAll<HTMLInputElement>('[data-type-input]'));
+    const featureInputs = Array.from(
+      root.querySelectorAll<HTMLInputElement>('[data-feature-input]'),
+    );
+    const backButton = root.querySelector<HTMLButtonElement>('[data-action="back"]')!;
+    const nextButton = root.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+    const restartButton = root.querySelector<HTMLButtonElement>('[data-action="restart"]')!;
+    const sendLink = root.querySelector<HTMLAnchorElement>('[data-action="send"]')!;
+
+    const priceEl = root.querySelector<HTMLElement>('[data-result-price]')!;
+    const timeEl = root.querySelector<HTMLElement>('[data-result-time]')!;
+    const summaryEl = root.querySelector<HTMLElement>('[data-result-summary]')!;
+
+    // narrowSymbol keeps this as "1.750 €" in Romanian and "€1,750" in English,
+    // matching how prices are written elsewhere on the page. Without it, ro-RO
+    // renders the ISO code ("1.750 EUR").
+    const money = new Intl.NumberFormat(data.locale, {
+      style: 'currency',
+      currency: 'EUR',
+      currencyDisplay: 'narrowSymbol',
+      maximumFractionDigits: 0,
+    });
+
+    let current = 0;
+
+    const selectedType = () =>
+      data.types.find((type) => type.id === typeInputs.find((input) => input.checked)?.value);
+
+    const selectedFeatures = () =>
+      featureInputs
+        .filter((input) => input.checked && !input.closest('label')?.hidden)
+        .map((input) => data.features.find((feature) => feature.id === input.value)!)
+        .filter(Boolean);
+
+    const roundTo = (value: number) => Math.round(value / data.roundingStep) * data.roundingStep;
+
+    const estimate = () => {
+      const type = selectedType();
+      if (!type) return null;
+
+      const picked = selectedFeatures();
+      const price = type.basePrice + picked.reduce((sum, feature) => sum + feature.price, 0);
+      const weeks = type.baseWeeks + picked.reduce((sum, feature) => sum + feature.weeks, 0);
+
+      return {
+        type,
+        picked,
+        priceLow: roundTo(price),
+        priceHigh: roundTo(price * data.rangeMultiplier),
+        weeksLow: weeks,
+        weeksHigh: Math.ceil(weeks * data.rangeMultiplier),
+      };
+    };
+
+    /** Only offer add-ons that make sense for the chosen project type. */
+    const syncFeatureVisibility = () => {
+      const type = selectedType();
+      for (const input of featureInputs) {
+        const card = input.closest('label')!;
+        const feature = data.features.find((item) => item.id === input.value)!;
+        const applies = Boolean(type && feature.appliesTo.includes(type.id));
+        card.hidden = !applies;
+        if (!applies) input.checked = false;
+      }
+    };
+
+    const renderResult = () => {
+      const result = estimate();
+      if (!result) return;
+
+      priceEl.textContent = `${money.format(result.priceLow)} – ${money.format(result.priceHigh)}`;
+      timeEl.textContent = `${result.weeksLow}–${result.weeksHigh} ${data.strings.weeks}`;
+
+      summaryEl.innerHTML = '';
+      const lines = [
+        result.type.label,
+        ...(result.picked.length
+          ? result.picked.map((feature) => feature.label)
+          : [data.strings.noFeatures]),
+      ];
+
+      for (const line of lines) {
+        const item = document.createElement('li');
+        item.className = 'flex items-start gap-2 text-sm text-fg-muted';
+        const dot = document.createElement('span');
+        dot.className = 'mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-alt';
+        dot.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('span');
+        text.textContent = line;
+        item.append(dot, text);
+        summaryEl.append(item);
+      }
+    };
+
+    const showStep = (index: number) => {
+      current = index;
+      steps.forEach((step, stepIndex) => {
+        step.hidden = stepIndex !== index;
+      });
+
+      root.querySelectorAll<HTMLElement>('[data-step-dot]').forEach((dot, dotIndex) => {
+        const state = dotIndex === index ? 'active' : dotIndex < index ? 'done' : 'todo';
+        dot.dataset.state = state;
+      });
+      root.querySelectorAll<HTMLElement>('[data-step-name]').forEach((name, nameIndex) => {
+        name.dataset.state = nameIndex === index ? 'active' : 'todo';
+      });
+
+      const isLast = index === steps.length - 1;
+      backButton.hidden = index === 0;
+      restartButton.hidden = !isLast;
+      nextButton.hidden = isLast;
+      sendLink.hidden = !isLast;
+
+      if (isLast) renderResult();
+    };
+
+    const updateNextState = () => {
+      // Step 1 needs a project type; step 2 can be skipped entirely.
+      nextButton.disabled = current === 0 && !selectedType();
+      nextButton.classList.toggle('opacity-50', nextButton.disabled);
+    };
+
+    typeInputs.forEach((input) =>
+      input.addEventListener('change', () => {
+        syncFeatureVisibility();
+        updateNextState();
+      }),
+    );
+
+    nextButton.addEventListener('click', () => {
+      if (current === 0 && !selectedType()) return;
+      showStep(Math.min(current + 1, steps.length - 1));
+    });
+
+    backButton.addEventListener('click', () => showStep(Math.max(current - 1, 0)));
+
+    restartButton.addEventListener('click', () => {
+      typeInputs.forEach((input) => (input.checked = false));
+      featureInputs.forEach((input) => (input.checked = false));
+      syncFeatureVisibility();
+      updateNextState();
+      showStep(0);
+    });
+
+    // Carry the estimate into the contact form so nothing has to be retyped.
+    sendLink.addEventListener('click', () => {
+      const result = estimate();
+      if (!result) return;
+
+      const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');
+      const budgetSelect = document.querySelector<HTMLSelectElement>('#field-budget');
+      const message = document.querySelector<HTMLTextAreaElement>('#field-message');
+
+      const optionByStableId = (select: HTMLSelectElement | null, id: string) =>
+        select
+          ? Array.from(select.options).find((option) => option.dataset.id === id)
+          : undefined;
+
+      const typeOption = optionByStableId(typeSelect, result.type.id);
+      if (typeSelect && typeOption) typeSelect.value = typeOption.value;
+
+      const budgetId =
+        result.priceLow < 500
+          ? 'lt500'
+          : result.priceLow < 1500
+            ? '500-1500'
+            : result.priceLow < 3000
+              ? '1500-3000'
+              : 'gt3000';
+      const budgetOption = optionByStableId(budgetSelect, budgetId);
+      if (budgetSelect && budgetOption) budgetSelect.value = budgetOption.value;
+
+      if (message && !message.value.trim()) {
+        const details = [
+          `• ${result.type.label}`,
+          ...result.picked.map((feature) => `• ${feature.label}`),
+          '',
+          `${data.strings.priceLabel}: ${money.format(result.priceLow)} – ${money.format(result.priceHigh)}`,
+          `${data.strings.timeLabel}: ${result.weeksLow}–${result.weeksHigh} ${data.strings.weeks}`,
+        ].join('\n');
+        message.value = data.strings.messageTemplate.replace('{details}', details);
+      }
+    });
+
+    syncFeatureVisibility();
+    updateNextState();
+    showStep(0);
+  }
+</script>

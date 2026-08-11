@@ -1,0 +1,73 @@
+---
+import Icon from '../Icon.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).audit;
+---
+
+<section id={sectionIds.audit} class="py-10 sm:py-14">
+  <div class="container-page">
+    <div
+      class="relative overflow-hidden rounded-3xl border border-accent/25 bg-linear-110 from-ink-850 to-ink-900 p-8 sm:p-12"
+      data-reveal
+    >
+      <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent/20" aria-hidden="true"></div>
+
+      <div class="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div>
+          <p class="eyebrow">{t.eyebrow}</p>
+          <h2 class="mt-4 text-2xl font-semibold sm:text-3xl">{t.title}</h2>
+          <p class="mt-4 max-w-xl text-base leading-relaxed text-fg-muted">{t.body}</p>
+
+          <ul class="mt-6 space-y-2.5">
+            {
+              t.bullets.map((bullet) => (
+                <li class="flex items-start gap-2.5 text-sm text-fg-muted">
+                  <Icon name="check" class="mt-0.5 size-4 shrink-0 text-accent-alt" />
+                  <span>{bullet}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="lg:justify-self-end">
+          <a
+            href={`#${sectionIds.contact}`}
+            class="btn btn-primary w-full lg:w-auto"
+            data-audit-cta
+          >
+            {t.cta}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+          <p class="mt-4 max-w-xs text-xs leading-relaxed text-fg-subtle">{t.promise}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Jumping to the form from here means one thing: the visitor wants the audit.
+  // Preselect it and put the cursor where they need to type.
+  document.querySelector<HTMLAnchorElement>('[data-audit-cta]')?.addEventListener('click', () => {
+    const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');
+    const auditOption = typeSelect
+      ? Array.from(typeSelect.options).find((option) => option.dataset.id === 'audit')
+      : undefined;
+
+    if (typeSelect && auditOption) {
+      typeSelect.value = auditOption.value;
+      typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    window.setTimeout(() => {
+      document.querySelector<HTMLInputElement>('#field-website')?.focus({ preventScroll: true });
+    }, 600);
+  });
+</script>

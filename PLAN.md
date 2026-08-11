@@ -121,12 +121,12 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 
 ### B. Implementări noi (propuse 2026-08-11)
 
-1. Configurator de ofertă interactiv — wizard multi-pas cu estimare de preț, pre-completează formularul; servește și ca demo de webapp
+1. ✅ Configurator de ofertă interactiv — wizard în 3 pași cu estimare de preț, pre-completează formularul; servește și ca demo de webapp
 2. Programare directă a discuției inițiale (Cal.com embed)
 3. Landing pages dedicate per serviciu (4 servicii × 2 limbi), fiecare cu meta, FAQ și CTA propriu
 4. Studii de caz ca pagini dedicate (content collections; primul: acest site, cu cifre reale)
-5. Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
-6. Audit gratuit de site ca lead magnet (flux dedicat în formular)
+5. ✅ Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
+6. ✅ Audit gratuit de site ca lead magnet (flux dedicat în formular)
 7. Blog bilingv pe content collections — SEO compus pe termen lung
 8. Comutator temă light/dark cu persistență, fără flash la încărcare
 9. Pachet performanță & securitate: subsetare fonturi (~-100 kB), Content-Security-Policy, preload-uri

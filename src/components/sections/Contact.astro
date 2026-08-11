@@ -74,17 +74,45 @@ const labelClass = 'block text-sm font-medium text-fg';
         <div class="grid gap-5 sm:grid-cols-2">
           <div>
             <label class={labelClass} for="field-type">{t.form.projectType}</label>
+            {/* value stays human-readable for the email; data-id is the stable
+                handle the configurator and audit band select by. */}
             <select class={`mt-2 ${fieldClass}`} id="field-type" name="project_type">
-              {t.form.projectTypeOptions.map((option) => <option value={option}>{option}</option>)}
+              {
+                t.form.projectTypeOptions.map((option) => (
+                  <option value={option.label} data-id={option.id}>
+                    {option.label}
+                  </option>
+                ))
+              }
             </select>
           </div>
 
           <div>
             <label class={labelClass} for="field-budget">{t.form.budget}</label>
             <select class={`mt-2 ${fieldClass}`} id="field-budget" name="budget">
-              {t.form.budgetOptions.map((option) => <option value={option}>{option}</option>)}
+              {
+                t.form.budgetOptions.map((option) => (
+                  <option value={option.label} data-id={option.id}>
+                    {option.label}
+                  </option>
+                ))
+              }
             </select>
           </div>
+        </div>
+
+        <div>
+          <label class={labelClass} for="field-website">{t.form.website}</label>
+          <input
+            class={`mt-2 ${fieldClass}`}
+            id="field-website"
+            name="website"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder={t.form.websitePlaceholder}
+          />
+          <p class="mt-2 text-xs text-fg-subtle">{t.form.websiteHint}</p>
         </div>
 
         <div>
@@ -191,9 +219,11 @@ const labelClass = 'block text-sm font-medium text-fg';
       // No form service configured yet: hand the message over to the visitor's
       // mail client instead of silently dropping it.
       if (!accessKey) {
+        const website = String(data.get('website') ?? '').trim();
         const lines = [
           `${data.get('name')} <${data.get('email')}>`,
           `${data.get('project_type')} — ${data.get('budget')}`,
+          ...(website ? [website] : []),
           '',
           String(data.get('message') ?? ''),
         ];

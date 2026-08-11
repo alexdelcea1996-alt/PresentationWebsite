@@ -31,9 +31,12 @@ export function getContent(locale: unknown): Content {
 export const sectionIds = {
   services: 'services',
   process: 'process',
+  comparison: 'comparison',
   portfolio: 'portfolio',
   testimonials: 'testimonials',
   pricing: 'pricing',
+  estimate: 'estimate',
+  audit: 'audit',
   contact: 'contact',
 } as const;
 
