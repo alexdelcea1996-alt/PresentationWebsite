@@ -104,7 +104,35 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 3. Afișăm prețuri concrete sau trecem pe „cere ofertă"?
 4. Adăugăm o secțiune FAQ? Ajută la SEO și reduce întrebările repetitive.
 
-## 8. Idei pentru v2
+## 8. Backlog de îmbunătățiri propuse
+
+### A. Esențiale înainte de lansarea oficială (propuse 2026-08-11)
+
+1. Portofoliu cu proiecte reale + suport de capturi (primul studiu de caz: acest site)
+2. Secțiune „Despre mine" cu fotografie
+3. Activarea livrării reale a formularului (cheie Web3Forms)
+4. WhatsApp / telefon ca și canale de contact
+5. Secțiune FAQ (conversie + long-tail SEO; fără promisiuni de rich snippets)
+6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
+7. Pagină de politică de confidențialitate (GDPR)
+8. Pagină 404 + set complet de iconuri (apple-touch-icon, manifest)
+9. Cloudflare Web Analytics (gratuit, fără cookie-uri)
+10. Micro-optimizări de conversie (bandă CTA finală, „răspund în 24h" la buton, CTA sticky pe mobil)
+
+### B. Implementări noi (propuse 2026-08-11)
+
+1. Configurator de ofertă interactiv — wizard multi-pas cu estimare de preț, pre-completează formularul; servește și ca demo de webapp
+2. Programare directă a discuției inițiale (Cal.com embed)
+3. Landing pages dedicate per serviciu (4 servicii × 2 limbi), fiecare cu meta, FAQ și CTA propriu
+4. Studii de caz ca pagini dedicate (content collections; primul: acest site, cu cifre reale)
+5. Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
+6. Audit gratuit de site ca lead magnet (flux dedicat în formular)
+7. Blog bilingv pe content collections — SEO compus pe termen lung
+8. Comutator temă light/dark cu persistență, fără flash la încărcare
+9. Pachet performanță & securitate: subsetare fonturi (~-100 kB), Content-Security-Policy, preload-uri
+10. Semnătură vizuală interactivă în hero (reacție la cursor, cu respect pentru prefers-reduced-motion)
+
+## 9. Idei pentru v2
 
 - Pagini dedicate de studiu de caz, cu capturi și detalii tehnice
 - Blog / articole scurte (util pentru SEO pe termen lung)
