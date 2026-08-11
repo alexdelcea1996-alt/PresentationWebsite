@@ -24,3 +24,6 @@ pnpm-debug.log*
 # generated intermediates from `npm run fonts`
 src/assets/fonts/.raw-*
 src/assets/fonts/.charset.txt
+
+# debug screenshots written by the test suites
+tests/screenshots/

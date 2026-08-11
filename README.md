@@ -27,8 +27,17 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
+| `npm test` | Rulează cele 177 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run og` | Regenerează imaginile de partajare pe social media |
+
+`npm test` are nevoie de un build recent — testele verifică ce e în `dist/`, nu
+codul sursă, fiindcă jumătate din ce se poate strica (hash-urile CSP, `_headers`,
+`hreflang`) există doar după build:
+
+```bash
+npm run build && npm test
+```
 
 ## Structura
 

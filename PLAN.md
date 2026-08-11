@@ -68,10 +68,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98 / 100 / 100 / 100**
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
-  ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
-- Suite separate pentru configurator (19), temă (14), hero (12), programare (18),
-  canale de contact (39) și banda de măsurători (24)
+- **177 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+  dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
+  contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
+  programare (18)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -157,7 +157,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 7. Secțiune „Garanții" în locul casetelor goale de testimoniale
 8. Demo funcțional de aplicație web
 9. Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
-10. Suita de teste publicată în repo, cu `npm test`
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 177 de verificări
 
 ## 9. Idei pentru v2
 

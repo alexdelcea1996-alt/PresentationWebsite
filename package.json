@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "og": "node scripts/generate-og-image.mjs",
-    "fonts": "node scripts/fetch-fonts.mjs"
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "test": "node tests/run.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "axe-core": "^4.13.0",
+    "playwright-core": "^1.62.1",
     "typescript": "^6.0.3"
   }
 }
