@@ -145,12 +145,24 @@ export const ro: Content = {
       problem: 'Provocarea',
       solution: 'Soluția',
       result: 'Rezultatul',
-      visit: 'Vezi site-ul',
     },
-    items: [],
+    readMore: 'Citește studiul de caz',
     emptyTitle: 'Studiu de caz în pregătire',
     emptyBody:
       'Aici vor apărea proiecte reale, cu problema clientului, soluția aleasă și rezultatul măsurabil.',
+  },
+
+  caseStudy: {
+    backToWork: 'Înapoi la proiecte',
+    clientLabel: 'Client',
+    yearLabel: 'An',
+    techLabel: 'Tehnologii',
+    metricsTitle: 'Cifre măsurate',
+    visitSite: 'Vezi site-ul live',
+    viewCode: 'Vezi codul sursă',
+    ctaTitle: 'Vrei un proiect ca acesta?',
+    ctaBody: 'Spune-mi ce ai nevoie și îți răspund cu întrebări concrete și o estimare.',
+    ctaButton: 'Cere o ofertă',
   },
 
   testimonials: {

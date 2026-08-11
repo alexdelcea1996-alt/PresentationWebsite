@@ -48,6 +48,21 @@ const options = locales.map((code) => ({
 </div>
 
 <script>
+  // On sub-pages the server-rendered hrefs point at the other language's home
+  // page. The <head> already carries the correct per-page alternates for SEO,
+  // so reuse them here rather than threading URLs through every component.
+  const useHeadAlternates = () => {
+    document.querySelectorAll<HTMLAnchorElement>('[data-lang-switcher] a').forEach((link) => {
+      const code = link.getAttribute('hreflang');
+      const alternate = document.querySelector<HTMLLinkElement>(
+        `link[rel="alternate"][hreflang^="${code}"]`,
+      );
+      // Take only the path: the alternates carry the production origin, which
+      // would bounce local previews and PR deployments over to the live site.
+      if (alternate) link.pathname = new URL(alternate.href).pathname;
+    });
+  };
+
   // Carry the reader's position across the language switch: if they are looking
   // at #pricing in Romanian, the English link should land on #pricing too.
   const syncHash = () => {
@@ -60,6 +75,7 @@ const options = locales.map((code) => ({
       });
   };
 
+  useHeadAlternates();
   syncHash();
   window.addEventListener('hashchange', syncHash);
 </script>

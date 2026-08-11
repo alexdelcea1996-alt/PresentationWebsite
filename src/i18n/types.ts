@@ -23,16 +23,6 @@ export interface ProcessStep {
   description: string;
 }
 
-export interface Project {
-  name: string;
-  category: string;
-  problem: string;
-  solution: string;
-  result: string;
-  tech: string[];
-  url?: string;
-}
-
 export interface Testimonial {
   quote: string;
   name: string;
@@ -118,11 +108,22 @@ export interface Content {
     eyebrow: string;
     title: string;
     subtitle: string;
-    labels: { problem: string; solution: string; result: string; visit: string };
-    /** Empty until real case studies exist — the section renders honest empty slots. */
-    items: Project[];
+    labels: { problem: string; solution: string; result: string };
+    readMore: string;
     emptyTitle: string;
     emptyBody: string;
+  };
+  caseStudy: {
+    backToWork: string;
+    clientLabel: string;
+    yearLabel: string;
+    techLabel: string;
+    metricsTitle: string;
+    visitSite: string;
+    viewCode: string;
+    ctaTitle: string;
+    ctaBody: string;
+    ctaButton: string;
   };
   testimonials: {
     eyebrow: string;

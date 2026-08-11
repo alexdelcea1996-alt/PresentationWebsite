@@ -67,22 +67,50 @@ Caută-l în `src/i18n/ro.ts` și schimbă-l. Apoi fă aceeași modificare în
 
 ### Un proiect nou în portofoliu
 
-În `src/i18n/ro.ts`, la `portfolio.items`, adaugă un obiect:
+Fiecare proiect e un studiu de caz cu pagină proprie. Creezi **două fișiere cu
+același nume**, câte unul per limbă:
 
-```ts
-{
-  name: 'Numele proiectului',
-  category: 'Site de prezentare',
-  problem: 'Ce problemă avea clientul.',
-  solution: 'Ce am construit.',
-  result: 'Rezultatul concret, cu cifre dacă există.',
-  tech: ['Astro', 'Tailwind'],
-  url: 'https://exemplu.ro',   // opțional
-}
+```
+src/content/case-studies/ro/nume-proiect.md
+src/content/case-studies/en/nume-proiect.md
 ```
 
-Cât timp lista e goală, secțiunea afișează sloturi punctate, marcate vizibil ca
-neterminate. **Nu completa cu proiecte inventate** — site-ul e cartea ta de vizită.
+Numele identic al fișierului e ce leagă cele două traduceri între ele (pentru
+`hreflang` și comutatorul de limbă). Adresa din browser vine din câmpul
+`urlSlug`, care poate fi diferit per limbă.
+
+```yaml
+---
+urlSlug: nume-proiect          # segmentul din URL, tradus
+title: Numele proiectului
+summary: O frază care apare pe card și ca descriere în Google.
+client: Numele clientului
+category: Site de prezentare
+year: 2026
+url: https://exemplu.ro        # opțional
+repo: https://github.com/...   # opțional
+tech: [Astro, Tailwind]
+problem: Ce problemă avea clientul.
+solution: Ce am construit.
+result: Rezultatul concret.
+metrics:                       # opțional, doar valori măsurate
+  - label: Scor Lighthouse
+    value: 100/100
+order: 1                       # mai mic = mai sus în listă
+---
+
+Textul lung al studiului de caz, în Markdown.
+```
+
+Paginile apar automat la `/studii-de-caz/<urlSlug>` și `/en/case-studies/<urlSlug>`,
+intră în sitemap și se leagă din secțiunea de portofoliu.
+
+Cât timp nu există niciun studiu de caz, secțiunea afișează sloturi punctate,
+marcate vizibil ca neterminate. **Nu completa cu proiecte inventate** — site-ul e
+cartea ta de vizită.
+
+Notă tehnică: câmpul se numește `urlSlug`, nu `slug`, pentru că Astro rezervă
+`slug` în schemele de colecții și respinge schema în tăcere dacă îl folosești.
 
 ### Un testimonial
 

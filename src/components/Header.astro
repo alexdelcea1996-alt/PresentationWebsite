@@ -11,15 +11,16 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale);
+// Also used to build the section anchors, so they resolve from sub-pages too.
 const home = getRelativeLocaleUrl(locale);
 
 const links = [
-  { href: `#${sectionIds.services}`, label: t.nav.services },
-  { href: `#${sectionIds.process}`, label: t.nav.process },
-  { href: `#${sectionIds.portfolio}`, label: t.nav.portfolio },
-  { href: `#${sectionIds.pricing}`, label: t.nav.pricing },
-  { href: `#${sectionIds.estimate}`, label: t.nav.estimate },
-  { href: `#${sectionIds.contact}`, label: t.nav.contact },
+  { href: `${home}#${sectionIds.services}`, label: t.nav.services },
+  { href: `${home}#${sectionIds.process}`, label: t.nav.process },
+  { href: `${home}#${sectionIds.portfolio}`, label: t.nav.portfolio },
+  { href: `${home}#${sectionIds.pricing}`, label: t.nav.pricing },
+  { href: `${home}#${sectionIds.estimate}`, label: t.nav.estimate },
+  { href: `${home}#${sectionIds.contact}`, label: t.nav.contact },
 ];
 ---
 
@@ -59,7 +60,7 @@ const links = [
 
       <div class="flex items-center gap-2">
         <LanguageSwitcher locale={locale} class="hidden sm:flex" />
-        <a href={`#${sectionIds.contact}`} class="btn btn-primary hidden text-sm sm:inline-flex">
+        <a href={`${home}#${sectionIds.contact}`} class="btn btn-primary hidden text-sm sm:inline-flex">
           {t.nav.cta}
         </a>
 
@@ -99,7 +100,7 @@ const links = [
       }
       <div class="mt-3 flex items-center justify-between gap-3 border-t border-ink-700 pt-4">
         <LanguageSwitcher locale={locale} />
-        <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm" data-menu-link>
+        <a href={`${home}#${sectionIds.contact}`} class="btn btn-primary text-sm" data-menu-link>
           {t.nav.cta}
         </a>
       </div>

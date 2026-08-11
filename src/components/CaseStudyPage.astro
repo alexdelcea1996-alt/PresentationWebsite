@@ -1,0 +1,181 @@
+---
+import { render } from 'astro:content';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Icon from './Icon.astro';
+import { getContent, sectionIds, type Locale } from '../i18n';
+import { caseStudyPath, getTranslations, type CaseStudy } from '../data/case-studies';
+
+interface Props {
+  locale: Locale;
+  entry: CaseStudy;
+}
+
+const { locale, entry } = Astro.props;
+const t = getContent(locale);
+const { Content } = await render(entry);
+
+// hreflang has to point at this case study in the other language, not the home page.
+const translations = await getTranslations(entry);
+const alternates = Object.fromEntries(
+  Object.entries(translations).map(([code, translated]) => [
+    code,
+    caseStudyPath(code as Locale, translated.data.urlSlug),
+  ]),
+) as Partial<Record<Locale, string>>;
+
+const portfolioAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.portfolio}`.replace(
+  /\/{2,}/g,
+  '/',
+);
+const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+---
+
+<Base
+  locale={locale}
+  title={`${entry.data.title} — ${t.meta.title.split('—')[0]?.trim()}`}
+  description={entry.data.summary}
+  alternates={alternates}
+>
+  <Header locale={locale} />
+
+  <main id="main">
+    <article class="relative overflow-hidden pt-32 pb-20 sm:pt-40">
+      <div
+        class="glow left-1/2 top-[-6rem] size-[34rem] -translate-x-1/2 bg-accent/20"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="container-page">
+        <a
+          href={portfolioAnchor}
+          class="inline-flex items-center gap-2 text-sm font-medium text-fg-muted transition-colors hover:text-accent-alt"
+        >
+          <Icon name="arrow-right" class="size-4 rotate-180" />
+          {t.caseStudy.backToWork}
+        </a>
+
+        <header class="mt-8 max-w-3xl">
+          <p class="eyebrow">{entry.data.category}</p>
+          <h1 class="mt-4 text-3xl font-semibold sm:text-4xl md:text-5xl md:leading-[1.1]">
+            {entry.data.title}
+          </h1>
+          <p class="mt-6 text-lg leading-relaxed text-fg-muted">{entry.data.summary}</p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            {
+              entry.data.url && (
+                <a
+                  href={entry.data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-primary text-sm"
+                >
+                  {t.caseStudy.visitSite}
+                  <Icon name="arrow-right" class="size-4" />
+                </a>
+              )
+            }
+            {
+              entry.data.repo && (
+                <a
+                  href={entry.data.repo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-ghost text-sm"
+                >
+                  {t.caseStudy.viewCode}
+                </a>
+              )
+            }
+          </div>
+        </header>
+
+        <!-- Facts -->
+        <dl class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-ink-700 bg-ink-700 sm:grid-cols-3">
+          <div class="bg-ink-850 px-5 py-4">
+            <dt class="text-xs uppercase tracking-wider text-fg-subtle">
+              {t.caseStudy.clientLabel}
+            </dt>
+            <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.client}</dd>
+          </div>
+          <div class="bg-ink-850 px-5 py-4">
+            <dt class="text-xs uppercase tracking-wider text-fg-subtle">{t.caseStudy.yearLabel}</dt>
+            <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.year}</dd>
+          </div>
+          <div class="bg-ink-850 px-5 py-4">
+            <dt class="text-xs uppercase tracking-wider text-fg-subtle">{t.caseStudy.techLabel}</dt>
+            <dd class="mt-1.5 text-sm font-medium text-fg">{entry.data.tech.join(', ')}</dd>
+          </div>
+        </dl>
+
+        <!-- Problem / solution / result -->
+        <div class="mt-8 grid gap-6 lg:grid-cols-3">
+          {
+            (
+              [
+                [t.portfolio.labels.problem, entry.data.problem, false],
+                [t.portfolio.labels.solution, entry.data.solution, false],
+                [t.portfolio.labels.result, entry.data.result, true],
+              ] as const
+            ).map(([label, body, highlight]) => (
+              <section class:list={['card', highlight && 'border-accent/35 bg-accent/5']}>
+                <h2
+                  class:list={[
+                    'font-display text-sm font-semibold uppercase tracking-wider',
+                    highlight ? 'text-accent-alt' : 'text-fg-subtle',
+                  ]}
+                >
+                  {label}
+                </h2>
+                <p class="mt-3 text-sm leading-relaxed text-fg-muted">{body}</p>
+              </section>
+            ))
+          }
+        </div>
+
+        {
+          entry.data.metrics.length > 0 && (
+            <section class="mt-12">
+              <h2 class="font-display text-lg font-semibold">{t.caseStudy.metricsTitle}</h2>
+              <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {entry.data.metrics.map((metric) => (
+                  <div class="rounded-xl border border-ink-700 bg-ink-850/70 p-5 text-center">
+                    <dd class="font-display text-2xl font-semibold text-gradient">{metric.value}</dd>
+                    <dt class="mt-2 text-xs text-fg-muted">{metric.label}</dt>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )
+        }
+
+        <!-- Long-form body -->
+        <div
+          class="prose-case mt-14 max-w-3xl text-base leading-relaxed text-fg-muted [&_h2]:mt-10 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-fg [&_p]:mt-4 [&_strong]:text-fg"
+        >
+          <Content />
+        </div>
+
+        <!-- Closing CTA -->
+        <aside
+          class="mt-16 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-ink-850 to-ink-900 p-8 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="font-display text-xl font-semibold">{t.caseStudy.ctaTitle}</h2>
+            <p class="mt-2 max-w-md text-sm text-fg-muted">{t.caseStudy.ctaBody}</p>
+          </div>
+          <a href={contactAnchor} class="btn btn-primary shrink-0 text-sm">
+            {t.caseStudy.ctaButton}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+        </aside>
+      </div>
+    </article>
+  </main>
+
+  <Footer locale={locale} />
+</Base>

@@ -145,12 +145,24 @@ export const en: Content = {
       problem: 'The challenge',
       solution: 'The solution',
       result: 'The outcome',
-      visit: 'Visit the site',
     },
-    items: [],
+    readMore: 'Read the case study',
     emptyTitle: 'Case study in progress',
     emptyBody:
       'Real projects will appear here, each with the client problem, the approach taken and the measurable result.',
+  },
+
+  caseStudy: {
+    backToWork: 'Back to work',
+    clientLabel: 'Client',
+    yearLabel: 'Year',
+    techLabel: 'Built with',
+    metricsTitle: 'Measured numbers',
+    visitSite: 'Visit the live site',
+    viewCode: 'View the source code',
+    ctaTitle: 'Want a project like this?',
+    ctaBody: 'Tell me what you need and I reply with concrete questions and an estimate.',
+    ctaButton: 'Get a quote',
   },
 
   testimonials: {
