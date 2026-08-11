@@ -3,7 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icon from './Icon.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
-import { site } from '../data/site';
+import { site, telHref, whatsappHref } from '../data/site';
 import { blogIndexPath } from '../data/blog';
 
 interface Props {
@@ -25,10 +25,17 @@ const links = [
   { href: `${home}#${sectionIds.contact}`, label: t.nav.contact },
 ];
 
-const socials = [
-  { href: site.social.github, label: 'GitHub' },
-  { href: site.social.linkedin, label: 'LinkedIn' },
-].filter((social) => social.href);
+// One list for every way of reaching Alex. Entries with an empty href are
+// dropped, so an unset phone or social profile simply does not appear.
+// WhatsApp is labelled by name rather than by number: the number is already
+// on the line above it, and repeating it reads like a mistake.
+const contacts = [
+  { href: `mailto:${site.email}`, label: site.email, external: false },
+  { href: telHref(), label: site.phone, external: false },
+  { href: whatsappHref(t.contact.whatsappMessage), label: 'WhatsApp', external: true },
+  { href: site.social.github, label: 'GitHub', external: true },
+  { href: site.social.linkedin, label: 'LinkedIn', external: true },
+].filter((contact) => contact.href);
 ---
 
 <footer class="border-t border-border bg-surface-deep/60 py-14">
@@ -70,36 +77,16 @@ const socials = [
       <div>
         <h2 class="font-display text-sm font-semibold text-fg">{t.nav.contact}</h2>
         <ul class="mt-4 space-y-2.5">
-          <li>
-            <a
-              href={`mailto:${site.email}`}
-              class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
-            >
-              {site.email}
-            </a>
-          </li>
           {
-            site.phone && (
+            contacts.map((contact) => (
               <li>
                 <a
-                  href={`tel:${site.phone.replace(/\s+/g, '')}`}
+                  href={contact.href}
+                  target={contact.external ? '_blank' : undefined}
+                  rel={contact.external ? 'noopener noreferrer' : undefined}
                   class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
                 >
-                  {site.phone}
-                </a>
-              </li>
-            )
-          }
-          {
-            socials.map((social) => (
-              <li>
-                <a
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-sm text-fg-muted transition-colors hover:text-accent-alt"
-                >
-                  {social.label}
+                  {contact.label}
                 </a>
               </li>
             ))

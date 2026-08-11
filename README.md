@@ -61,17 +61,26 @@ titlu nu trebuie să atingi cod de interfață.
 Editează `src/data/site.ts` (nume, e-mail, telefon, WhatsApp, GitHub, LinkedIn).
 Câmpurile lăsate goale pur și simplu nu se afișează.
 
-Numărul de WhatsApp se scrie exact cum vrei să apară pe site — linkul se
-construiește doar din cifre, deci spațiile și `+`-ul sunt strict cosmetice:
+Numerele se scriu exact cum vrei să apară pe site — linkurile se construiesc
+doar din cifre, deci spațiile și `+`-ul sunt strict cosmetice:
 
 ```ts
-whatsapp: '+40 767 079 882',   // afișat aşa, link către wa.me/40767079882
-whatsapp: '',                  // rândul dispare din secțiunea de contact
+phone: '+40 767 079 882',      // link tel:+40767079882
+whatsapp: '+40 767 079 882',   // link wa.me/40767079882
+phone: '',                     // rândul dispare peste tot
 ```
 
-Conversația pornește cu un mesaj deja scris („Bună! Am văzut site-ul tău…"),
-diferit pe RO și pe EN. Textul e în `contact.whatsappMessage`, în
-`src/i18n/ro.ts` și `src/i18n/en.ts`; șterge-l dacă preferi chat gol.
+Ambele apar în cardul de contact **și** în footer, deci și pe paginile care nu
+au secțiune de contact (servicii, blog, studii de caz). În footer WhatsApp e
+scris pe litere, nu ca număr — numărul e deja pe rândul de deasupra.
+
+Golirea lui `phone` scoate și `telephone` din datele structurate. Acolo se
+publică forma apelabilă (`+40767079882`), nu cea cu spații — pe aia o citesc
+motoarele de căutare.
+
+Conversația de WhatsApp pornește cu un mesaj deja scris („Bună! Am văzut
+site-ul tău…"), diferit pe RO și pe EN. Textul e în `contact.whatsappMessage`,
+în `src/i18n/ro.ts` și `src/i18n/en.ts`; șterge-l dacă preferi chat gol.
 
 ### Un text de pe site
 

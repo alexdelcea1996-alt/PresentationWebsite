@@ -2,7 +2,7 @@
 import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
-import { site } from '../../data/site';
+import { site, telHref, whatsappHref } from '../../data/site';
 import BookingCard from '../BookingCard.astro';
 
 interface Props {
@@ -12,10 +12,8 @@ interface Props {
 const { locale } = Astro.props;
 const t = getContent(locale).contact;
 
-// wa.me wants bare digits, so the display formatting in site.ts stays cosmetic.
-const whatsappHref = site.whatsapp
-  ? `https://wa.me/${site.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(t.whatsappMessage)}`
-  : '';
+const tel = telHref();
+const whatsapp = whatsappHref(t.whatsappMessage);
 
 const contactRowClass =
   'flex items-start gap-3 rounded-xl border border-border bg-surface/60 p-4 transition-colors hover:border-accent/40';
@@ -187,9 +185,23 @@ const labelClass = 'block text-sm font-medium text-fg';
         </a>
 
         {
-          whatsappHref && (
+          tel && (
+            <a href={tel} class={`mt-3 ${contactRowClass}`}>
+              <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent-alt">
+                <Icon name="phone" class="size-4" />
+              </span>
+              <span class="min-w-0">
+                <span class="block text-xs text-fg-subtle">{t.phoneLabel}</span>
+                <span class="block truncate text-sm font-medium text-fg">{site.phone}</span>
+              </span>
+            </a>
+          )
+        }
+
+        {
+          whatsapp && (
             <a
-              href={whatsappHref}
+              href={whatsapp}
               target="_blank"
               rel="noopener noreferrer"
               class={`mt-3 ${contactRowClass}`}

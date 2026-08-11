@@ -71,7 +71,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - 15 teste de interacțiune trec: meniu mobil, comutator de limbă cu păstrarea ancorei,
   ambele căi ale formularului (Web3Forms și `mailto:`), validarea câmpurilor obligatorii
 - Suite separate pentru configurator (19), temă (14), hero (12), programare (18)
-  și canale de contact (21)
+  și canale de contact (35)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -80,8 +80,8 @@ Pași care necesită decizii sau conținut de la Alex:
 1. ~~Conectează repo-ul la Cloudflare~~ — ✅ făcut. Site-ul e live la
    https://presentationwebsite.alexdelcea1996.workers.dev
 2. **Confirmă datele de contact** din `src/data/site.ts`. Acum sunt folosite
-   `alexdelcea1996@gmail.com` și WhatsApp `+40 767 079 882`; dacă vrei o adresă
-   sau un număr dedicate afacerii, se schimbă de acolo.
+   `alexdelcea1996@gmail.com` și `+40 767 079 882` (telefon și WhatsApp, același
+   număr); dacă vrei o adresă sau un număr dedicate afacerii, se schimbă de acolo.
 3. **Confirmă numele brandului** — momentan „Alex Delcea".
 4. **Confirmă prețurile** din `pricing.plans`. Valorile actuale (400 € / 900 € /
    2.500 €) sunt exemple, nu o ofertă reală.
@@ -118,8 +118,9 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 1. Portofoliu cu proiecte reale + suport de capturi (primul studiu de caz: acest site)
 2. Secțiune „Despre mine" cu fotografie
 3. Activarea livrării reale a formularului (cheie Web3Forms)
-4. ✅ WhatsApp în secțiunea de contact (link `wa.me` cu mesaj pre-scris, RO/EN).
-   Rămâne opțional un link `tel:` — se activează completând `phone` în `site.ts`
+4. ✅ WhatsApp și telefon ca și canale de contact — în cardul de contact și în
+   footer (deci pe toate paginile). WhatsApp cu mesaj pre-scris, RO/EN;
+   telefonul și ca `telephone` în datele structurate
 5. Secțiune FAQ (conversie + long-tail SEO; fără promisiuni de rich snippets)
 6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
 7. Pagină de politică de confidențialitate (GDPR)

@@ -225,6 +225,7 @@ export interface Content {
     directTitle: string;
     directBody: string;
     emailLabel: string;
+    phoneLabel: string;
     whatsappLabel: string;
     /** Pre-filled first message in the WhatsApp chat. */
     whatsappMessage: string;

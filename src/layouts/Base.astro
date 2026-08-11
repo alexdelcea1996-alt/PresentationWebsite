@@ -3,7 +3,7 @@ import { Font } from 'astro:assets';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import '../styles/global.css';
 import { getContent, localeTags, locales, type Locale } from '../i18n';
-import { site } from '../data/site';
+import { site, telHref } from '../data/site';
 
 interface Props {
   locale: Locale;
@@ -64,7 +64,8 @@ const structuredData = {
   address: { '@type': 'PostalAddress', addressCountry: 'RO', addressLocality: site.locality },
   knowsLanguage: ['ro', 'en'],
   serviceType: t.services.items.map((service) => service.title),
-  ...(site.phone ? { telephone: site.phone } : {}),
+  // Dialable form, not the display form — this one is read by machines.
+  ...(site.phone ? { telephone: telHref().replace('tel:', '') } : {}),
   ...(site.social.github || site.social.linkedin
     ? { sameAs: [site.social.github, site.social.linkedin].filter(Boolean) }
     : {}),

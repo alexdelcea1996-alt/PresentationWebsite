@@ -2,7 +2,7 @@ interface Site {
   name: string;
   role: string;
   email: string;
-  /** Optional. Leave empty to hide the link. */
+  /** Shown as a `tel:` link. Empty hides it. */
   phone: string;
   /** WhatsApp number. Empty hides the WhatsApp entry. */
   whatsapp: string;
@@ -26,8 +26,11 @@ export const site: Site = {
   /** Public contact address shown on the site and used by the form fallback. */
   email: 'alexdelcea1996@gmail.com',
 
-  /** Optional. Leave empty to hide the link. */
-  phone: '',
+  /**
+   * Shown as a `tel:` link in the contact card and the footer, and published
+   * as `telephone` in the structured data. Empty hides all three.
+   */
+  phone: '+40 767 079 882',
 
   /**
    * WhatsApp number, written the way you want it displayed. The link is built
@@ -59,3 +62,17 @@ export const site: Site = {
    */
   web3formsKey: import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '',
 };
+
+/** Both schemes reject spaces and punctuation, so the display format above is
+ *  free to be readable. */
+const digits = (value: string) => value.replace(/\D/g, '');
+
+/** `tel:` keeps the leading + — that is what makes the number dialable from
+ *  abroad. Empty string when no phone is configured, so callers can skip it. */
+export const telHref = () => (site.phone ? `tel:+${digits(site.phone)}` : '');
+
+/** Empty string when no WhatsApp number is configured. */
+export const whatsappHref = (message: string) =>
+  site.whatsapp
+    ? `https://wa.me/${digits(site.whatsapp)}?text=${encodeURIComponent(message)}`
+    : '';

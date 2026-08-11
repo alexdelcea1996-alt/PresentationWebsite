@@ -420,6 +420,7 @@ export const ro: Content = {
     directTitle: 'Preferi direct?',
     directBody: 'Scrie-mi pe canalul care îți convine. Îți răspund personal.',
     emailLabel: 'E-mail',
+    phoneLabel: 'Telefon',
     whatsappLabel: 'WhatsApp',
     whatsappMessage: 'Bună! Am văzut site-ul tău și aș vrea să discutăm despre un proiect.',
     responseTime: 'Răspund de obicei în aceeași zi lucrătoare.',

@@ -420,6 +420,7 @@ export const en: Content = {
     directTitle: 'Prefer to write directly?',
     directBody: 'Use whichever channel suits you. I answer personally.',
     emailLabel: 'Email',
+    phoneLabel: 'Phone',
     whatsappLabel: 'WhatsApp',
     whatsappMessage: 'Hi! I came across your site and would like to discuss a project.',
     responseTime: 'I usually reply within the same working day.',
