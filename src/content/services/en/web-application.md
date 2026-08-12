@@ -61,7 +61,7 @@ notForTitle: This does not fit you if
 notFor:
   - A product already on the market solves exactly your problem — I will tell you which one and let you buy it
   - You need a native mobile app, with push notifications and background access to the camera or GPS
-  - The budget is under €2,000 — below that line the compromises get paid for later
+  - The budget is under €2,500 — below that line the compromises get paid for later
 faqTitle: Questions everyone asks me
 faq:
   - question: Why not give me a fixed price upfront?

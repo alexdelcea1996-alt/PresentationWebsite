@@ -60,7 +60,7 @@ notForTitle: Nu ți se potrivește dacă
 notFor:
   - Există deja un produs pe piață care rezolvă exact problema ta — îți spun care e și te las să îl cumperi
   - Ai nevoie de o aplicație mobilă nativă, cu notificări și acces la cameră sau GPS în fundal
-  - Bugetul e sub 2.000 € — sub pragul ăsta ies compromisuri care se plătesc mai târziu
+  - Bugetul e sub 2.500 € — sub pragul ăsta ies compromisuri care se plătesc mai târziu
 faqTitle: Întrebări pe care mi le pun toți
 faq:
   - question: De ce nu îmi dai un preț fix din prima?

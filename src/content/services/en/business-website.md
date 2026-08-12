@@ -75,7 +75,7 @@ faq:
   - question: Can I edit the text myself after handover?
     answer: >-
       Yes, if we include the content panel. I show you how it works and you get a recording of the
-      session. If you would rather not touch it, small edits are on me.
+      session. If you would rather not touch it, I handle the small edits myself.
   - question: Who owns the domain and hosting?
     answer: >-
       You do. The accounts are in your name with your credentials. I do not hold your site hostage
