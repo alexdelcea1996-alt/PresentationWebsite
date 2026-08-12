@@ -72,7 +72,24 @@ numai dacă îl deschizi.
 
 Site-ul e găzduit pe **Cloudflare**. Ca orice găzduire, Cloudflare procesează adresa IP și
 datele tehnice ale cererii ca să îți poată livra pagina și ca să blocheze atacuri. Nu am
-acces la o listă de vizitatori și nu rulez nicio statistică de trafic în momentul ăsta.
+acces la o listă de vizitatori.
+
+## Statistici de trafic
+
+Site-ul poate rula **Cloudflare Web Analytics**, în funcție de cum e configurat în
+momentul în care îl vizitezi. **Poți verifica singur, în două secunde:** dacă în sursa
+paginii apare un script încărcat de la `static.cloudflareinsights.com`, statisticile sunt
+pornite; dacă nu apare, nu rulează nimic. Aceeași verificare o face și suita de teste a
+site-ului, la fiecare build.
+
+Când sunt pornite, se măsoară pagina deschisă, adresa de unde ai venit, țara, tipul de
+dispozitiv și viteza de încărcare — **fără cookie-uri, fără identificator persistent și
+fără profilare**. Cloudflare nu te urmărește de pe un site pe altul, iar eu văd doar cifre
+agregate: câți oameni au deschis o pagină, nu cine. De asta nu vezi nicio bară de
+consimțământ — nu am ce să îți cer.
+
+Când sunt oprite, în pagină nu există niciun script de statistică, iar politica de
+securitate a site-ului nici măcar nu permite conectarea la Cloudflare pentru asta.
 
 ## Instrumentul de audit
 

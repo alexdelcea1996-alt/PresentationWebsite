@@ -38,6 +38,9 @@ let embedsBooking = false;
 // Same idea for the instant site audit: only widen connect-src when the tool is
 // actually on the page, which it only is when a PageSpeed key was configured.
 let callsPageSpeed = false;
+// And again for Cloudflare Web Analytics: the beacon is only in the HTML when a
+// token was configured, so an unmeasured build never advertises the origin.
+let sendsAnalytics = false;
 
 // Matches an inline <script> (no src) or <style>, capturing its attributes and body.
 const inlineBlock = /<(script|style)([^>]*)>([\s\S]*?)<\/\1>/gi;
@@ -46,6 +49,7 @@ for (const file of await htmlFiles(dist)) {
   const html = await readFile(file, 'utf8');
   if (html.includes('href="https://cal.com/')) embedsBooking = true;
   if (html.includes('data-psi-endpoint="https://www.googleapis.com/')) callsPageSpeed = true;
+  if (html.includes('src="https://static.cloudflareinsights.com/beacon.min.js"')) sendsAnalytics = true;
 
   for (const [, tag, attrs, body] of html.matchAll(inlineBlock)) {
     if (/\ssrc\s*=/i.test(attrs)) continue; // external, covered by 'self'
@@ -71,15 +75,19 @@ const bookingOrigins = embedsBooking ? ' https://cal.com https://app.cal.com' : 
 // The audit runs in the visitor's browser, so the call to Google goes out from
 // the page rather than from a server of ours.
 const auditOrigin = callsPageSpeed ? ' https://www.googleapis.com' : '';
+// The beacon is served from one host and reports to another, so switching
+// analytics on costs two allowances, not one.
+const beaconScript = sendsAnalytics ? ' https://static.cloudflareinsights.com' : '';
+const beaconTarget = sendsAnalytics ? ' https://cloudflareinsights.com' : '';
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' ${[...scriptHashes].sort().join(' ')}`,
+  `script-src 'self'${beaconScript} ${[...scriptHashes].sort().join(' ')}`,
   `style-src 'self' ${[...styleHashes].sort().join(' ')}`,
   "img-src 'self' data:",
   "font-src 'self'",
   // The contact form posts here when a Web3Forms key is configured.
-  `connect-src 'self' https://api.web3forms.com${auditOrigin}`,
+  `connect-src 'self' https://api.web3forms.com${auditOrigin}${beaconTarget}`,
   "form-action 'self' https://api.web3forms.com",
   `frame-src 'none'${bookingOrigins}`.replace("'none' ", ''),
   "base-uri 'none'",
@@ -136,5 +144,6 @@ ${staticAssetRules}
 await writeFile(join(dist, '_headers'), headers);
 console.log(
   `_headers written: ${scriptHashes.size} script hash(es), ${styleHashes.size} style hash(es)` +
-    `${embedsBooking ? ', booking frame allowed' : ''}`,
+    `${embedsBooking ? ', booking frame allowed' : ''}` +
+    `${sendsAnalytics ? ', analytics beacon allowed' : ''}`,
 );

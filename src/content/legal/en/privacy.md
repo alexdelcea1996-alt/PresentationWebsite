@@ -73,7 +73,23 @@ it.
 
 The site is hosted on **Cloudflare**. Like any host, Cloudflare processes your IP address
 and the technical details of the request in order to serve you the page and to block
-attacks. I have no visitor list and I run no traffic analytics at this time.
+attacks. I have no visitor list.
+
+## Traffic statistics
+
+The site may run **Cloudflare Web Analytics**, depending on how it is configured at the
+moment you visit. **You can check for yourself in two seconds:** if the page source loads
+a script from `static.cloudflareinsights.com`, statistics are on; if it does not, nothing
+is running. The site's own test suite makes the same check on every build.
+
+When they are on, what gets measured is the page you opened, where you came from, the
+country, the type of device and how fast the page loaded — **no cookies, no persistent
+identifier, no profiling**. Cloudflare does not follow you from one site to another, and
+I only see aggregate numbers: how many people opened a page, not who. That is why there
+is no consent banner — there is nothing for me to ask you.
+
+When they are off, there is no analytics script in the page at all, and the site's
+security policy does not even permit a connection to Cloudflare for that purpose.
 
 ## The audit tool
 

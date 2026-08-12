@@ -14,6 +14,8 @@ interface Site {
   web3formsKey: string;
   /** Google PageSpeed API key. Empty turns the instant audit back into a form. */
   pageSpeedKey: string;
+  /** Cloudflare Web Analytics token. Empty means no beacon and no analytics. */
+  cfBeaconToken: string;
 }
 
 /**
@@ -76,6 +78,19 @@ export const site: Site = {
    * a button that fails.
    */
   pageSpeedKey: import.meta.env.PUBLIC_PAGESPEED_KEY ?? '',
+
+  /**
+   * Cloudflare Web Analytics site token. Set PUBLIC_CF_BEACON_TOKEN in the build
+   * environment and the beacon appears on every page; leave it empty and no
+   * analytics script is emitted at all — not a disabled one, none.
+   *
+   * The token is public by design: it identifies the site being measured, not
+   * an account, and it is meant to sit in the page. Cloudflare Web Analytics
+   * sets no cookies and stores no persistent identifier, which is why the site
+   * needs no consent banner — but the privacy policy still has to say it is on,
+   * so read the analytics note in the README before setting this.
+   */
+  cfBeaconToken: import.meta.env.PUBLIC_CF_BEACON_TOKEN ?? '',
 };
 
 /** Both schemes reject spaces and punctuation, so the display format above is

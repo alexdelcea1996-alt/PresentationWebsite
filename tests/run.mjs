@@ -33,6 +33,7 @@ const SUITES = [
   'share-images',
   'case-study',
   'audit',
+  'analytics',
   'interact',
   'channels',
   'metrics',

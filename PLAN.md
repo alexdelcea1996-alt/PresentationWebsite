@@ -113,8 +113,9 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 ## 7. Decizii rămase deschise
 
 1. Domeniul propriu — nume și extensie (.ro / .dev / .com)
-2. Analytics la lansare — dacă da, Plausible sau Umami (ambele fără cookie-uri,
-   deci fără banner de consimțământ)
+2. ~~Analytics la lansare — Plausible sau Umami?~~ — ✅ niciunul: **Cloudflare Web
+   Analytics**, fiindcă site-ul e deja găzduit acolo, e gratuit și nu pune cookie-uri.
+   Codul e pus și testat; se aprinde din `PUBLIC_CF_BEACON_TOKEN`.
 3. Afișăm prețuri concrete sau trecem pe „cere ofertă"?
 4. ~~Adăugăm o secțiune FAQ?~~ — ✅ da, șase întrebări deasupra formularului Ajută la SEO și reduce întrebările repetitive.
 
@@ -135,7 +136,9 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 7. ~~Pagină de politică de confidențialitate (GDPR)~~ — ✅ făcut, la `/confidentialitate/`
    și `/en/privacy/`, plus repararea afirmației false de sub formular
 8. ✅ Pagină 404 + set complet de iconuri (apple-touch-icon, maskable, manifest)
-9. Cloudflare Web Analytics (gratuit, fără cookie-uri)
+9. 🟡 Cloudflare Web Analytics — ✅ cablat și testat în ambele stări; doarme până
+   pui `PUBLIC_CF_BEACON_TOKEN` (fără token nu se emite niciun script).
+   *Mai lipsește: tokenul din contul tău Cloudflare.*
 10. Micro-optimizări de conversie (bandă CTA finală, „răspund în 24h" la buton, CTA sticky pe mobil)
 
 ### B. Implementări noi (propuse 2026-08-11)

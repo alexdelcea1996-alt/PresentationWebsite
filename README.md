@@ -494,6 +494,8 @@ Dacă schimbi vreodată adresa (domeniu propriu sau alt proiect Cloudflare), set
 | Variabilă | Când o setezi |
 |---|---|
 | `PUBLIC_WEB3FORMS_KEY` | Ca formularul să trimită în inbox (vezi secțiunea de mai sus) |
+| `PUBLIC_PAGESPEED_KEY` | Ca banda de audit să facă auditul pe loc, nu doar să trimită la formular |
+| `PUBLIC_CF_BEACON_TOKEN` | Ca să vezi statistici de trafic (vezi „Statistici de trafic" mai jos) |
 | `SITE_URL` | Când schimbi adresa: domeniu propriu sau alt proiect Cloudflare |
 
 ### Domeniu propriu
@@ -625,6 +627,46 @@ Cateva lucruri gandite dinainte:
 - **Suita de teste urmareste starea build-ului.** Acum verifica varianta cu
   buton. In clipa in care pui cheia, aceleasi teste incep sa verifice unealta,
   cu API-ul simulat. Nu ai nimic de schimbat.
+
+## Statistici de trafic (Cloudflare Web Analytics)
+
+Site-ul poate raporta câți oameni îl deschid, de unde vin și cât de repede se
+încarcă paginile, **fără cookie-uri și fără banner de consimțământ** — Cloudflare
+Web Analytics nu pune niciun identificator în browserul vizitatorului.
+
+**E oprit până pui tokenul.** Fără el nu se emite niciun script de statistică —
+nu unul dezactivat, ci deloc — iar politica de securitate nici măcar nu permite
+conectarea la Cloudflare pentru asta.
+
+Ca să-l pornești:
+
+1. În Cloudflare: **Analytics & Logs → Web Analytics → Add a site**, cu adresa
+   site-ului. Îți dă un *site token* (un șir hexazecimal).
+2. Pune-l în variabila `PUBLIC_CF_BEACON_TOKEN` la Production și redeploy.
+3. Verifică: în sursa paginii trebuie să apară, ultimul lucru din `<body>`, un
+   script de la `static.cloudflareinsights.com`.
+
+Ce se întâmplă singur când tokenul e pus:
+
+- **CSP-ul se lărgește exact cât trebuie**: `script-src` primește
+  `static.cloudflareinsights.com` (de unde se încarcă) și `connect-src` primește
+  `cloudflareinsights.com` (unde raportează). Două origini, nu una — beaconul se
+  servește dintr-un loc și trimite în altul. Detecția se face din HTML-ul
+  construit, la fel ca la auditul PageSpeed.
+- **Suita `analytics` schimbă ramura.** Acum verifică absența: niciun script, nicio
+  cerere, CSP nelărgit, pe patru pagini. Cu token, verifică prezența: exact un
+  beacon per pagină, `defer`, token nevid, se încarcă fără să încalce politica,
+  ultimul în `body`. Ambele ramuri au fost rulate; ramura „pornit" a fost validată
+  scoțând intenționat lărgirea de CSP, iar testul a prins blocarea la nivel de
+  browser (`script-src-elem`).
+
+**Tokenul e public prin proiectare** — identifică site-ul măsurat, nu contul, și
+e menit să stea în pagină.
+
+**Un lucru de făcut manual:** secțiunea „Statistici de trafic" din politica de
+confidențialitate e scrisă ca să fie adevărată în ambele stări și îi spune
+cititorului cum să verifice singur. Dacă tokenul rămâne pus definitiv, merită
+rescrisă la afirmativ („site-ul rulează Cloudflare Web Analytics"), în RO și EN.
 
 ## Cadranele de scor din studiul de caz
 

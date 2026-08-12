@@ -285,5 +285,21 @@ const breadcrumbSchema = breadcrumb?.length
         targets.forEach((el) => observer.observe(el));
       }
     </script>
+
+    {/* Cloudflare Web Analytics, only when a token was configured at build time.
+        Last in the body and deferred, so it cannot compete with anything the
+        visitor is waiting for; no cookies and no persistent identifier, which
+        is why there is no consent banner. Without a token nothing is emitted —
+        the CSP stays correspondingly narrow, which `analytics.mjs` asserts. */}
+    {
+      site.cfBeaconToken && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: site.cfBeaconToken })}
+        />
+      )
+    }
   </body>
 </html>
