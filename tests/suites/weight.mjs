@@ -112,20 +112,31 @@ for (const file of pages.filter((f) => isExample(named(f)))) {
 }
 
 // --- JavaScript --------------------------------------------------------------
-// Astro inlines the small scripts and emits a bundle per demo. Both matter for
-// different reasons: inline bytes are paid by every visitor to that page, bundle
-// bytes only by whoever opens the demo.
-// Today: 5.6 kB (store), 5.0 kB (bookings), 4.9 kB (configurator), raw. The
-// frame switch and the example forms stay inline; the configurator crossed
-// Astro's 4 kB inline threshold when sharing was added to it and became a file
-// of its own. That was accepted rather than shrunk back: a 5 kB tool a visitor
-// may never touch is better as one cacheable request than as bytes in every
-// landing-page response — and the landing page's inline JS fell 18.1 → 15.0 kB
-// when it moved out. What must stay true is that no DEMO bundle loads here,
-// which the demo and store suites assert directly.
+// Astro inlines the small scripts and emits a bundle above ~4 kB. Both matter
+// for different reasons: inline bytes are paid by every visitor to that page,
+// bundle bytes only by whoever reaches the section that needs them.
+//
+// Today: 5.6 kB (store), 5.0 kB (bookings), 4.9 kB (configurator), 4.3 kB
+// (audit), raw. The frame switch and the example forms stay inline. Two
+// sections have crossed the threshold on purpose: the configurator when
+// sharing was added to it, the audit band when the cost calculator was — the
+// latter by 257 bytes. Both were accepted rather than shrunk back, because
+// below-the-fold logic a visitor may never run is better as one cacheable,
+// deferred request than as bytes in every landing-page response. Across the
+// two moves the landing page's inline JS fell 18.1 → 12.5 kB.
+//
+// The check is an allowlist rather than a count: the regression worth catching
+// is a bundle nobody decided to ship — a stray framework import, a demo
+// leaking into a shared component — and a bare `length === 4` would wave that
+// through as long as something else had shrunk. No DEMO bundle may load on the
+// landing page; the demo and store suites assert that directly.
+const EXPECTED_BUNDLES = ['Audit', 'BookingDemo', 'Configurator', 'StoreDemo'];
 const bundles = pick((name) => name.endsWith('.js'));
-ck('three bundles: two demos and the configurator', bundles.length === 3,
-  bundles.map(named).join(' ') || 'none');
+const bundleNames = bundles.map((f) => named(f).replace(/^\/_astro\//, '').replace(/\..*$/, ''));
+ck('exactly the four bundles we decided to ship',
+  bundleNames.length === EXPECTED_BUNDLES.length &&
+    EXPECTED_BUNDLES.every((name) => bundleNames.includes(name)),
+  bundleNames.join(' ') || 'none');
 for (const bundle of bundles) {
   const buffer = await readFile(bundle);
   const label = named(bundle).replace(/^\/_astro\//, '').replace(/\..*$/, '');
@@ -144,12 +155,16 @@ async function inlineJs(page) {
   return total;
 }
 
-// Today: 18.1 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
-// a framed one, 0.3 kB inside an example site. The landing figure rose from
-// 14.6 kB when the contact form became stepped and the cursor glow arrived —
-// raised deliberately, both times, in the commit that spent the bytes.
+// Today: 12.5 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
+// a framed one, 0.3 kB inside an example site. The landing figure went 14.6 →
+// 18.1 kB when the contact form became stepped and the cursor glow arrived, and
+// back down to 12.5 when the configurator and the audit band crossed Astro's
+// inline threshold and moved into files of their own. The ceiling comes down
+// with it: a 21 kB budget against 12.5 kB of actual bytes stops being a guard
+// and starts being decoration. Raising it again is allowed — deliberately, in
+// the commit that spends the bytes, with this paragraph rewritten.
 const homeJs = await inlineJs('index.html');
-ck('inline JS on the landing page is under budget', homeJs <= 21 * KB, `${kb(homeJs)} raw`);
+ck('inline JS on the landing page is under budget', homeJs <= 15 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));
 ck('inline JS on a demo page is under budget', demoJs <= 5 * KB, `${kb(demoJs)} raw`);
 const exampleJs = await inlineJs(join('demo', 'exemplu', 'atelier', 'index.html'));

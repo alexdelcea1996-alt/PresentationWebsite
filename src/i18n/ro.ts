@@ -62,6 +62,11 @@ export const ro: Content = {
     jsLabel: 'Din care JavaScript',
     pending: '—',
     verify: 'Verifică singur',
+    verdict:
+      'Se încarcă și pe semnal slab: pagina asta e de ~{times} ori mai ușoară decât pagina web obișnuită.',
+    verdictPending: 'Se măsoară…',
+    sourceLabel: 'mediana web, HTTP Archive, 2025',
+    sourceHref: 'https://httparchive.org/reports/page-weight',
   },
 
   services: {
@@ -425,6 +430,21 @@ export const ro: Content = {
     ],
     cta: 'Vreau auditul gratuit',
     promise: 'Fără obligații și fără insistențe după. Dacă îți e util, revii tu.',
+    cost: {
+      title: 'Cât te costă un site lent, aproximativ',
+      body:
+        'Două cifre pe care le știi despre afacerea ta, și îți arăt ordinul de mărime al pierderii. Nu e o predicție — e o socoteală pe care o poți face și tu pe hârtie.',
+      visitorsLabel: 'Vizitatori pe lună',
+      valueLabel: 'Cât valorează pentru tine o cerere',
+      currency: 'lei',
+      calculate: 'Calculează',
+      resultLabel: 'Ordin de mărime al pierderii lunare',
+      resultRange: 'între {low} și {high} lei pe lună',
+      caveat:
+        'E o estimare orientativă, nu o predicție. Se sprijină pe studii care arată o legătură între viteză și rata de conversie — o legătură statistică, măsurată pe alte site-uri, nu pe al tău. Nu știe nimic despre ce vinzi, cât de bine e scris textul sau cine îți sunt clienții. Folosește-o ca să judeci dacă merită să te uiți la viteză, nu ca să pui cifra într-un buget.',
+      sourceLabel: 'de unde vin procentele',
+      sourceHref: 'https://web.dev/case-studies/',
+    },
     tool: {
       body: 'Pune adresa mai jos și vezi în 30 de secunde exact ce vede Google: viteză, accesibilitate, SEO. Fără să-mi lași datele tale.',
       label: 'Adresa site-ului tău',

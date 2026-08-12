@@ -69,6 +69,27 @@ const metrics = [
         <Icon name="arrow-right" class="size-4" />
       </a>
     </div>
+
+    {/*
+      Kilobytes are a developer's unit. This row says what the number means to
+      somebody running a business, and names the benchmark it is measured
+      against — an unsourced "N times lighter" is a boast, not a measurement.
+    */}
+    <p
+      class="mt-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-center text-xs leading-relaxed text-fg-subtle"
+      data-verdict-row
+    >
+      <span data-verdict data-template={t.verdict}>{t.verdictPending}</span>
+      <a
+        href={t.sourceHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="underline underline-offset-4 hover:no-underline"
+        data-verdict-source
+      >
+        {t.sourceLabel}
+      </a>
+    </p>
   </div>
 </section>
 
@@ -88,6 +109,23 @@ const metrics = [
     const set = (name: string, value: string) => {
       const cell = band.querySelector(`[data-metric="${name}"]`);
       if (cell) cell.textContent = value;
+    };
+
+    /**
+     * The median web page weighs about 2.7 MB (HTTP Archive, page-weight
+     * report, 2025 — linked next to the sentence this feeds). Written here as
+     * one constant rather than several, so the figure and its source cannot
+     * drift apart, and rounded to whole multiples: a page that is "4.37 times
+     * lighter" is claiming a precision the benchmark does not have.
+     */
+    const MEDIAN_PAGE_BYTES = 2_700 * 1024;
+
+    const setVerdict = (bytes: number) => {
+      const cell = band.querySelector<HTMLElement>('[data-verdict]');
+      if (!cell || bytes <= 0) return;
+      const times = Math.round(MEDIAN_PAGE_BYTES / bytes);
+      if (times < 2) return; // Nothing worth claiming; leave the pending text.
+      cell.textContent = (cell.dataset.template ?? '').replace('{times}', String(times));
     };
 
     // The moment the page looked finished, as Google measures it.
@@ -130,7 +168,10 @@ const metrics = [
 
       const paint = lcp || nav?.domContentLoadedEventEnd || 0;
       if (paint) set('lcp', seconds(paint));
-      if (total) set('weight', kilobytes(total));
+      if (total) {
+        set('weight', kilobytes(total));
+        setVerdict(total);
+      }
       if (js) set('js', kilobytes(js));
       band.dataset.ready = 'true';
     };

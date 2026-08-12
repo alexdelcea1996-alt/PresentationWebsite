@@ -299,9 +299,13 @@ for (const [label, here, there, current] of [
     if (r.resourceType() === 'script') scripts.push(r.url());
   });
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  // Named, not counted: the landing page is allowed its own sections' bundles
+  // (see weight.mjs, where each crossing of Astro's inline threshold is a
+  // recorded decision). What it may never load is a demo's.
   ck(
     'the landing page loads no demo bundle',
-    scripts.every((url) => url.includes('Configurator')),
+    !['StoreDemo', 'BookingDemo', 'DemoSite'].some((name) =>
+      scripts.some((url) => url.includes(name))),
     scripts.join(' ') || 'none',
   );
   // Four of the five offers have a demo; site optimisation has none, because a

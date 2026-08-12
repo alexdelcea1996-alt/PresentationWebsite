@@ -312,13 +312,16 @@ for (const [label, path, currency, addLabel] of [
     !scripts.some((url) => url.includes('BookingDemo')),
     scripts.join(' '),
   );
-  // This used to assert zero external scripts. The configurator outgrew Astro's
-  // inline threshold and became a bundle of its own, deliberately (see
-  // weight.mjs). The property worth keeping is narrower and is the one this
-  // suite is about: nothing a demo needs may load on the landing page.
+  // This asserted zero external scripts once, then "only the configurator".
+  // Both were stand-ins for the property this suite is actually about, and both
+  // broke the moment a home-page section outgrew Astro's inline threshold — the
+  // configurator first, then the audit band. Those crossings are deliberate and
+  // budgeted in weight.mjs. Assert the real property instead: the landing page
+  // may ship its own sections' logic, never a demo's.
+  const DEMO_BUNDLES = ['BookingDemo', 'StoreDemo', 'DemoSite'];
   ck(
-    'the only script the landing page fetches is the configurator',
-    scripts.every((url) => url.includes('Configurator')),
+    'no demo bundle rides along on the landing page',
+    !scripts.some((url) => DEMO_BUNDLES.some((name) => url.includes(name))),
     scripts.join(' ') || 'none',
   );
 

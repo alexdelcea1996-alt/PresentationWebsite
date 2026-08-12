@@ -142,6 +142,53 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
         )
       }
     </div>
+
+    {/*
+      What a slow site costs, in money rather than milliseconds.
+      Works with or without a PageSpeed key: the arithmetic is the visitor's
+      own two numbers, not anything the API returns.
+    */}
+    <div class="mx-auto mt-6 max-w-5xl" data-cost-calc>
+      <div class="rounded-3xl border border-border bg-surface/50 p-8 sm:p-10" data-reveal>
+        <h3 class="font-display text-xl font-semibold">{t.cost.title}</h3>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.cost.body}</p>
+
+        <form class="mt-6 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end" data-cost-form novalidate>
+          <label class="demo-field">
+            {t.cost.visitorsLabel}
+            <input type="number" min="1" step="1" inputmode="numeric" value="500" data-cost-visitors />
+          </label>
+          <label class="demo-field">
+            {t.cost.valueLabel} ({t.cost.currency})
+            <input type="number" min="1" step="1" inputmode="numeric" value="300" data-cost-value />
+          </label>
+          <button type="submit" class="btn btn-ghost text-sm">{t.cost.calculate}</button>
+        </form>
+
+        <div class="mt-6 hidden" data-cost-result role="status">
+          <p class="text-xs uppercase tracking-wider text-fg-subtle">{t.cost.resultLabel}</p>
+          <p
+            class="mt-1 font-display text-2xl font-semibold text-gradient sm:text-3xl"
+            data-cost-amount
+            data-template={t.cost.resultRange}
+          >
+          </p>
+          {/* Not fine print. The estimate is only honest with this attached. */}
+          <p class="mt-4 max-w-2xl text-xs leading-relaxed text-fg-subtle" data-cost-caveat>
+            {t.cost.caveat}{' '}
+            <a
+              href={t.cost.sourceHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-4 hover:no-underline"
+              data-cost-source
+            >
+              {t.cost.sourceLabel}
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   {
@@ -163,6 +210,60 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
 </section>
 
 <script>
+  /**
+   * What a slow site costs, as a range.
+   *
+   * The band it lives in may be dormant (no PageSpeed key), but this is the
+   * visitor's own arithmetic and needs no API at all.
+   *
+   * The two coefficients below are the whole model, and they are deliberately
+   * conservative and deliberately wide. The research linking load time to
+   * conversion is correlational and measured on other people's sites; a single
+   * lei-per-month figure derived from it would be inventing a precision nobody
+   * has. So: a band, rounded hard, with the caveat rendered beside it rather
+   * than tucked underneath as fine print.
+   */
+  const costForm = document.querySelector<HTMLFormElement>('[data-cost-form]');
+
+  if (costForm) {
+    const LOSS_LOW = 0.05;
+    const LOSS_HIGH = 0.15;
+    // A visitor is not a lead. This is the share that would enquire at all —
+    // held low on purpose, so the output errs small rather than flattering.
+    const ENQUIRY_RATE = 0.02;
+
+    const result = document.querySelector<HTMLElement>('[data-cost-result]')!;
+    const amount = document.querySelector<HTMLElement>('[data-cost-amount]')!;
+    const visitorsInput = document.querySelector<HTMLInputElement>('[data-cost-visitors]')!;
+    const valueInput = document.querySelector<HTMLInputElement>('[data-cost-value]')!;
+
+    // Round to something a person would say out loud: 50 lei below a thousand,
+    // 100 above. Precision here would be a lie about how well this is known.
+    const round = (value: number) => {
+      const step = value >= 1000 ? 100 : 50;
+      return Math.max(step, Math.round(value / step) * step);
+    };
+
+    costForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const visitors = Number(visitorsInput.value);
+      const worth = Number(valueInput.value);
+      if (!Number.isFinite(visitors) || !Number.isFinite(worth) || visitors < 1 || worth < 1) {
+        return;
+      }
+
+      const monthly = visitors * ENQUIRY_RATE * worth;
+      const low = round(monthly * LOSS_LOW);
+      const high = round(monthly * LOSS_HIGH);
+      const format = new Intl.NumberFormat(document.documentElement.lang);
+
+      amount.textContent = (amount.dataset.template ?? '')
+        .replace('{low}', format.format(low))
+        .replace('{high}', format.format(high));
+      result.classList.remove('hidden');
+    });
+  }
+
   /** Carry an address over to the contact form and select the audit option. */
   const handOverToForm = (url?: string) => {
     const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');

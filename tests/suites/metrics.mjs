@@ -50,6 +50,40 @@ ck('weight is filled in and looks like kB', /^[\d.]+ kB$/.test(weight), weight);
 ck('JS size is filled in and looks like kB', /^[\d.]+ kB$/.test(js), js);
 ck('no placeholder left behind', ![lcp, weight, js].includes('—'), `${lcp} | ${weight} | ${js}`);
 
+// --- The verdict row ----------------------------------------------------------
+// Kilobytes are a developer's unit. This line says what the number means to
+// somebody running a business — and it must be sourced, because an unsourced
+// "N times lighter" is a boast rather than a measurement.
+{
+  const verdict = p.locator('[data-verdict]');
+  const text = await verdict.innerText();
+  ck(
+    'the verdict translates the weight into plain language',
+    /\d/.test(text) && !text.includes('{times}'),
+    text,
+  );
+  // A whole number: the benchmark does not support "4.37 times lighter".
+  const times = Number(text.match(/(\d+)/)?.[1] ?? 0);
+  ck('and rounds to a whole multiple', Number.isInteger(times) && times >= 2, String(times));
+
+  // It has to agree with the weight the band itself measured, or the two lines
+  // sitting next to each other would contradict one another.
+  const weightText = await p.locator('[data-metric="weight"]').innerText();
+  const measuredKb = Number(weightText.replace(/[^\d]/g, ''));
+  const expected = Math.round((2700 * 1024) / (measuredKb * 1024));
+  ck(
+    'and matches the weight measured beside it',
+    times === expected,
+    `${times}× claimed vs ${expected}× from ${measuredKb} kB`,
+  );
+
+  const source = p.locator('[data-verdict-source]');
+  ck('the benchmark is named and dated', /2025/.test(await source.innerText()),
+    await source.innerText());
+  ck('and linked to where it comes from',
+    ((await source.getAttribute('href')) ?? '').startsWith('https://httparchive.org/'));
+}
+
 const num = (s) => Number(s.replace(/[^\d]/g, ''));
 ck('weight is in a plausible range (100-400 kB)', num(weight) >= 100 && num(weight) <= 400, weight);
 ck('JS is a small slice of the page (< 25 kB)', num(js) > 0 && num(js) < 25, js);

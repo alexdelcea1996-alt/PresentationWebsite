@@ -25,6 +25,87 @@ ck('connect-src matches whether the tool is on',
   csp.includes('https://www.googleapis.com') === live,
   live ? 'expected googleapis allowed' : 'expected googleapis absent');
 
+// --- What a slow site costs ------------------------------------------------
+// Lives in the audit band but needs no key: the arithmetic is the visitor's own
+// two numbers. The danger here is not a wrong sum, it is false precision — so
+// the checks are as much about how the answer is framed as about the maths.
+{
+  const c = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+  await c.goto(`${BASE}/#audit`, { waitUntil: 'load' });
+
+  ck('the cost calculator is there with or without a key',
+    (await c.locator('[data-cost-calc]').count()) === 1);
+  ck('it shows no number before it is asked', await c.locator('[data-cost-result]').isHidden());
+
+  const submit = async (visitors, value) => {
+    await c.locator('[data-cost-visitors]').fill(visitors);
+    await c.locator('[data-cost-value]').fill(value);
+    await c.locator('[data-cost-form] button[type="submit"]').click();
+    await c.waitForTimeout(250);
+    return (await c.locator('[data-cost-amount]').innerText()).trim();
+  };
+
+  // 1000 visitors × 2% enquiry rate × 500 lei = 10 000 lei of enquiry value;
+  // 5-15% of that is 500-1500.
+  const answer = await submit('1000', '500');
+  ck('the arithmetic is the one documented in the code',
+    /(^|\D)500(\D|$)/.test(answer) && /1[ ..]?500/.test(answer), answer);
+  ck('and it answers with a range, never a single figure',
+    (answer.match(/\d[\d.,\s]*/g) ?? []).length >= 2, answer);
+  ck('no template placeholder survives', !answer.includes('{low}') && !answer.includes('{high}'));
+
+  // Rounding is the honesty control: nothing here supports "415,86 lei". These
+  // inputs are deliberately awkward — 1234 × 2% × 337 = 8 317,16, so the raw
+  // band is 415,86-1 247,57 and only rounding can produce whole figures.
+  const awkward = await submit('1234', '337');
+  const figures = (awkward.match(/\d[\d.\s]*/g) ?? []).map((n) => Number(n.replace(/\D/g, '')));
+  ck('the figures are rounded, not precise to the leu',
+    figures.length >= 2 && figures.every((n) => n % 50 === 0), `${awkward} -> ${figures.join(' / ')}`);
+
+  const caveat = await c.locator('[data-cost-caveat]').innerText();
+  ck('the caveat is shown with the result, not hidden',
+    await c.locator('[data-cost-caveat]').isVisible());
+  ck('it says this is an estimate, not a prediction',
+    /(estimare|estimate)/i.test(caveat) && /(nu (e )?o predicție|not a prediction)/i.test(caveat),
+    caveat.slice(0, 70));
+  ck('and says what it cannot know',
+    /(nu știe nimic|knows nothing)/i.test(caveat));
+  ck('the percentages are sourced', ((await c.locator('[data-cost-source]').getAttribute('href')) ?? '')
+    .startsWith('https://'));
+
+  // Nonsense in, nothing out — better than a confident zero. The last valid
+  // answer stays on screen untouched.
+  await c.locator('[data-cost-visitors]').fill('0');
+  await c.locator('[data-cost-form] button[type="submit"]').click();
+  await c.waitForTimeout(200);
+  ck('zero visitors produces no new claim',
+    (await c.locator('[data-cost-amount]').innerText()).trim() === awkward, awkward);
+
+  await c.close();
+}
+
+// The caveat is the part that keeps the number honest, so it has to survive
+// translation — an English visitor must not get the figure without the hedge.
+{
+  const e = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+  await e.goto(`${BASE}/en/#audit`, { waitUntil: 'load' });
+  await e.locator('[data-cost-visitors]').fill('1000');
+  await e.locator('[data-cost-value]').fill('500');
+  await e.locator('[data-cost-form] button[type="submit"]').click();
+  await e.waitForTimeout(250);
+
+  const enAnswer = (await e.locator('[data-cost-amount]').innerText()).trim();
+  ck('EN: the same arithmetic, in English number format',
+    /500/.test(enAnswer) && /1,?500/.test(enAnswer), enAnswer);
+  const enCaveat = await e.locator('[data-cost-caveat]').innerText();
+  ck('EN: the hedge travels with the number',
+    /not a prediction/i.test(enCaveat) && /knows nothing/i.test(enCaveat),
+    enCaveat.slice(0, 60));
+  ck('EN: and so does the source',
+    ((await e.locator('[data-cost-source]').getAttribute('href')) ?? '').startsWith('https://'));
+  await e.close();
+}
+
 if (!live) {
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
   await p.goto(`${BASE}/#audit`, { waitUntil: 'load' });

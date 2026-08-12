@@ -62,6 +62,11 @@ export const en: Content = {
     jsLabel: 'Of which JavaScript',
     pending: '—',
     verify: 'Check it yourself',
+    verdict:
+      'It loads on a weak signal too: this page is roughly {times}× lighter than the ordinary web page.',
+    verdictPending: 'Measuring…',
+    sourceLabel: 'median of the web, HTTP Archive, 2025',
+    sourceHref: 'https://httparchive.org/reports/page-weight',
   },
 
   services: {
@@ -425,6 +430,21 @@ export const en: Content = {
     ],
     cta: 'Get the free audit',
     promise: 'No strings and no follow-up pestering. If it helps, you come back on your own.',
+    cost: {
+      title: 'Roughly what a slow site costs you',
+      body:
+        'Two numbers you already know about your business, and I show you the order of magnitude of the loss. Not a prediction — an arithmetic you could do on paper yourself.',
+      visitorsLabel: 'Visitors per month',
+      valueLabel: 'What one enquiry is worth to you',
+      currency: 'lei',
+      calculate: 'Work it out',
+      resultLabel: 'Order of magnitude of the monthly loss',
+      resultRange: 'between {low} and {high} lei a month',
+      caveat:
+        'This is a rough estimate, not a prediction. It rests on studies showing a link between speed and conversion rate — a statistical link, measured on other websites, not on yours. It knows nothing about what you sell, how well the copy is written, or who your customers are. Use it to decide whether speed is worth looking at, not to put a number in a budget.',
+      sourceLabel: 'where the percentages come from',
+      sourceHref: 'https://web.dev/case-studies/',
+    },
     tool: {
       body: 'Put your address in below and see exactly what Google sees, in about 30 seconds: speed, accessibility, SEO. Without handing over your details.',
       label: 'Your website address',

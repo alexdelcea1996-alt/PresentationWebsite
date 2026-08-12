@@ -1,6 +1,6 @@
 # Teste
 
-840 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+988 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă

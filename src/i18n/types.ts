@@ -174,6 +174,16 @@ export interface Content {
     /** Placeholder held until the measurements land. */
     pending: string;
     verify: string;
+    /**
+     * The line that turns kilobytes into something a business owner can judge.
+     * `{times}` is substituted with the multiplier computed in the browser.
+     * The benchmark is named and dated in `sourceLabel`, because an unsourced
+     * "N× lighter" is a boast rather than a measurement.
+     */
+    verdict: string;
+    verdictPending: string;
+    sourceLabel: string;
+    sourceHref: string;
   };
   services: {
     eyebrow: string;
@@ -289,6 +299,28 @@ export interface Content {
     bullets: string[];
     cta: string;
     promise: string;
+    /**
+     * What a slow site costs, in money rather than milliseconds.
+     *
+     * Deliberately an interval and deliberately sourced. The speed-conversion
+     * research it rests on is correlational and contested; presenting one lei
+     * figure per month from somebody's typed-in numbers would be manufacturing
+     * a precision nobody has. `caveat` says what it cannot know, and it is not
+     * fine print — it renders as part of the result.
+     */
+    cost: {
+      title: string;
+      body: string;
+      visitorsLabel: string;
+      valueLabel: string;
+      currency: string;
+      calculate: string;
+      resultLabel: string;
+      resultRange: string;
+      caveat: string;
+      sourceLabel: string;
+      sourceHref: string;
+    };
     /**
      * The instant check, shown only when a PageSpeed key is configured. Without
      * one the band keeps the plain call to action above.
