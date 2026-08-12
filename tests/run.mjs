@@ -27,6 +27,7 @@ const SUITES = [
   'completeness',
   'guarantees',
   'demo',
+  'store',
   'offers',
   'share-images',
   'case-study',

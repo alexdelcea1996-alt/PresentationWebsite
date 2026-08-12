@@ -3,7 +3,7 @@ import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { getServicePages, servicePath } from '../../data/services';
-import { demoPath } from '../../data/demo';
+import { demoForService } from '../../data/demo';
 
 interface Props {
   locale: Locale;
@@ -25,8 +25,9 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
       {
         t.items.map((service, index) => {
           const href = service.key ? pathByKey.get(service.key) : undefined;
-          // The bookings demo is a web application, so it only belongs on that card.
-          const showsDemo = service.key === 'webapp';
+          // Each demo belongs to the one offer it actually shows: the bookings app
+          // under "web application", the store under "online store".
+          const demoHref = demoForService(locale, service.key);
 
           return (
           <article
@@ -60,7 +61,7 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
               ))}
             </ul>
 
-            {(href || showsDemo) && (
+            {(href || demoHref) && (
               <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
                 {href && (
                   <p class="inline-flex items-center gap-2 text-sm font-semibold text-accent-alt">
@@ -71,9 +72,9 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
                 {/* The title above is a stretched link covering the whole card, so
                     this one needs to sit above that overlay or the click is eaten
                     and the visitor lands on the service page instead. */}
-                {showsDemo && (
+                {demoHref && (
                   <a
-                    href={demoPath(locale)}
+                    href={demoHref}
                     class="btn btn-ghost relative z-10 px-3.5 py-2 text-xs"
                     data-demo-cta
                   >

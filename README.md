@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 435 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 529 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -565,19 +565,29 @@ hash in CSP. Exista si un test care verifica asta pe tot site-ul.
 (Scrierile din JavaScript prin `element.style.x = ...` sunt in regula - CSP nu le
 acopera. Doar atributele din markup sunt refuzate.)
 
-## Demo-ul de aplicație (`/demo/`, `/en/demo/`)
+## Demo-urile jucabile (`/demo/`, `/demo/magazin/`)
 
 Site-ul vinde aplicații web, dar până acum demonstra doar un site. Pagina asta
 e afirmația făcută verificabilă: **o aplicație de programări care chiar
 funcționează** — adaugi, marchezi „a venit", anulezi, reactivezi, ștergi, treci
 dintr-o zi în alta, filtrezi după stare, iar încasările se recalculează.
 
-**Cum ajungi la ea:** „Demo" în meniul de sus și în footer, pe fiecare pagină;
-plus un buton „Vezi un demo funcțional" în două locuri unde subiectul e chiar
-ăsta — cardul „Aplicație web custom" de pe prima pagină și antetul paginii
-`/servicii/aplicatie-web/`. Butonul apare **doar** acolo: un demo de programări
-oferit sub „magazin online" ar promite altceva decât arată. Textul e în
-`services.demoCta`.
+Al doilea demo, la **`/demo/magazin/`** și `/en/demo/store/`, e un **magazin
+online**: catalog cu variante și stoc, coș, checkout pe un singur ecran și
+confirmare de comandă. Nu e ales la întâmplare ce demonstrează — pagina de
+serviciu spune că cele mai multe coșuri se pierd fiindcă transportul apare ca
+surpriză la final, așa că demo-ul afișează costul livrării **din primul produs**,
+împreună cu cât mai e până la livrarea gratuită. Tot de acolo vin și celelalte:
+un produs epuizat nu poate fi comandat, iar ecranul de final enumeră ce se
+întâmplă singur mai departe (factură, AWB, stoc).
+
+**Cum ajungi la ele:** „Demo" în meniul de sus și în footer duce la cel de
+programări, iar cele două demo-uri se leagă între ele printr-un rând de file sub
+titlu. În plus, un buton „Vezi un demo funcțional" apare pe cardul și pe pagina
+fiecărui serviciu care are un demo — „Aplicație web custom" și „Magazin online".
+**Nu** apare la site de prezentare sau optimizare: acolo n-ar avea ce arăta.
+Legătura serviciu → demo se face într-un singur loc, `demoForService()` din
+`src/data/demo.ts`.
 
 Butonul din card e singurul link dintr-un card al cărui titlu e *stretched*
 (`after:inset-0`, adică toată suprafața cardului duce la pagina de serviciu).
@@ -589,16 +599,16 @@ vede. Suita chiar dă click pe el și verifică unde ajunge.
 sub cheia `demo-bookings-v1`, în browserul vizitatorului. Nu există server, nu
 există cont, nu văd nimic. Scrie asta și în pagină, sub aplicație.
 
-**Stă pe pagina ei, nu pe prima pagină.** E singura bucată de JavaScript din
-site care nu e inline: 4,4 kB (1,6 kB prin brotli), servit din `/_astro/` cu
-cache permanent. Pusă în hero, ar fi urcat bugetul primei pagini cu ~40% pentru
-ceva ce majoritatea vizitatorilor nu deschid. Așa, prima pagină rămâne **exact
-la aceeași greutate ca înainte** — suita `demo` verifică la fiecare rulare că
-bundle-ul nu s-a strecurat acolo.
+**Stau pe paginile lor, nu pe prima pagină.** Sunt singurele bucăți de
+JavaScript din site care nu sunt inline: 5,1 kB pentru programări și 5,7 kB
+pentru magazin, servite din `/_astro/` cu cache permanent. Puse în hero, ar fi
+urcat bugetul primei pagini pentru ceva ce majoritatea vizitatorilor nu deschid.
+Așa, prima pagină **nu încarcă niciun script extern** — suitele `demo` și
+`store` verifică asta la fiecare rulare.
 
 ### Ce se schimbă și unde
 
-Totul stă în `src/i18n/ro.ts` și `en.ts`, în blocul `demo`:
+Programările stau în `src/i18n/ro.ts` și `en.ts`, în blocul `demo`:
 
 - `services` — lista de servicii din dropdown (`['Tuns', 'Vopsit', …]`);
 - `seed` — programările din care pleacă demo-ul. `day` e **decalajul în zile
@@ -623,6 +633,16 @@ raportat la „azi".
 ajungea la 3,9:1, adică exact rândul pe care ai nevoie să-l citești devenea cel
 mai greu de citit. Acum e tăiat cu linie și coborât cu o treaptă de culoare,
 fără transparență.
+
+Magazinul stă în blocul `storeDemo`, cu `products` (nume, descriere și variante
+cu preț și stoc). Pragul de livrare gratuită, costul livrării și taxa de ramburs
+sunt constante în capul scriptului din `StoreDemo.astro`. Dacă le schimbi,
+actualizează și cifrele din `tests/suites/store.mjs` — suita verifică fiecare
+total, fiindcă un magazin demo care adună greșit e mai rău decât niciun magazin.
+
+Ambele blocuri respectă aceeași interfață `DemoShell` din `types.ts`, deci un
+demo nou nu poate fi livrat fără explicație, disclaimer și variantă fără
+JavaScript.
 
 Iconurile din butoanele generate de script vin din `src/data/icons.ts`, aceeași
 sursă pe care o folosește `Icon.astro` — altfel demo-ul ar fi rămas cu un desen

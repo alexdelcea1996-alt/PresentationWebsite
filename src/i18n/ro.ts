@@ -562,6 +562,7 @@ export const ro: Content = {
     ],
   },
 
+  demoNav: { label: 'Demo-uri', bookings: 'Programări', store: 'Magazin' },
   demo: {
     metaTitle: 'Demo: cum arată o aplicație web făcută la comandă | Alex Delcea',
     metaDescription:
@@ -618,6 +619,105 @@ export const ro: Content = {
     builtBody:
       'Fără niciun framework, în JavaScript simplu. Aceeași abordare ca restul site-ului: aplicația de mai sus se încarcă mai repede decât un ecran de așteptare din multe aplicații „moderne".',
     cta: 'Vreau ceva asemănător',
+  },
+
+  storeDemo: {
+    metaTitle: 'Demo: cum arată un magazin online făcut la comandă | Alex Delcea',
+    metaDescription:
+      'Un magazin online funcțional, direct în pagină. Alege variante, pune în coș, treci prin checkout — cu costul livrării vizibil de la primul produs, nu ca surpriză la final.',
+    eyebrow: 'Demo interactiv',
+    title: 'Un magazin în care drumul până la comandă e scurt',
+    lead: 'Șase produse cu variante și stoc, un coș și un checkout pe un singur ecran. Costul livrării apare din clipa în care pui primul produs în coș — nu la final, unde pierde cele mai multe coșuri. Încearcă-l.',
+    disclaimer:
+      'Produsele și comenzile sunt inventate și se salvează doar în browserul tău. Nu se plătește nimic și nu pleacă nicio comandă nicăieri.',
+    noJs: 'Magazinul are nevoie de JavaScript — e o aplicație, nu o pagină. Restul site-ului funcționează și fără.',
+    currency: 'lei',
+    catalogueTitle: 'Produse',
+    products: [
+      {
+        name: 'Etiopia Yirgacheffe',
+        blurb: 'Floral, cu note de citrice. Prăjire deschisă, pentru filtru.',
+        variants: [
+          { label: '250 g', price: 45, stock: 12 },
+          { label: '1 kg', price: 155, stock: 4 },
+        ],
+      },
+      {
+        name: 'Brazilia Cerrado',
+        blurb: 'Ciocolată și alune, corp plin. Prăjire medie.',
+        variants: [
+          { label: '250 g', price: 38, stock: 20 },
+          { label: '1 kg', price: 130, stock: 6 },
+        ],
+      },
+      {
+        name: 'Columbia Huila',
+        blurb: 'Caramel și măr copt. Merge și la espresso, și la filtru.',
+        variants: [
+          { label: '250 g', price: 42, stock: 9 },
+          { label: '1 kg', price: 145, stock: 0 },
+        ],
+      },
+      {
+        name: 'Kenya AA',
+        blurb: 'Coacăze negre și aciditate vie. Pentru cine vrea ceva clar.',
+        variants: [{ label: '250 g', price: 52, stock: 3 }],
+      },
+      {
+        name: 'Amestec de casă',
+        blurb: 'Echilibrat, iertător la măcinare. Espresso de zi cu zi.',
+        variants: [
+          { label: '250 g', price: 34, stock: 25 },
+          { label: '1 kg', price: 115, stock: 11 },
+        ],
+      },
+      {
+        name: 'Decofeinizat Sumatra',
+        blurb: 'Fără cofeină, dar cu corp. Decofeinizat cu apă, fără solvenți.',
+        variants: [{ label: '250 g', price: 40, stock: 0 }],
+      },
+    ],
+    addToCart: 'Adaugă în coș',
+    outOfStock: 'Stoc epuizat',
+    stockLeft: 'în stoc: {n}',
+    cartTitle: 'Coșul tău',
+    cartEmpty: 'Coșul e gol. Adaugă un produs și vezi cum se comportă.',
+    remove: 'Scoate din coș',
+    increase: 'Mai adaugă unul',
+    decrease: 'Scade unul',
+    subtotal: 'Subtotal',
+    delivery: 'Livrare',
+    deliveryFree: 'gratuită',
+    freeLeft: 'Încă {amount} până la livrare gratuită',
+    freeReached: 'Ai livrare gratuită',
+    total: 'Total',
+    checkout: 'Finalizează comanda',
+    backToShop: 'Înapoi la produse',
+    checkoutTitle: 'Datele de livrare',
+    checkoutNote: 'Fără cont obligatoriu. Patru câmpuri, un singur ecran.',
+    fields: { name: 'Nume și prenume', phone: 'Telefon', city: 'Oraș', address: 'Adresă' },
+    payment: 'Plata',
+    paymentCard: 'Card online',
+    paymentCash: 'Ramburs la curier',
+    paymentCashFee: '+{amount} taxă ramburs',
+    placeOrder: 'Plasează comanda',
+    doneTitle: 'Comanda a fost înregistrată',
+    doneBody: 'Într-un magazin adevărat, de aici mai departe nu mai atingi nimic:',
+    doneSteps: [
+      'Factura se emite și pleacă spre client, prin SmartBill, Oblio sau FGO',
+      'AWB-ul se generează la curier, iar clientul primește linkul de urmărire',
+      'Stocul scade singur, iar ce s-a terminat nu mai poate fi comandat',
+    ],
+    orderLabel: 'Comanda',
+    newOrder: 'Încearcă încă o comandă',
+    reset: 'Resetează datele demo',
+    whyTitle: 'De ce contează',
+    whyBody:
+      'Cele mai multe coșuri se abandonează la ultimul pas, când apare costul transportului. Aici îl vezi din primul produs, împreună cu cât mai ai până la livrarea gratuită. Nu e un truc de design — e singura diferență între un magazin care încasează și unul care doar afișează.',
+    builtTitle: 'Cum e construit',
+    builtBody:
+      'Fără niciun framework, în JavaScript simplu, ca restul site-ului. Un magazin adevărat mai are în spate plăți, facturare și curieri — dar partea pe care o vede clientul arată și se mișcă exact așa.',
+    cta: 'Vreau un magazin ca ăsta',
   },
 
   notFound: {

@@ -212,6 +212,79 @@
     color: var(--color-fg-muted);
   }
 
+  /* A disabled control has to look disabled. Until now the configurator toggled
+     an opacity class by hand, which meant every other button that can be
+     disabled — the store's sold-out ones — looked perfectly clickable. */
+  .btn:disabled,
+  .demo-chip:disabled,
+  .shop-step:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* --- The store demo ------------------------------------------------------ */
+  .shop-step {
+    display: grid;
+    place-items: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 0.45rem;
+    border: 1px solid var(--color-border);
+    font-size: 0.9rem;
+    line-height: 1;
+    color: var(--color-fg-muted);
+    transition:
+      color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft);
+  }
+
+  .shop-step:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border-strong);
+  }
+
+  .shop-pay {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--color-border);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--color-fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft);
+  }
+
+  .shop-pay:has(input:checked) {
+    border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+    color: var(--color-fg);
+  }
+
+  .shop-pay input {
+    accent-color: var(--color-accent);
+  }
+
+  /* Laid out by attribute rather than by `flex`: `hidden` and `flex` are both
+     display utilities, so whichever Tailwind emits last would win and the row
+     could refuse to hide. The compound selector below settles it. */
+  [data-store-fee-row] {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  [data-store-fee-row].hidden {
+    display: none;
+  }
+
+  /* Once you are on the checkout or the confirmation, the basket's own
+     "go to checkout" button has nothing left to do. */
+  [data-store-demo]:not([data-screen='catalogue']) [data-store-checkout-btn] {
+    display: none;
+  }
+
   /* Lighthouse-style score dials. The arc sweeps in on `.is-visible`, which the
      reveal observer already sets — so the animation costs no JavaScript at all.
      Without scripting the arc is drawn full straight away. */

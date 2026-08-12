@@ -1,0 +1,516 @@
+---
+/**
+ * A working online store, playable in the page.
+ *
+ * The shop is a 2.200 € package with no picture anywhere on the site, and the
+ * thing worth proving about it is the one the service page claims: the road to
+ * "place order" is short, and the delivery cost is on screen from the first
+ * item rather than sprung at the end. So that is what the demo puts in front of
+ * you — catalogue with priced variants and real stock, a basket that prices
+ * delivery immediately, a checkout on one screen with no account.
+ *
+ * Same rules as the bookings demo: no framework, state in localStorage, on its
+ * own page so its JavaScript never touches the landing page.
+ */
+import { getContent, localeTags, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).storeDemo;
+
+const config = {
+  locale: localeTags[locale],
+  products: t.products,
+  currency: t.currency,
+  addToCart: t.addToCart,
+  outOfStock: t.outOfStock,
+  stockLeft: t.stockLeft,
+  remove: t.remove,
+  increase: t.increase,
+  decrease: t.decrease,
+  deliveryFree: t.deliveryFree,
+  freeLeft: t.freeLeft,
+  freeReached: t.freeReached,
+  paymentCash: t.paymentCash,
+  orderLabel: t.orderLabel,
+};
+---
+
+<div class="js-only" data-store-demo data-store-config={JSON.stringify(config)}>
+  <div class="grid gap-6 lg:grid-cols-[1fr_20rem] lg:items-start">
+    <!-- Catalogue -->
+    <div data-store-catalogue>
+      <!-- The product names below are h3; without this the page jumps h1 → h3. -->
+      <h2 class="font-display text-base font-semibold">{t.catalogueTitle}</h2>
+      <ul class="mt-4 grid gap-4 sm:grid-cols-2"></ul>
+    </div>
+
+    <!-- Checkout, in place of the catalogue -->
+    <form class="hidden card" data-store-checkout novalidate>
+      <h2 class="font-display text-lg font-semibold">{t.checkoutTitle}</h2>
+      <p class="mt-2 text-sm text-fg-muted">{t.checkoutNote}</p>
+
+      <div class="mt-5 grid gap-3 sm:grid-cols-2">
+        <label class="demo-field">
+          <span>{t.fields.name}</span>
+          <input name="name" type="text" required autocomplete="name" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.phone}</span>
+          <input name="phone" type="tel" required autocomplete="tel" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.city}</span>
+          <input name="city" type="text" required autocomplete="address-level2" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.address}</span>
+          <input name="address" type="text" required autocomplete="street-address" />
+        </label>
+      </div>
+
+      <fieldset class="mt-5">
+        <legend class="text-xs text-fg-subtle">{t.payment}</legend>
+        <div class="mt-2 grid gap-2 sm:grid-cols-2">
+          <label class="shop-pay">
+            <input type="radio" name="payment" value="card" checked />
+            <span>{t.paymentCard}</span>
+          </label>
+          <label class="shop-pay">
+            <input type="radio" name="payment" value="cash" />
+            <span>{t.paymentCash}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary text-sm">{t.placeOrder}</button>
+        <button type="button" class="btn btn-ghost text-sm" data-store-back>{t.backToShop}</button>
+      </div>
+    </form>
+
+    <!-- Confirmation -->
+    <div class="hidden card" data-store-done>
+      <p class="text-xs uppercase tracking-wider text-accent-alt">
+        {t.orderLabel} <span data-store-order-id></span>
+      </p>
+      <h2 class="mt-3 font-display text-2xl font-semibold" tabindex="-1">{t.doneTitle}</h2>
+      <p class="mt-4 text-sm leading-relaxed text-fg-muted">{t.doneBody}</p>
+      <ul class="mt-4 space-y-2.5">
+        {
+          t.doneSteps.map((step) => (
+            <li class="flex items-start gap-2.5 text-sm leading-relaxed text-fg-muted">
+              <span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-alt" aria-hidden="true" />
+              <span>{step}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <button type="button" class="btn btn-ghost mt-6 text-sm" data-store-again>{t.newOrder}</button>
+    </div>
+
+    <!-- Basket -->
+    <aside class="card lg:sticky lg:top-24" aria-labelledby="store-cart-title">
+      <h2 id="store-cart-title" class="font-display text-base font-semibold">{t.cartTitle}</h2>
+
+      <p class="mt-4 text-sm text-fg-subtle" data-store-empty>{t.cartEmpty}</p>
+      <ul class="mt-4 space-y-3" data-store-lines></ul>
+
+      <dl class="mt-5 hidden space-y-1.5 border-t border-border pt-4 text-sm" data-store-totals>
+        <div class="flex justify-between">
+          <dt class="text-fg-muted">{t.subtotal}</dt>
+          <dd class="tabular-nums text-fg" data-store-subtotal></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-fg-muted">{t.delivery}</dt>
+          <dd class="tabular-nums text-fg" data-store-delivery></dd>
+        </div>
+        <div class="hidden" data-store-fee-row>
+          <dt class="text-fg-muted" data-store-fee-label></dt>
+          <dd class="tabular-nums text-fg" data-store-fee></dd>
+        </div>
+        <div class="flex justify-between border-t border-border pt-2 font-semibold">
+          <dt>{t.total}</dt>
+          <dd class="font-display tabular-nums text-gradient" data-store-total></dd>
+        </div>
+      </dl>
+
+      <p class="mt-3 text-xs text-accent-alt" data-store-progress></p>
+
+      <button type="button" class="btn btn-primary mt-5 w-full text-sm" data-store-checkout-btn disabled>
+        {t.checkout}
+      </button>
+
+      <p class="sr-only" role="status" data-store-status></p>
+
+      <p class="mt-5 border-t border-border pt-4 text-xs leading-relaxed text-fg-subtle">
+        {t.disclaimer}
+      </p>
+      <button
+        type="button"
+        class="mt-3 text-xs text-fg-muted underline underline-offset-4 transition-colors hover:text-accent-alt"
+        data-store-reset
+      >
+        {t.reset}
+      </button>
+    </aside>
+  </div>
+</div>
+
+<p class="no-js-only card text-sm text-fg-muted">{t.noJs}</p>
+
+<script>
+  interface Variant {
+    label: string;
+    price: number;
+    stock: number;
+  }
+
+  interface Product {
+    name: string;
+    blurb: string;
+    variants: Variant[];
+  }
+
+  /** A basket line points at a product and one of its variants. */
+  interface Line {
+    product: number;
+    variant: number;
+    qty: number;
+  }
+
+  interface Config {
+    locale: string;
+    products: Product[];
+    currency: string;
+    addToCart: string;
+    outOfStock: string;
+    stockLeft: string;
+    remove: string;
+    increase: string;
+    decrease: string;
+    deliveryFree: string;
+    freeLeft: string;
+    freeReached: string;
+    paymentCash: string;
+    orderLabel: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-store-demo]');
+
+  if (root) {
+    // Aliased once: a hoisted function declaration further down does not carry
+    // the `if (root)` narrowing with it.
+    const shell = root;
+    const config = JSON.parse(shell.dataset.storeConfig!) as Config;
+
+    const STORE = 'demo-store-v1';
+    /** Flat delivery, waived above the threshold, plus the usual cash-on-delivery fee. */
+    const DELIVERY = 20;
+    const FREE_OVER = 250;
+    const CASH_FEE = 5;
+
+    const numbers = new Intl.NumberFormat(config.locale, { maximumFractionDigits: 0 });
+    const money = (value: number) => `${numbers.format(value)} ${config.currency}`;
+    const fill = (text: string, token: string, value: string) => text.replace(`{${token}}`, value);
+
+    const el = <T extends Element>(selector: string) => shell.querySelector<T>(selector)!;
+    const catalogue = el<HTMLElement>('[data-store-catalogue]');
+    const grid = el<HTMLUListElement>('[data-store-catalogue] ul');
+    const checkout = el<HTMLFormElement>('[data-store-checkout]');
+    const done = el<HTMLElement>('[data-store-done]');
+    const lines = el<HTMLUListElement>('[data-store-lines]');
+    const emptyNote = el<HTMLElement>('[data-store-empty]');
+    const totals = el<HTMLElement>('[data-store-totals]');
+    const feeRow = el<HTMLElement>('[data-store-fee-row]');
+    const progress = el<HTMLElement>('[data-store-progress]');
+    const status = el<HTMLElement>('[data-store-status]');
+    const checkoutBtn = el<HTMLButtonElement>('[data-store-checkout-btn]');
+
+    /** Which variant each product card is currently showing. */
+    const chosen = config.products.map(() => 0);
+    let cart: Line[] = load();
+    let orders = 0;
+
+    function load(): Line[] {
+      try {
+        const raw = localStorage.getItem(STORE);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        // Drop anything that no longer points at real stock — the catalogue may
+        // have changed since the visitor was last here.
+        return parsed.filter(
+          (line: Line) =>
+            config.products[line?.product]?.variants[line?.variant] && Number(line.qty) > 0,
+        );
+      } catch {
+        return []; // Private mode, or a corrupt value. The session still works.
+      }
+    }
+
+    const save = () => {
+      try {
+        localStorage.setItem(STORE, JSON.stringify(cart));
+      } catch {
+        /* Storage blocked or full; nothing to do. */
+      }
+    };
+
+    const variantOf = (line: Line) => config.products[line.product].variants[line.variant];
+    const subtotal = () => cart.reduce((sum, line) => sum + variantOf(line).price * line.qty, 0);
+    const delivery = (net: number) => (net === 0 || net >= FREE_OVER ? 0 : DELIVERY);
+
+    // --- Catalogue ---------------------------------------------------------------
+    function drawCatalogue() {
+      grid.replaceChildren(...config.products.map(card));
+    }
+
+    function card(product: Product, index: number) {
+      const item = document.createElement('li');
+      item.className = 'card flex flex-col';
+      item.dataset.product = String(index);
+
+      const name = document.createElement('h3');
+      name.className = 'font-display text-base font-semibold';
+      name.textContent = product.name;
+
+      const blurb = document.createElement('p');
+      blurb.className = 'mt-2 grow text-sm leading-relaxed text-fg-muted';
+      blurb.textContent = product.blurb;
+
+      item.append(name, blurb);
+
+      // Variants. A single-variant product still shows its size, just not as a choice.
+      const variant = product.variants[chosen[index]];
+      if (product.variants.length > 1) {
+        const group = document.createElement('div');
+        group.className = 'mt-4 flex flex-wrap gap-2';
+        group.setAttribute('role', 'group');
+        group.setAttribute('aria-label', product.name);
+        product.variants.forEach((option, vIndex) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'demo-chip';
+          button.dataset.variant = String(vIndex);
+          button.setAttribute('aria-pressed', String(vIndex === chosen[index]));
+          button.textContent = option.label;
+          button.addEventListener('click', () => {
+            chosen[index] = vIndex;
+            drawCatalogue();
+          });
+          group.append(button);
+        });
+        item.append(group);
+      }
+
+      const line = document.createElement('div');
+      line.className = 'mt-4 flex items-center justify-between gap-3 border-t border-border pt-4';
+
+      const price = document.createElement('p');
+      price.className = 'font-display text-lg font-semibold tabular-nums text-fg';
+      price.textContent = money(variant.price);
+
+      const stock = document.createElement('p');
+      stock.className = 'text-xs text-fg-subtle';
+      stock.dataset.stock = String(variant.stock);
+      const remaining = variant.stock - inCart(index, chosen[index]);
+      stock.textContent =
+        remaining <= 0 ? config.outOfStock : fill(config.stockLeft, 'n', String(remaining));
+
+      const left = document.createElement('div');
+      left.append(price, stock);
+      if (product.variants.length === 1) {
+        const only = document.createElement('p');
+        only.className = 'text-xs text-fg-subtle';
+        only.textContent = variant.label;
+        left.prepend(only);
+      }
+
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'btn btn-ghost shrink-0 px-3.5 py-2 text-xs';
+      add.dataset.add = String(index);
+      add.textContent = config.addToCart;
+      add.disabled = remaining <= 0;
+      add.addEventListener('click', () => addLine(index, chosen[index]));
+
+      line.append(left, add);
+      item.append(line);
+      return item;
+    }
+
+    const inCart = (product: number, variant: number) =>
+      cart.find((line) => line.product === product && line.variant === variant)?.qty ?? 0;
+
+    function addLine(product: number, variant: number) {
+      const stock = config.products[product].variants[variant].stock;
+      const existing = cart.find((line) => line.product === product && line.variant === variant);
+      if ((existing?.qty ?? 0) >= stock) return; // Never sell what is not there.
+      if (existing) existing.qty += 1;
+      else cart.push({ product, variant, qty: 1 });
+      save();
+      render();
+    }
+
+    function setQty(index: number, delta: number) {
+      const line = cart[index];
+      if (!line) return;
+      const next = line.qty + delta;
+      if (next <= 0) cart.splice(index, 1);
+      else if (next > variantOf(line).stock) return;
+      else line.qty = next;
+      save();
+      render();
+    }
+
+    // --- Basket -------------------------------------------------------------------
+    function drawCart() {
+      lines.replaceChildren(
+        ...cart.map((line, index) => {
+          const product = config.products[line.product];
+          const variant = variantOf(line);
+
+          const item = document.createElement('li');
+          item.className = 'flex items-start gap-3';
+          item.dataset.line = String(index);
+
+          const text = document.createElement('div');
+          text.className = 'grow';
+          const name = document.createElement('p');
+          name.className = 'text-sm font-medium text-fg';
+          name.textContent = product.name;
+          const detail = document.createElement('p');
+          detail.className = 'text-xs text-fg-subtle';
+          detail.textContent = `${variant.label} · ${money(variant.price)}`;
+          text.append(name, detail);
+
+          const controls = document.createElement('div');
+          controls.className = 'flex shrink-0 items-center gap-1';
+          controls.append(
+            // At one, pressing minus takes the line out — say so, rather than
+            // promising to subtract from nothing.
+            step(line.qty === 1 ? config.remove : config.decrease, '−', () => setQty(index, -1)),
+            quantity(line.qty),
+            step(config.increase, '+', () => setQty(index, 1)),
+          );
+
+          const total = document.createElement('p');
+          total.className = 'w-16 shrink-0 text-right text-sm tabular-nums text-fg';
+          total.textContent = money(variant.price * line.qty);
+
+          item.append(text, controls, total);
+          return item;
+        }),
+      );
+    }
+
+    function step(label: string, glyph: string, onClick: () => void) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'shop-step';
+      button.setAttribute('aria-label', label);
+      button.title = label;
+      button.textContent = glyph;
+      button.addEventListener('click', onClick);
+      return button;
+    }
+
+    function quantity(qty: number) {
+      const span = document.createElement('span');
+      span.className = 'w-6 text-center text-sm tabular-nums text-fg';
+      span.dataset.qty = String(qty);
+      span.textContent = String(qty);
+      return span;
+    }
+
+    function render() {
+      drawCatalogue();
+      drawCart();
+
+      const net = subtotal();
+      const ship = delivery(net);
+      const cash = checkout.querySelector<HTMLInputElement>('[value="cash"]')?.checked ?? false;
+      const fee = cash && cart.length ? CASH_FEE : 0;
+
+      const filled = cart.length > 0;
+      emptyNote.classList.toggle('hidden', filled);
+      totals.classList.toggle('hidden', !filled);
+      checkoutBtn.disabled = !filled;
+
+      el('[data-store-subtotal]').textContent = money(net);
+      el('[data-store-delivery]').textContent = ship === 0 && filled ? config.deliveryFree : money(ship);
+      el('[data-store-total]').textContent = money(net + ship + fee);
+
+      feeRow.classList.toggle('hidden', fee === 0);
+      el('[data-store-fee-label]').textContent = config.paymentCash;
+      el('[data-store-fee]').textContent = money(fee);
+
+      // The whole point of the demo: this line is visible from the first item.
+      progress.textContent = !filled
+        ? ''
+        : net >= FREE_OVER
+          ? config.freeReached
+          : fill(config.freeLeft, 'amount', money(FREE_OVER - net));
+
+      const count = cart.reduce((sum, line) => sum + line.qty, 0);
+      status.textContent = `${count} · ${money(net + ship + fee)}`;
+    }
+
+    // --- Screens --------------------------------------------------------------------
+    function show(screen: 'catalogue' | 'checkout' | 'done') {
+      catalogue.classList.toggle('hidden', screen !== 'catalogue');
+      checkout.classList.toggle('hidden', screen !== 'checkout');
+      done.classList.toggle('hidden', screen !== 'done');
+      shell.dataset.screen = screen;
+    }
+
+    checkoutBtn.addEventListener('click', () => {
+      show('checkout');
+      checkout.querySelector<HTMLInputElement>('[name="name"]')!.focus();
+    });
+
+    el('[data-store-back]').addEventListener('click', () => {
+      show('catalogue');
+      checkoutBtn.focus();
+    });
+
+    for (const radio of checkout.querySelectorAll('[name="payment"]')) {
+      radio.addEventListener('change', render);
+    }
+
+    checkout.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!checkout.reportValidity()) return;
+
+      orders += 1;
+      el('[data-store-order-id]').textContent = `#${1041 + orders}`;
+      cart = [];
+      save();
+      checkout.reset();
+      render();
+      show('done');
+      done.querySelector('h2')!.focus();
+    });
+
+    el('[data-store-again]').addEventListener('click', () => {
+      show('catalogue');
+      checkoutBtn.focus();
+    });
+
+    el('[data-store-reset]').addEventListener('click', () => {
+      cart = [];
+      chosen.fill(0);
+      save();
+      checkout.reset();
+      render();
+      show('catalogue');
+    });
+
+    show('catalogue');
+    render();
+  }
+</script>

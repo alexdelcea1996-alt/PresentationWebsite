@@ -328,26 +328,24 @@ for (const [label, home, service, otherServices, demo] of [
     'RO',
     '/',
     '/servicii/aplicatie-web/',
-    ['/servicii/site-de-prezentare/', '/servicii/magazin-online/', '/servicii/optimizare-site/'],
+    ['/servicii/site-de-prezentare/', '/servicii/optimizare-site/'],
     '/demo/',
   ],
   [
     'EN',
     '/en/',
     '/en/services/web-application/',
-    [
-      '/en/services/business-website/',
-      '/en/services/online-store/',
-      '/en/services/site-optimisation/',
-    ],
+    ['/en/services/business-website/', '/en/services/site-optimisation/'],
     '/en/demo/',
   ],
 ]) {
   const p = await b.newPage(VIEWPORT);
   await p.goto(`${BASE}${home}`, { waitUntil: 'domcontentloaded' });
 
-  const cta = p.locator('[data-demo-cta]');
-  ck(`${label}: the services grid offers the demo once`, (await cta.count()) === 1, `${await cta.count()}`);
+  // Scoped by target: the grid now carries two demo buttons, one per offer, and
+  // this suite is about the bookings one.
+  const cta = p.locator(`[data-demo-cta][href$="${demo}"]`);
+  ck(`${label}: the services grid offers this demo once`, (await cta.count()) === 1, `${await cta.count()}`);
   // By the card's link target, not its title: the two locales word it differently
   // ("Aplicație web" / "Custom web app") and the copy is free to change.
   const cardHref = await cta.locator('xpath=ancestor::article').locator('h3 a').getAttribute('href');
@@ -363,7 +361,7 @@ for (const [label, home, service, otherServices, demo] of [
 
   const s = await b.newPage(VIEWPORT);
   await s.goto(`${BASE}${service}`, { waitUntil: 'domcontentloaded' });
-  const hero = s.locator('[data-demo-cta]');
+  const hero = s.locator(`[data-demo-cta][href$="${demo}"]`);
   ck(`${label}: the web-application page offers the demo`, (await hero.count()) === 1);
   ck(
     `${label}: it sits with the other calls to action`,
@@ -374,8 +372,9 @@ for (const [label, home, service, otherServices, demo] of [
   ck(`${label}: the service page button reaches the demo`, new URL(s.url()).pathname === demo, s.url());
   await s.close();
 
-  // The demo is a booking application. Offering it under "online store" or
-  // "site optimisation" would promise something it does not show.
+  // Offering the bookings app under "business website" or "site optimisation"
+  // would promise something it does not show. The store has its own demo, so it
+  // is covered by the `store` suite instead.
   for (const other of otherServices) {
     const o = await b.newPage(VIEWPORT);
     await o.goto(`${BASE}${other}`, { waitUntil: 'domcontentloaded' });

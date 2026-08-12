@@ -562,6 +562,7 @@ export const en: Content = {
     ],
   },
 
+  demoNav: { label: 'Demos', bookings: 'Bookings', store: 'Store' },
   demo: {
     metaTitle: 'Demo: what a custom web application looks like | Alex Delcea',
     metaDescription:
@@ -618,6 +619,105 @@ export const en: Content = {
     builtBody:
       'No framework at all, in plain JavaScript. The same approach as the rest of the site: the application above loads faster than the loading screen of many "modern" ones.',
     cta: 'I want something like this',
+  },
+
+  storeDemo: {
+    metaTitle: 'Demo: what a custom online store looks like | Alex Delcea',
+    metaDescription:
+      'A working online store, right on the page. Pick variants, fill a basket, go through checkout — with the delivery cost on screen from the first item, not as a surprise at the end.',
+    eyebrow: 'Interactive demo',
+    title: 'A store where the road to the order is short',
+    lead: 'Six products with variants and stock, a basket and a checkout on one screen. The delivery cost appears the moment you add the first item — not at the end, where most baskets are lost. Try it.',
+    disclaimer:
+      'The products and orders are invented and are saved only in your own browser. Nothing is charged and no order goes anywhere.',
+    noJs: 'The store needs JavaScript — it is an application, not a page. The rest of the site works without it.',
+    currency: 'RON',
+    catalogueTitle: 'Products',
+    products: [
+      {
+        name: 'Ethiopia Yirgacheffe',
+        blurb: 'Floral, with citrus notes. Light roast, for filter.',
+        variants: [
+          { label: '250 g', price: 45, stock: 12 },
+          { label: '1 kg', price: 155, stock: 4 },
+        ],
+      },
+      {
+        name: 'Brazil Cerrado',
+        blurb: 'Chocolate and hazelnut, full bodied. Medium roast.',
+        variants: [
+          { label: '250 g', price: 38, stock: 20 },
+          { label: '1 kg', price: 130, stock: 6 },
+        ],
+      },
+      {
+        name: 'Colombia Huila',
+        blurb: 'Caramel and baked apple. Works for espresso and filter alike.',
+        variants: [
+          { label: '250 g', price: 42, stock: 9 },
+          { label: '1 kg', price: 145, stock: 0 },
+        ],
+      },
+      {
+        name: 'Kenya AA',
+        blurb: 'Blackcurrant and a lively acidity. For when you want it clear.',
+        variants: [{ label: '250 g', price: 52, stock: 3 }],
+      },
+      {
+        name: 'House blend',
+        blurb: 'Balanced and forgiving to grind. Everyday espresso.',
+        variants: [
+          { label: '250 g', price: 34, stock: 25 },
+          { label: '1 kg', price: 115, stock: 11 },
+        ],
+      },
+      {
+        name: 'Decaf Sumatra',
+        blurb: 'No caffeine, still plenty of body. Water processed, no solvents.',
+        variants: [{ label: '250 g', price: 40, stock: 0 }],
+      },
+    ],
+    addToCart: 'Add to basket',
+    outOfStock: 'Out of stock',
+    stockLeft: 'in stock: {n}',
+    cartTitle: 'Your basket',
+    cartEmpty: 'The basket is empty. Add a product and see how it behaves.',
+    remove: 'Remove from basket',
+    increase: 'Add one more',
+    decrease: 'Remove one',
+    subtotal: 'Subtotal',
+    delivery: 'Delivery',
+    deliveryFree: 'free',
+    freeLeft: '{amount} more for free delivery',
+    freeReached: 'Delivery is free',
+    total: 'Total',
+    checkout: 'Go to checkout',
+    backToShop: 'Back to the products',
+    checkoutTitle: 'Delivery details',
+    checkoutNote: 'No account required. Four fields, one screen.',
+    fields: { name: 'Full name', phone: 'Phone', city: 'City', address: 'Address' },
+    payment: 'Payment',
+    paymentCard: 'Card online',
+    paymentCash: 'Cash on delivery',
+    paymentCashFee: '+{amount} cash-on-delivery fee',
+    placeOrder: 'Place the order',
+    doneTitle: 'The order is in',
+    doneBody: 'In a real store, from here on you touch nothing:',
+    doneSteps: [
+      'The invoice is issued and sent to the customer, through SmartBill, Oblio or FGO',
+      'The courier label is generated and the customer gets a tracking link',
+      'Stock goes down on its own, and what has run out can no longer be ordered',
+    ],
+    orderLabel: 'Order',
+    newOrder: 'Try another order',
+    reset: 'Reset the demo data',
+    whyTitle: 'Why it matters',
+    whyBody:
+      'Most baskets are abandoned at the last step, when the shipping cost finally appears. Here you see it from the first product, along with how much is left until delivery is free. It is not a design trick — it is the difference between a store that takes money and one that only displays things.',
+    builtTitle: 'How it is built',
+    builtBody:
+      'No framework at all, in plain JavaScript, like the rest of the site. A real store has payments, invoicing and couriers behind it too — but the part the customer sees looks and moves exactly like this.',
+    cta: 'I want a store like this',
   },
 
   notFound: {

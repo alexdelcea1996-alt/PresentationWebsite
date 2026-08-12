@@ -1,34 +1,45 @@
 ---
+/**
+ * The shell both playable demos sit in: hero, the app itself, the two
+ * explanation cards and the call to action.
+ *
+ * Shared rather than copied so a second demo cannot drift into looking like a
+ * different site — and so the switcher between them exists in exactly one place.
+ */
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import BookingDemo from './BookingDemo.astro';
+import StoreDemo from './StoreDemo.astro';
 import { getContent, sectionIds, locales, type Locale } from '../i18n';
-import { demoPath } from '../data/demo';
+import { demoPath, storeDemoPath } from '../data/demo';
 
 interface Props {
   locale: Locale;
+  /** Which of the two apps this page carries. */
+  app: 'bookings' | 'store';
 }
 
-const { locale } = Astro.props;
+const { locale, app } = Astro.props;
 const t = getContent(locale);
-const d = t.demo;
+const d = app === 'store' ? t.storeDemo : t.demo;
+const pathFor = app === 'store' ? storeDemoPath : demoPath;
 
 const alternates = Object.fromEntries(
-  locales.map((code) => [code, demoPath(code)]),
+  locales.map((code) => [code, pathFor(code)]),
 ) as Partial<Record<Locale, string>>;
 
 const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+
+const tabs = [
+  { id: 'bookings', href: demoPath(locale), label: t.demoNav.bookings },
+  { id: 'store', href: storeDemoPath(locale), label: t.demoNav.store },
+] as const;
 ---
 
-<Base
-  locale={locale}
-  title={d.metaTitle}
-  description={d.metaDescription}
-  alternates={alternates}
->
+<Base locale={locale} title={d.metaTitle} description={d.metaDescription} alternates={alternates}>
   <Header locale={locale} />
 
   <main id="main">
@@ -48,8 +59,23 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
           <p class="mt-6 text-lg leading-relaxed text-fg-muted">{d.lead}</p>
         </div>
 
-        <div class="mt-12" data-reveal>
-          <BookingDemo locale={locale} />
+        <nav class="mt-8 flex flex-wrap items-center gap-2" aria-label={t.demoNav.label}>
+          {
+            tabs.map((tab) => (
+              <a
+                href={tab.href}
+                class="demo-chip"
+                aria-current={tab.id === app ? 'page' : undefined}
+                data-demo-tab={tab.id}
+              >
+                {tab.label}
+              </a>
+            ))
+          }
+        </nav>
+
+        <div class="mt-10" data-reveal>
+          {app === 'store' ? <StoreDemo locale={locale} /> : <BookingDemo locale={locale} />}
         </div>
 
         <div class="mt-16 grid max-w-4xl gap-6 sm:grid-cols-2">

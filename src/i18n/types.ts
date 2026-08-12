@@ -64,6 +64,35 @@ export interface ComparisonRow {
   diyWins?: boolean;
 }
 
+/**
+ * The parts every playable demo page has in common. Both demos satisfy this, so
+ * a new one cannot ship without its own explanation, disclaimer and no-JS note.
+ */
+export interface DemoShell {
+  metaTitle: string;
+  metaDescription: string;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  /** Says plainly that the data is invented and stays in the browser. */
+  disclaimer: string;
+  noJs: string;
+  whyTitle: string;
+  whyBody: string;
+  builtTitle: string;
+  builtBody: string;
+  cta: string;
+  /** Suffix on every money figure; both locales quote in RON. */
+  currency: string;
+}
+
+/** One product in the store demo, with its own priced, stocked variants. */
+export interface DemoProduct {
+  name: string;
+  blurb: string;
+  variants: { label: string; price: number; stock: number }[];
+}
+
 export interface Content {
   meta: {
     title: string;
@@ -326,14 +355,9 @@ export interface Content {
    * aside, only demonstrates a website — this is the thing that shows the claim
    * rather than repeating it.
    */
-  demo: {
-    metaTitle: string;
-    metaDescription: string;
-    eyebrow: string;
-    title: string;
-    lead: string;
-    disclaimer: string;
-    noJs: string;
+  /** Links between the demos, shown at the top of each one. */
+  demoNav: { label: string; bookings: string; store: string };
+  demo: DemoShell & {
     /** Day navigation. */
     prevDay: string;
     nextDay: string;
@@ -347,8 +371,6 @@ export interface Content {
     addTitle: string;
     fields: { name: string; phone: string; service: string; time: string; duration: string; price: string };
     minutes: string;
-    /** Suffix on every money figure; both locales quote in RON. */
-    currency: string;
     save: string;
     cancelEdit: string;
     actions: { arrived: string; cancel: string; restore: string; remove: string };
@@ -367,11 +389,51 @@ export interface Content {
       status: 'confirmed' | 'arrived' | 'cancelled';
       day: number;
     }[];
-    whyTitle: string;
-    whyBody: string;
-    builtTitle: string;
-    builtBody: string;
-    cta: string;
+  };
+  /**
+   * The store demo. The shop is a 2.200 € package that had no picture at all,
+   * and it is the offer where the thing worth showing is the road to "place
+   * order" — so the demo puts the delivery cost on screen from the first item.
+   */
+  storeDemo: DemoShell & {
+    /** Heading over the grid — the product names below it are h3, so it has to exist. */
+    catalogueTitle: string;
+    /** Fictional stock. A sold-out variant and a sold-out product are both here on purpose. */
+    products: DemoProduct[];
+    addToCart: string;
+    outOfStock: string;
+    /** `{n}` is replaced with the remaining count. */
+    stockLeft: string;
+    cartTitle: string;
+    cartEmpty: string;
+    remove: string;
+    increase: string;
+    decrease: string;
+    subtotal: string;
+    delivery: string;
+    deliveryFree: string;
+    /** `{amount}` is replaced with the remaining sum. */
+    freeLeft: string;
+    freeReached: string;
+    total: string;
+    checkout: string;
+    backToShop: string;
+    checkoutTitle: string;
+    checkoutNote: string;
+    fields: { name: string; phone: string; city: string; address: string };
+    payment: string;
+    paymentCard: string;
+    paymentCash: string;
+    /** `{amount}` is replaced with the cash-on-delivery fee. */
+    paymentCashFee: string;
+    placeOrder: string;
+    doneTitle: string;
+    doneBody: string;
+    /** What a real shop does next, on its own. Each line is claimed on the service page. */
+    doneSteps: string[];
+    orderLabel: string;
+    newOrder: string;
+    reset: string;
   };
   notFound: {
     metaTitle: string;
