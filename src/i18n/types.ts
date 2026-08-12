@@ -330,6 +330,11 @@ export interface Content {
     openInNewTab: string;
     close: string;
   };
+  /** The privacy policy page and the links that reach it. */
+  legal: {
+    updatedLabel: string;
+    privacyLink: string;
+  };
   footer: {
     tagline: string;
     rights: string;

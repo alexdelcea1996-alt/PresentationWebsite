@@ -480,7 +480,7 @@ export const en: Content = {
       success: 'Thank you! I have received your message and will reply within 24 hours.',
       error: 'The message could not be sent. Email me directly and we will sort it out.',
       required: 'required',
-      privacy: 'Your details are used only to reply to you. They are never shared.',
+      privacy: 'Your details land in my inbox and are used only to reply to you. They go on no list.',
     },
     directTitle: 'Prefer to write directly?',
     directBody: 'Use whichever channel suits you. I answer personally.',
@@ -517,6 +517,11 @@ export const en: Content = {
     modalTitle: 'Book a conversation',
     openInNewTab: 'Open in a new tab',
     close: 'Close',
+  },
+
+  legal: {
+    updatedLabel: 'Last updated ',
+    privacyLink: 'Privacy policy',
   },
 
   footer: {

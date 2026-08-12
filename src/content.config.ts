@@ -116,4 +116,27 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { 'case-studies': caseStudies, services, blog };
+/**
+ * Legal pages — the privacy policy today, terms if they ever become necessary.
+ * Same folder-per-locale convention as everything else: the shared file name
+ * pairs the translations, `urlSlug` carries the localised address.
+ *
+ * These are prose rather than i18n strings on purpose: a policy is a document
+ * that gets read and amended as a whole, not a set of interface labels.
+ */
+const legal = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/legal' }),
+  schema: z.object({
+    /** Pairs the page with its route; `privacy` today. */
+    key: z.enum(['privacy']),
+    /** Localised URL segment. Not `slug` — Astro reserves that key. */
+    urlSlug: z.string(),
+    title: z.string(),
+    metaTitle: z.string(),
+    metaDescription: z.string(),
+    /** Shown at the top. A policy without a date is a policy nobody can trust. */
+    updatedAt: z.coerce.date(),
+  }),
+});
+
+export const collections = { 'case-studies': caseStudies, services, blog, legal };

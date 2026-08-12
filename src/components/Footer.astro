@@ -6,6 +6,7 @@ import { getContent, sectionIds, type Locale } from '../i18n';
 import { site, telHref, whatsappHref } from '../data/site';
 import { blogIndexPath } from '../data/blog';
 import { demoPath } from '../data/demo';
+import { getLegalPage, legalPath } from '../data/legal';
 
 interface Props {
   locale: Locale;
@@ -14,6 +15,8 @@ interface Props {
 const { locale } = Astro.props;
 const t = getContent(locale);
 const year = new Date().getFullYear();
+const privacy = await getLegalPage(locale, 'privacy');
+const privacyHref = legalPath(locale, privacy.data.urlSlug);
 // Anchors are absolute so they also work from case-study pages.
 const home = getRelativeLocaleUrl(locale);
 
@@ -102,7 +105,12 @@ const contacts = [
     <div
       class="mt-12 flex flex-col gap-2 border-t border-border pt-6 text-xs text-fg-subtle sm:flex-row sm:items-center sm:justify-between"
     >
-      <p>© {year} {site.name}. {t.footer.rights}</p>
+      <p>
+        © {year} {site.name}. {t.footer.rights}{' '}
+        <a href={privacyHref} class="underline underline-offset-4 transition-colors hover:text-accent-alt">
+          {t.legal.privacyLink}
+        </a>
+      </p>
       <p>{t.footer.builtWith}</p>
     </div>
   </div>

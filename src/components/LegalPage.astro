@@ -1,0 +1,66 @@
+---
+/**
+ * A legal document — the privacy policy today.
+ *
+ * Deliberately plain: no glow, no reveal, no call to action at the end. Someone
+ * opens this page to check one specific thing about their own data, and every
+ * flourish is something between them and the answer.
+ */
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import { getContent, localeTags, locales, type Locale } from '../i18n';
+import { formatDate } from '../data/blog';
+import { getLegalPage, getLegalTranslations, legalPath, type LegalKey } from '../data/legal';
+
+interface Props {
+  locale: Locale;
+  page: LegalKey;
+}
+
+const { locale, page } = Astro.props;
+const t = getContent(locale);
+const entry = await getLegalPage(locale, page);
+const { Content } = await render(entry);
+
+const translations = await getLegalTranslations(page);
+const alternates = Object.fromEntries(
+  locales
+    .filter((code) => translations[code])
+    .map((code) => [code, legalPath(code, translations[code]!.data.urlSlug)]),
+) as Partial<Record<Locale, string>>;
+---
+
+<Base
+  locale={locale}
+  title={entry.data.metaTitle}
+  description={entry.data.metaDescription}
+  alternates={alternates}
+>
+  <Header locale={locale} />
+
+  <main id="main">
+    <article class="pt-32 pb-20 sm:pt-40">
+      <div class="container-page">
+        <header class="max-w-3xl">
+          <h1 class="text-3xl font-semibold sm:text-4xl">{entry.data.title}</h1>
+          <p class="mt-4 text-sm text-fg-subtle">
+            {t.legal.updatedLabel}
+            <time datetime={entry.data.updatedAt.toISOString()}>
+              {formatDate(entry.data.updatedAt, localeTags[locale])}
+            </time>
+          </p>
+        </header>
+
+        <div
+          class="mt-10 max-w-3xl text-base leading-relaxed text-fg-muted [&_a]:text-accent-alt [&_a]:underline [&_a:hover]:no-underline [&_code]:rounded [&_code]:bg-surface-hover [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_h2]:mt-12 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-fg [&_li]:mt-2 [&_p]:mt-4 [&_strong]:text-fg [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6"
+        >
+          <Content />
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <Footer locale={locale} />
+</Base>

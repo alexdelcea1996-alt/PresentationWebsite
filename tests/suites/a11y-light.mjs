@@ -9,6 +9,7 @@ for (const [label, path] of [
   ['blog index', '/blog/'],
   ['post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
   ['case study', '/studii-de-caz/acest-site/'],
+  ['privacy', '/confidentialitate/'],
   ['demo', '/demo/'],
   ['store demo', '/demo/magazin/'],
 ]) {

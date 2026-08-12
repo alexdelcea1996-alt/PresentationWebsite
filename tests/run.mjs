@@ -26,6 +26,7 @@ const SUITES = [
   'transitions',
   'completeness',
   'guarantees',
+  'legal',
   'demo',
   'store',
   'offers',

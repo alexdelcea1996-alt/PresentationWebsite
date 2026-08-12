@@ -480,7 +480,7 @@ export const ro: Content = {
       success: 'Mulțumesc! Am primit mesajul și îți răspund în cel mult 24 de ore.',
       error: 'Mesajul nu a putut fi trimis. Scrie-mi direct pe e-mail și rezolvăm.',
       required: 'obligatoriu',
-      privacy: 'Datele tale sunt folosite exclusiv ca să îți răspund. Nu le trimit nimănui.',
+      privacy: 'Datele tale ajung în inboxul meu și le folosesc exclusiv ca să îți răspund. Nu le adaug pe nicio listă.',
     },
     directTitle: 'Preferi direct?',
     directBody: 'Scrie-mi pe canalul care îți convine. Îți răspund personal.',
@@ -517,6 +517,11 @@ export const ro: Content = {
     modalTitle: 'Programează o discuție',
     openInNewTab: 'Deschide în filă nouă',
     close: 'Închide',
+  },
+
+  legal: {
+    updatedLabel: 'Actualizată la ',
+    privacyLink: 'Politica de confidențialitate',
   },
 
   footer: {

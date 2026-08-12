@@ -1,6 +1,6 @@
 # Teste
 
-541 de verificări care rulează un browser real peste site-ul construit.
+583 de verificări care rulează un browser real peste site-ul construit.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -60,8 +60,8 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 
 | Suită | Ce verifică | Verificări |
 |---|---|---|
-| `a11y` | axe-core (WCAG 2.1 AA) pe 22 de pagini, temă întunecată, plus greutatea paginii | 22 |
-| `a11y-light` | aceleași reguli pe 7 pagini în tema luminoasă | 14 |
+| `a11y` | axe-core (WCAG 2.1 AA) pe 24 de pagini, temă întunecată, plus greutatea paginii | 24 |
+| `a11y-light` | aceleași reguli pe 8 pagini în tema luminoasă | 16 |
 | `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 10 |
 | `interact` | meniu mobil, comutator de limbă, ancore, ambele căi ale formularului | 15 |
 | `channels` | e-mail, telefon și WhatsApp în card, footer și date structurate | 39 |
@@ -73,6 +73,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion | 15 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt` | 60 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
+| `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 38 |
 | `share-images` | fiecare pagină are propria imagine OG, la dimensiunea declarată, și există | 14 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 89 |

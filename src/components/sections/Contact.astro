@@ -3,6 +3,7 @@ import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { site, telHref, whatsappHref } from '../../data/site';
+import { getLegalPage, legalPath } from '../../data/legal';
 import BookingCard from '../BookingCard.astro';
 
 interface Props {
@@ -11,6 +12,12 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale).contact;
+const legal = getContent(locale).legal;
+
+// The policy is a content entry, so the address comes from its own front matter
+// rather than being written twice.
+const privacy = await getLegalPage(locale, 'privacy');
+const privacyHref = legalPath(locale, privacy.data.urlSlug);
 
 const tel = telHref();
 const whatsapp = whatsappHref(t.whatsappMessage);
@@ -167,7 +174,16 @@ const labelClass = 'block text-sm font-medium text-fg';
           {t.form.error}
         </p>
 
-        <p class="text-xs leading-relaxed text-fg-subtle">{t.form.privacy}</p>
+        <p class="text-xs leading-relaxed text-fg-subtle">
+          {t.form.privacy}{' '}
+          <a
+            href={privacyHref}
+            class="text-accent-alt underline underline-offset-4 hover:no-underline"
+            data-privacy-link
+          >
+            {legal.privacyLink}
+          </a>
+        </p>
       </form>
 
       <aside class="card" data-reveal data-reveal-delay="100">

@@ -37,7 +37,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 541 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 583 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -284,6 +284,22 @@ respectivă, fără să strice nimic. Iar `draft: true` îl ține ascuns până 
 un articol spune același lucru ca pagina de serviciu, cele două se concurează
 în Google în loc să se ajute. Cele mai utile sunt ghidurile practice la care
 răspunzi oricum la telefon.
+
+### Politica de confidențialitate
+
+`src/content/legal/{ro,en}/privacy.md` — o colecție de conținut, ca serviciile și blogul,
+deci se scrie în Markdown și se împerechează pe limbi prin numele fișierului. Rutele sunt
+`/confidentialitate/` și `/en/privacy/`; adresa vine din `urlSlug`, deci se schimbă dintr-un
+singur loc.
+
+**Regula ei: descrie ce face site-ul, nu ce ar suna bine.** Textul de dinainte de sub
+formular spunea „Nu le trimit nimănui" — fals, fiindcă mesajul poate trece prin Web3Forms
+pe drum spre inbox. Dacă schimbi vreodată felul în care funcționează ceva (alt serviciu de
+formular, statistici, orice cere date), **actualizezi pagina și `updatedAt` din front
+matter** în aceeași modificare.
+
+Pagina e legată din două locuri, amândouă verificate de suita `legal`: sub formular (acolo
+contează, când omul e pe cale să scrie) și în bara de jos din footer.
 
 ## Formularul de contact
 
