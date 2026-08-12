@@ -344,6 +344,17 @@ export interface Content {
     nav: string;
   };
   /**
+   * The questions people ask before writing, gathered on the landing page.
+   * Same rule as the guarantees: every answer must already be true somewhere
+   * else on the site. Nothing here may introduce a new promise.
+   */
+  homeFaq: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    items: { question: string; answer: string }[];
+  };
+  /**
    * Commitments already made elsewhere on the site, gathered in one place —
    * including the ones deliberately *not* made. Nothing here may be a new
    * promise: every line has to be traceable to existing copy.

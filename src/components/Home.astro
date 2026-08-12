@@ -17,17 +17,37 @@ import Testimonials from './sections/Testimonials.astro';
 import Pricing from './sections/Pricing.astro';
 import Configurator from './sections/Configurator.astro';
 import Audit from './sections/Audit.astro';
+import HomeFaq from './sections/HomeFaq.astro';
 import Contact from './sections/Contact.astro';
-import type { Locale } from '../i18n';
+import { getContent, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
 }
 
 const { locale } = Astro.props;
+const t = getContent(locale);
+
+/**
+ * The landing page's own questions, in the form search engines read. Emitted as
+ * a separate block from the business entity rather than folded into it — two
+ * documents describing two different things.
+ *
+ * Built as an object and serialised, because the answers contain both „…" and
+ * "…" quotes and a hand-written JSON string would break on them.
+ */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.homeFaq.items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
 ---
 
-<Base locale={locale}>
+<Base locale={locale} extraSchema={faqSchema}>
   <Header locale={locale} />
 
   <main id="main">
@@ -45,6 +65,8 @@ const { locale } = Astro.props;
     <Pricing locale={locale} />
     <Configurator locale={locale} />
     <Audit locale={locale} />
+    {/* Last objections before the form — answers only, no new promises. */}
+    <HomeFaq locale={locale} />
     <Contact locale={locale} />
   </main>
 

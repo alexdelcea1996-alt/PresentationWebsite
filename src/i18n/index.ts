@@ -37,6 +37,7 @@ export const sectionIds = {
   testimonials: 'testimonials',
   pricing: 'pricing',
   estimate: 'estimate',
+  faq: 'faq',
   audit: 'audit',
   contact: 'contact',
 } as const;

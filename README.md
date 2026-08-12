@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 609 verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 623 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -194,6 +194,25 @@ reali. O recenzie inventată e o minciună spusă în numele altcuiva.
 Cât timp lista e goală, **secțiunea nu se randează deloc** și în locul ei stă
 secțiunea de garanții. Trei casete punctate goale nu semnalau onestitate —
 anunțau că nu ai clienți. La primul testimonial real, secțiunea reapare singură.
+
+### Întrebările de pe prima pagină
+
+`homeFaq` în `src/i18n/ro.ts` și `en.ts`, șase întrebări cu răspuns, afișate ca
+acordeoane deasupra formularului de contact.
+
+**Aceeași regulă ca la garanții: niciun răspuns nu are voie să promită ceva nou.**
+Fiecare reformulează ceva deja publicat — prețurile din carduri, pașii din proces,
+coloana „nu îți garantez", paginile de serviciu. Ultima întrebare e chiar refuzul:
+nu se garantează primul loc în Google. Dacă schimbi un preț sau un termen în altă
+parte, verifică și aici.
+
+Răspunsul despre ce trebuie să pregătească clientul leagă articolul de blog
+existent, iar adresa se rezolvă din colecție prin `getPostByKey()` — nu e scrisă a
+doua oară. Testul deschide linkul și verifică să răspundă cu 200, ca să nu rămână
+un link mort dacă articolul e redenumit.
+
+Schema `FAQPage` se emite ca **bloc separat** de entitatea de afacere, iar testul
+compară întrebările din schemă cu cele randate: nu pot diverge.
 
 ### Garanțiile
 

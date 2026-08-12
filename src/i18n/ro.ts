@@ -532,6 +532,45 @@ export const ro: Content = {
     nav: 'Navigare',
   },
 
+  homeFaq: {
+    eyebrow: 'Întrebări frecvente',
+    title: 'Ce mă întreabă toată lumea înainte să scrie',
+    subtitle:
+      'Răspunsurile scurte sunt aici. Cele lungi sunt pe paginile de serviciu, unde fiecare are șapte întrebări în plus.',
+    items: [
+      {
+        question: 'Cât costă, de fapt?',
+        answer:
+          'Un landing page pornește de la 400 €, un site de prezentare de la 900 €, un magazin online de la 2.200 €, o aplicație web de la 2.500 €. Sunt prețuri de pornire, fără TVA, iar oferta exactă vine după prima discuție, în funcție de ce ai nevoie. Dacă vrei o estimare acum, configuratorul de mai sus îți dă un interval în trei pași.',
+      },
+      {
+        question: 'Cât durează?',
+        answer:
+          'O săptămână pentru un landing page, două-patru pentru un site de prezentare, patru-șase pentru un magazin. La aplicații web termenul se stabilește împreună, fiindcă depinde de câte lucruri trebuie să facă. Data intră în ofertă și o respect — cu o excepție pe care ți-o spun deschis: dacă textele și pozele vin pe bucăți, se mută și termenul.',
+      },
+      {
+        question: 'Cum începem?',
+        answer:
+          'Îmi scrii, îți răspund în cel mult 24 de ore — de obicei în aceeași zi lucrătoare, personal, nu automat. Urmează 30 de minute de discuție, gratuite și fără obligații, despre ce faci și ce vrei să obții. După ele primești în scris ce conține proiectul, prețul final și termenul.',
+      },
+      {
+        question: 'Ce trebuie să pregătesc eu?',
+        answer:
+          'Mai puțin decât crezi, dar nu nimic: textele despre ce faci, pozele pe care le ai și o idee clară despre ce vrei să facă vizitatorul. Am scris un articol întreg despre asta, cu o listă pe care o poți parcurge înainte să mă contactezi.',
+      },
+      {
+        question: 'Site-ul rămâne al meu dacă plec?',
+        answer:
+          'Da, integral, din prima zi. Codul și conturile sunt pe numele tău, nu pe al meu. Nu există abonament obligatoriu: după perioada de suport inclusă nu ai nimic de plătit, iar dacă mâine vrei să lucrezi cu altcineva, iei tot și pleci. Nu construiesc dependență de mine ca model de business.',
+      },
+      {
+        question: 'Îmi garantezi primul loc în Google?',
+        answer:
+          'Nu, și nu ai încredere în cine ți-l garantează. Pot garanta că partea tehnică nu te încurcă — viteză, structură, date pentru motoarele de căutare — și îți arăt măsurătorile înainte de livrare. Poziția depinde însă și de conținut, și de concurență, iar alea nu sunt sub controlul meu.',
+      },
+    ],
+  },
+
   guarantees: {
     eyebrow: 'Garanții',
     title: 'Ce îți garantez și ce nu',

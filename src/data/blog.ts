@@ -14,6 +14,18 @@ export async function getPosts(locale: Locale): Promise<Post[]> {
     .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
 }
 
+/**
+ * One post, found by the file name it shares with its translation. Lets a page
+ * link to a specific article without hardcoding a localised URL — the slug in
+ * the front matter stays the only place the address is written.
+ */
+export async function getPostByKey(locale: Locale, key: string): Promise<Post | undefined> {
+  const all = await getCollection('blog');
+  return all.find(
+    (entry) => entry.id.startsWith(`${locale}/`) && postKey(entry) === key && !entry.data.draft,
+  );
+}
+
 export async function getPostTranslations(entry: Post): Promise<Partial<Record<Locale, Post>>> {
   const all = await getCollection('blog');
   const key = postKey(entry);

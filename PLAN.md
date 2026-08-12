@@ -69,10 +69,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **97–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **609 verificări** rulate cu `npm test`, din repo: accesibilitate (24 de pagini
+- **623 de verificări** rulate cu `npm test`, din repo: accesibilitate (24 de pagini
   dark + 8 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (84), garanții (16), imagini de
+  programare (18), tranziții (15), completitudine (98), garanții (16), imagini de
   partajare (14), studiu de caz (19), demo-ul de programări (89), demo-ul de magazin (92),
   coerența ofertelor (44), audit (4 fără
   cheie / 30 cu ea)
@@ -116,7 +116,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 2. Analytics la lansare — dacă da, Plausible sau Umami (ambele fără cookie-uri,
    deci fără banner de consimțământ)
 3. Afișăm prețuri concrete sau trecem pe „cere ofertă"?
-4. Adăugăm o secțiune FAQ? Ajută la SEO și reduce întrebările repetitive.
+4. ~~Adăugăm o secțiune FAQ?~~ — ✅ da, șase întrebări deasupra formularului Ajută la SEO și reduce întrebările repetitive.
 
 ## 8. Backlog de îmbunătățiri propuse
 
@@ -179,7 +179,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe cele 14 URL-uri din sitemap care nu-l
    aveau
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 609 verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 623 de verificări
 
 ## 9. Idei pentru v2
 

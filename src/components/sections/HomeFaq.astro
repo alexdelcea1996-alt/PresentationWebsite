@@ -1,0 +1,84 @@
+---
+/**
+ * The questions people ask before they write.
+ *
+ * Same rule as the guarantees section: nothing here is a new promise. Every
+ * answer restates something already published — the price cards, the process
+ * steps, the guarantees, the service pages — so the landing page can be read
+ * on its own without contradicting anything deeper in the site.
+ *
+ * It sits last, after the audit band and before the contact form, because
+ * these are the objections left standing at the moment someone decides whether
+ * to write.
+ */
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+import { getPostByKey, postPath } from '../../data/blog';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).homeFaq;
+
+// The "what do I need to prepare" answer refers to an article that exists;
+// resolve its address rather than writing the path twice.
+const prep = await getPostByKey(locale, 'before-you-order-a-website');
+const prepHref = prep ? postPath(locale, prep.data.urlSlug) : undefined;
+---
+
+<section id={sectionIds.faq} class="py-20 sm:py-28">
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mx-auto mt-14 max-w-3xl space-y-3">
+      {
+        t.items.map((item, index) => (
+          <details
+            class="group card cursor-pointer [&[open]]:border-accent/40"
+            data-faq-item
+            data-reveal
+            data-reveal-delay={index * 40}
+          >
+            <summary class="flex list-none items-start justify-between gap-4 font-display text-base font-semibold text-fg marker:hidden">
+              {item.question}
+              <span
+                class="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border border-border-strong text-fg-subtle transition-transform group-open:rotate-45"
+                aria-hidden="true"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </span>
+            </summary>
+            <p class="mt-4 text-sm leading-relaxed text-fg-muted">
+              {item.answer}
+              {
+                prepHref && index === 3 && (
+                  <>
+                    {' '}
+                    <a
+                      href={prepHref}
+                      class="text-accent-alt underline underline-offset-4 hover:no-underline"
+                      data-faq-prep-link
+                    >
+                      {prep!.data.title}
+                    </a>
+                  </>
+                )
+              }
+            </p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

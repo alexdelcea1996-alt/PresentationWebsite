@@ -157,6 +157,47 @@ ck('a translated slug pairs across languages',
   optim?.links.some((l) => l.href.endsWith('/en/services/site-optimisation/')),
   optim?.links.map((l) => `${l.tag}=${new URL(l.href).pathname}`).join(' '));
 
+// --- The landing page answers its own questions ---------------------------------
+// Kept apart from the service-page FAQ counts below: those assert 7 per page and
+// 70 in total, and folding the home page into them would make both meaningless.
+for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+  const f = await b.newPage();
+  await f.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+
+  const onPage = await f.$$eval('#faq [data-faq-item]', (nodes) =>
+    nodes.map((n) => ({
+      question: n.querySelector('summary')?.textContent.trim() ?? '',
+      answer: n.querySelector('p')?.textContent.trim() ?? '',
+    })),
+  );
+  ck(`${label} home: the FAQ is on the page`, onPage.length === 6, `${onPage.length}`);
+  ck(`${label} home: every answer says something`,
+    onPage.every((item) => item.answer.length > 80),
+    `shortest ${Math.min(...onPage.map((item) => item.answer.length))}`);
+
+  const blocks = await f.$$eval('script[type="application/ld+json"]', (nodes) =>
+    nodes.map((n) => JSON.parse(n.textContent)),
+  );
+  const faq = blocks.find((entry) => entry['@type'] === 'FAQPage');
+  ck(`${label} home: FAQPage is emitted`, Boolean(faq));
+  ck(`${label} home: the schema matches what is rendered`,
+    faq?.mainEntity?.length === onPage.length &&
+      faq.mainEntity.every((q, i) => onPage[i].question.startsWith(q.name)),
+    `${faq?.mainEntity?.length} vs ${onPage.length}`);
+  // Two documents describing two different things — not merged into the business.
+  ck(`${label} home: it is its own block, not folded into the business entity`,
+    blocks.filter((entry) => entry['@type'] === 'FAQPage').length === 1 &&
+      !('mainEntity' in (blocks.find((e) => e['@type'] === 'ProfessionalService') ?? {})));
+
+  // The "what do I need to prepare" answer promises an article; it has to exist.
+  const prep = f.locator('[data-faq-prep-link]');
+  ck(`${label} home: the preparation answer links a real article`, (await prep.count()) === 1);
+  const href = await prep.getAttribute('href');
+  const res = await f.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
+  ck(`${label} home: and that article is served`, res?.status() === 200, `${href} → ${res?.status()}`);
+  await f.close();
+}
+
 // --- One business, seen many times ---------------------------------------------
 // The entity used to be emitted with `url: canonical.href` and no `@id`, which
 // described twenty-odd separate businesses that shared a name. Nothing asserted

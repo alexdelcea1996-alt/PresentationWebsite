@@ -532,6 +532,45 @@ export const en: Content = {
     nav: 'Navigation',
   },
 
+  homeFaq: {
+    eyebrow: 'Frequently asked',
+    title: 'What everybody asks before writing',
+    subtitle:
+      'The short answers are here. The long ones are on the service pages, where each has seven more questions of its own.',
+    items: [
+      {
+        question: 'What does it actually cost?',
+        answer:
+          'A landing page starts at €400, a business website at €900, an online store at €2,200, a web application at €2,500. Those are starting prices, before VAT, and the exact quote follows the first conversation, based on what you actually need. If you want a figure now, the configurator above gives you a range in three steps.',
+      },
+      {
+        question: 'How long does it take?',
+        answer:
+          'About a week for a landing page, two to four for a business website, four to six for a store. For web applications the timeline is agreed together, because it depends on how much the thing has to do. The date goes into the quote and I keep to it — with one exception I will say out loud: if the text and the photos arrive in pieces, the date moves with them.',
+      },
+      {
+        question: 'How do we start?',
+        answer:
+          'You write to me and I reply within 24 hours — usually the same working day, personally, not automatically. Then 30 minutes of conversation, free and with no obligation, about what you do and what you want to get out of it. After that you get the scope, the final price and the deadline in writing.',
+      },
+      {
+        question: 'What do I need to prepare?',
+        answer:
+          'Less than you think, but not nothing: the words about what you do, whatever photos you have, and a clear idea of what you want a visitor to do. I wrote a whole article about it, with a list you can work through before getting in touch.',
+      },
+      {
+        question: 'Is the site mine if I leave?',
+        answer:
+          'Yes, entirely, from day one. The code and the accounts are in your name, not mine. There is no compulsory retainer: once the included support period ends you owe nothing, and if you want to work with somebody else tomorrow, you take everything and go. I do not build dependence on me as a business model.',
+      },
+      {
+        question: 'Can you guarantee first place on Google?',
+        answer:
+          'No, and do not trust anyone who does. What I can guarantee is that the technical side is not what holds you back — speed, structure, the data search engines read — and I show you the measurements before handover. Position also depends on your content and your competition, and neither of those is mine to control.',
+      },
+    ],
+  },
+
   guarantees: {
     eyebrow: 'Guarantees',
     title: 'What I guarantee, and what I do not',
