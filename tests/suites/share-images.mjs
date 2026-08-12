@@ -95,6 +95,33 @@ const heaviest = Math.max(...[...digests.keys()].map((file) => {
 ck('cards stay small enough to be fetched quickly', heaviest < 400 * 1024,
   `heaviest ${(heaviest / 1024).toFixed(0)} kB`);
 
+// --- The card wears this season's colours ---------------------------------------
+// Satori cannot read the stylesheet, so the accent pair is written a second time
+// in the generator. That duplication is the whole reason for this check: a
+// palette change that misses the share cards leaves every shared link looking
+// like the old site, and nothing else on the page would ever complain.
+{
+  const css = readFileSync(join(dist, '..', 'src', 'styles', 'global.css'), 'utf8');
+  const generator = readFileSync(join(dist, '..', 'scripts', 'generate-og-images.mjs'), 'utf8');
+  const token = (name) =>
+    css.match(new RegExp(`--color-${name}:\\s*(#[0-9a-f]{6})`, 'i'))?.[1]?.toLowerCase();
+
+  const accent = token('accent');
+  const alt = token('accent-alt');
+  ck('the stylesheet still declares the pair this reads', Boolean(accent && alt),
+    `${accent} / ${alt}`);
+
+  // Written as rgb triples for the glows and as hex for the eyebrow, so check
+  // the generator carries both forms of both colours.
+  const rgbOf = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+  const hasTriple = (hex) =>
+    generator.includes(`r: ${rgbOf(hex).split(', ')[0]}, g: ${rgbOf(hex).split(', ')[1]}, b: ${rgbOf(hex).split(', ')[2]}`);
+
+  ck('the share card uses the accent from the stylesheet',
+    generator.includes(accent) && hasTriple(accent), accent);
+  ck('and the second accent too', generator.includes(alt) && hasTriple(alt), alt);
+}
+
 // --- The old generic card must be gone -----------------------------------------
 ck('the single generic card is no longer shipped',
   !existsSync(join(dist, 'og-image.png')) && !existsSync(join(dist, 'og-image-en.png')));

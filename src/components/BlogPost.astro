@@ -115,8 +115,11 @@ const articleSchema = {
           <Content />
         </div>
 
+        {/* Where the article stops and the pitch starts. */}
+        <div class="rule-mark mt-16 max-w-3xl" aria-hidden="true"><span></span></div>
+
         <aside
-          class="mt-16 flex max-w-3xl flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:flex-row sm:items-center sm:justify-between"
+          class="mt-10 flex max-w-3xl flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2 class="font-display text-xl font-semibold">{t.blog.ctaTitle}</h2>

@@ -56,6 +56,19 @@ const fonts = [
 
 const mark = `data:image/svg+xml;base64,${(await readFile(join(root, 'public/favicon.svg'))).toString('base64')}`;
 
+/**
+ * The dark theme's accent pair, copied from `src/styles/global.css`.
+ *
+ * Satori cannot read a stylesheet, so these are duplicated rather than shared —
+ * the one place in the codebase where the palette is written twice. A share
+ * card in last season's colours is the kind of drift nobody notices for months,
+ * so `share-images.mjs` asserts that these values are the ones in the CSS.
+ */
+const ACCENT = { r: 131, g: 112, b: 254 }; // --color-accent  #8370fe
+const ACCENT_ALT = { r: 86, g: 222, b: 178 }; // --color-accent-alt  #56deb2
+const rgba = ({ r, g, b }, alpha) => `rgba(${r},${g},${b},${alpha})`;
+const ACCENT_ALT_HEX = '#56deb2';
+
 /** What kind of page this is, for the eyebrow. Keyed on the URL, not the title. */
 function eyebrowFor(pathname) {
   const en = pathname.startsWith('/en/');
@@ -103,8 +116,8 @@ function card({ eyebrow, title, brand, email }) {
         backgroundColor: '#0b0f1a',
         // The same two glows the site uses, so a shared link looks like the page.
         backgroundImage:
-          'radial-gradient(1040px 760px at 17% 10%, rgba(99,102,241,0.55), rgba(99,102,241,0) 70%),' +
-          'radial-gradient(920px 680px at 90% 95%, rgba(34,211,238,0.35), rgba(34,211,238,0) 70%)',
+          `radial-gradient(1040px 760px at 17% 10%, ${rgba(ACCENT, 0.55)}, ${rgba(ACCENT, 0)} 70%),` +
+          `radial-gradient(920px 680px at 90% 95%, ${rgba(ACCENT_ALT, 0.35)}, ${rgba(ACCENT_ALT, 0)} 70%)`,
         fontFamily: 'Inter',
       },
       children: [
@@ -131,7 +144,7 @@ function card({ eyebrow, title, brand, email }) {
               text(eyebrow, {
                 fontSize: 19,
                 letterSpacing: 3.4,
-                color: '#22d3ee',
+                color: ACCENT_ALT_HEX,
                 marginBottom: 26,
               }),
               text(title, {

@@ -42,6 +42,7 @@ const SUITES = [
   'configurator',
   'theme',
   'hero',
+  'signature',
   'booking',
 ];
 

@@ -25,10 +25,24 @@
   --color-fg-muted: #9aa8be;
   --color-fg-subtle: #8592a8;
 
-  /* Accent */
-  --color-accent: #6366f1;
-  --color-accent-bright: #818cf8;
-  --color-accent-alt: #22d3ee;
+  /*
+     Accent — iris (h 285) to jade (h 168).
+
+     Picked in OKLCH and written down as sRGB, with the derivation kept in the
+     comment so the next change is arithmetic rather than taste. Both stops sit
+     at a lightness that carries near-black text, because the primary button
+     paints `--color-on-accent` straight across the gradient; chroma is the
+     most sRGB can hold at that lightness, so nothing here is a clipped
+     approximation of a colour the screen cannot show.
+
+     They are deliberately not indigo-500/cyan-400. Those two are the default
+     pair of every generated developer portfolio on the web, and a studio that
+     sells "this was built for you, not stamped out" should not open with the
+     most stamped-out gradient in circulation.
+  */
+  --color-accent: #8370fe; /* oklch(0.635 0.203 285) */
+  --color-accent-bright: #9c95fe; /* oklch(0.720 0.151 285) */
+  --color-accent-alt: #56deb2; /* oklch(0.815 0.135 168) */
 
   /* Always dark: this sits on top of the accent gradient in both themes. */
   --color-on-accent: #05070d;
@@ -48,6 +62,16 @@
   /* Ambient gradient washes read as heavy smudges on a light page. */
   --glow-opacity: 1;
   --grid-line: rgb(255 255 255 / 0.6);
+
+  /*
+    The brand mark as a mask: the same eight-ray spark that is in the favicon,
+    redrawn as strokes so it stays crisp at 12px. Inline rather than a file
+    because it is a few hundred bytes and a separate request for it would cost
+    more than it weighs — and because a mask that arrives late would pop in
+    after the text it sits beside. The stroke colour is irrelevant (a mask reads
+    alpha only); it is `%23000` because a mask needs something opaque to be.
+  */
+  --spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23000' stroke-width='2.6' stroke-linecap='round' fill='none'%3E%3Cpath d='M12 2.2v5.1M12 16.7v5.1M2.2 12h5.1M16.7 12h5.1'/%3E%3Cpath d='m5.1 5.1 3.6 3.6M15.3 15.3l3.6 3.6M18.9 5.1l-3.6 3.6M8.7 15.3l-3.6 3.6'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 :root[data-theme='light'] {
@@ -66,10 +90,19 @@
   --color-fg-muted: #475569;
   --color-fg-subtle: #5b6b82;
 
-  /* Darkened so text and thin strokes still clear AA on a white page. */
-  --color-accent: #4f46e5;
-  --color-accent-bright: #4338ca;
-  --color-accent-alt: #0e7490;
+  /*
+     Same two hues, lightness derived again from scratch rather than nudged.
+     The dark theme needs stops light enough to carry near-black text; here the
+     same names are used as TEXT on white, which wants the opposite. Reusing
+     one set for both is what produces a light theme that either glares or
+     fails AA. Every pairing the site actually renders was checked: accent and
+     accent-alt as body text on white and on the raised surface, white text on
+     the button gradient including its midpoint, and the accent as a focus
+     ring. Lowest of them is 5.44:1.
+  */
+  --color-accent: #6043d4; /* oklch(0.505 0.210 285) */
+  --color-accent-bright: #4f30b9; /* oklch(0.440 0.200 285) */
+  --color-accent-alt: #017558; /* oklch(0.500 0.101 168) */
 }
 
 /*
@@ -396,7 +429,48 @@
       border-color 0.2s var(--ease-out-soft);
   }
 
+  /*
+    A rule with the mark set into it — the end of the writing, before the ask.
+
+    Typography has had this for centuries (the dinkus, the fleuron) and it is
+    doing an honest job here rather than a decorative one: on a blog post it
+    draws the line between the article somebody came to read and the pitch that
+    follows it. The reader can see where one stops and the other starts.
+
+    Hidden from assistive technology at the markup, because a screen reader
+    announcing "image" between a paragraph and a heading is noise; the heading
+    that follows already says the section changed.
+  */
+  .rule-mark {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    color: var(--color-border-strong);
+  }
+
+  .rule-mark::before,
+  .rule-mark::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: currentColor;
+  }
+
+  .rule-mark > span {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex: none;
+    background-color: var(--color-accent-alt);
+    mask-image: var(--spark);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+  }
+
   .btn-primary {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     background-image: linear-gradient(
       110deg,
       var(--color-accent) 0%,
@@ -409,6 +483,50 @@
   /* The light palette darkens the gradient, so light text reads better on it. */
   :root[data-theme='light'] .btn-primary {
     color: #fff;
+  }
+
+  /*
+    A glint across the primary button on hover.
+
+    Composited only: a band that lives off the right edge and slides across on
+    `transform`, so hovering the main call to action never costs a layout or a
+    repaint of the page behind it. `overflow: hidden` on the button clips it to
+    the rounded corners.
+
+    The z-index is -1, not 0, and that is the load-bearing bit: a negative
+    child paints after its stacking context's background but before the
+    context's inline content, which puts the band over the gradient and under
+    the label without needing the label to be an element. Half these buttons
+    carry a bare text node, so a rule like `.btn-primary > *` would have lifted
+    the icon and left the words underneath the sweep. `isolation: isolate`
+    keeps the -1 from escaping behind the button itself.
+  */
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: -1;
+    width: 45%;
+    background-image: linear-gradient(
+      100deg,
+      transparent,
+      rgb(255 255 255 / 0.38),
+      transparent
+    );
+    translate: -160% 0;
+    pointer-events: none;
+  }
+
+  .btn-primary:hover::after {
+    transition: translate 0.65s var(--ease-out-soft);
+    translate: 340% 0;
+  }
+
+  /* A sweep is decoration; somebody who asked for less motion gets none. */
+  @media (prefers-reduced-motion: reduce) {
+    .btn-primary::after {
+      display: none;
+    }
   }
 
   .btn-primary:hover {
@@ -426,6 +544,143 @@
     transform: translateY(-2px);
     border-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
     background-color: var(--color-surface-hover);
+  }
+
+  /*
+    A beam that travels around the edge of the plan most people pick.
+
+    `@property` is what makes it possible at all. A conic-gradient's `from`
+    angle is not an animatable value on its own — the browser has no idea what
+    the string means, so it swaps one gradient for another and nothing moves.
+    Registering `--beam-angle` with `syntax: '<angle>'` tells it the value is an
+    angle, and from then on it interpolates.
+
+    Painted per frame, which is a real cost and the reason it is confined to a
+    single 1px ring on one card. It is not a transform, so it cannot be handed
+    to the compositor — the honest trade is to keep the surface tiny rather
+    than to pretend it is free.
+
+    It was on the hero's call to action too, and came off. That button already
+    carries a gradient, a shadow, a hover lift and the glint above; a ring that
+    never stops turning made it the second thing permanently moving on the
+    first screen, competing with the headline it is supposed to serve. On the
+    pricing card it earns the attention instead: four boxes side by side, one
+    of them marked, below the fold where nothing else is moving.
+
+    The bright arc is wide (130°) because a conic angle maps very unevenly onto
+    a rectangle's perimeter — the long edges are compressed into a few degrees
+    near 0° and 180°. A narrow band looked fine on a tall card and vanished for
+    most of its cycle on anything wide.
+
+    The ring itself is the two-mask trick: fill the whole box with the gradient,
+    then punch out everything inside the 1px padding, leaving only the frame.
+  */
+  @property --beam-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @keyframes beam-travel {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  .beam {
+    position: relative;
+  }
+
+  .beam::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background-image: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg 150deg,
+      color-mix(in oklab, var(--color-accent-alt) 80%, transparent) 240deg,
+      color-mix(in oklab, var(--color-accent-bright) 95%, transparent) 310deg,
+      color-mix(in oklab, var(--color-accent-alt) 80%, transparent) 350deg,
+      transparent 360deg
+    );
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: beam-travel 7s linear infinite;
+  }
+
+  /*
+    Should it ever go back on a button: the glint sits at z-index -1 so the
+    label stays readable, and a positioned pseudo at z-index 0 would paint over
+    that label. The ring needs the same treatment for the same reason.
+  */
+  .btn-primary.beam::before {
+    z-index: -1;
+  }
+
+  /* Decoration that never stops moving is exactly what this setting is for. */
+  @media (prefers-reduced-motion: reduce) {
+    .beam::before {
+      display: none;
+    }
+  }
+
+  /*
+    The spine down the process list, drawn as the reader goes down it.
+
+    Two things were wrong with the old connectors: each faded to transparent at
+    its bottom end, so five steps read as five detached ticks rather than one
+    process; and the line was simply there, saying nothing about where the
+    reader had got to.
+
+    Now each segment scales up from its own step's marker under a scroll-driven
+    timeline. `view()` measures the segment's own progress across the viewport,
+    so no scroll listener, no IntersectionObserver, no JavaScript at all — the
+    browser drives it off the same compositor pass it was already doing.
+
+    Keeping a segment per step rather than one long line is not laziness: the
+    line has to stop at the LAST marker, and a single absolute line would have
+    to know how tall the final paragraph is to work out where that is. Per-step
+    segments end where the steps do, in any language, at any width.
+
+    Everything below is additive. Without `animation-timeline` the segment is
+    just a line; with reduced motion it is just a line. Nothing has to be
+    undone for either case, which is why the base rule paints the finished
+    state and only the enhancement starts it at zero.
+  */
+  .spine-link {
+    background-image: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-accent-alt) 55%, transparent),
+      color-mix(in oklab, var(--color-accent) 45%, transparent)
+    );
+    transform-origin: top;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes spine-draw {
+        from {
+          scale: 1 0;
+        }
+        to {
+          scale: 1 1;
+        }
+      }
+
+      .spine-link {
+        animation-name: spine-draw;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        /* Drawn while the step is being read, not as it leaves the screen. */
+        animation-range: cover 18% cover 52%;
+      }
+    }
   }
 
   /* --- Cards --- */
@@ -479,6 +734,31 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-accent-alt);
+  }
+
+  /*
+    The mark, stamped on the label above every section.
+
+    Drawn as a MASK rather than an image, which is the whole trick: a masked
+    shape is painted with `background-color`, so `currentColor` makes one asset
+    serve both themes and every context it lands in — it is jade on an eyebrow
+    and border-coloured on the rule below, from the same fourteen paths. Ship it
+    as an <img> or a background-image and you are maintaining a second copy in
+    the other theme's colours the day the palette moves.
+
+    Decorative, so it hangs off `::before` and never reaches the accessibility
+    tree — the eyebrow's words already say what the section is.
+  */
+  .eyebrow::before {
+    content: '';
+    width: 0.85em;
+    height: 0.85em;
+    flex: none;
+    background-color: currentColor;
+    mask-image: var(--spark);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
   }
 
   /* --- Layout --- */
