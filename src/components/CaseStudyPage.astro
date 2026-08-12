@@ -61,6 +61,7 @@ const gaugeCss = scores
   title={`${entry.data.title} — ${t.meta.title.split('—')[0]?.trim()}`}
   description={entry.data.summary}
   alternates={alternates}
+  breadcrumb={[{ name: entry.data.title, href: caseStudyPath(locale, entry.data.urlSlug) }]}
 >
   <Header locale={locale} />
 

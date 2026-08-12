@@ -28,6 +28,7 @@ const feedPath = `${import.meta.env.BASE_URL}/${locale === 'en' ? 'en/rss.xml' :
   title={t.blog.metaTitle}
   description={t.blog.metaDescription}
   alternates={alternates}
+  breadcrumb={[{ name: t.blog.title, href: blogIndexPath(locale) }]}
   feed={feedPath}
 >
   <Header locale={locale} />

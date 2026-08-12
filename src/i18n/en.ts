@@ -9,6 +9,7 @@ export const en: Content = {
   },
 
   nav: {
+    home: 'Home',
     services: 'Services',
     process: 'Process',
     portfolio: 'Work',

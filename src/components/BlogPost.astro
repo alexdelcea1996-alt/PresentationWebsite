@@ -57,6 +57,10 @@ const articleSchema = {
   alternates={alternates}
   ogType="article"
   extraSchema={articleSchema}
+  breadcrumb={[
+    { name: t.blog.title, href: blogIndexPath(locale) },
+    { name: entry.data.title, href: postPath(locale, entry.data.urlSlug) },
+  ]}
 >
   <Header locale={locale} />
 

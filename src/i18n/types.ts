@@ -100,6 +100,8 @@ export interface Content {
     ogAlt: string;
   };
   nav: {
+    /** First crumb in the breadcrumb trail. Not shown in the menu. */
+    home: string;
     services: string;
     process: string;
     portfolio: string;

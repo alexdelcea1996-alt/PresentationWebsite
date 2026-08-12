@@ -9,6 +9,7 @@ export const ro: Content = {
   },
 
   nav: {
+    home: 'Acasă',
     services: 'Servicii',
     process: 'Cum lucrăm',
     portfolio: 'Proiecte',

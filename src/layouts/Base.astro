@@ -4,6 +4,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import '../styles/global.css';
 import { getContent, localeTags, locales, type Locale } from '../i18n';
 import { site, telHref } from '../data/site';
+import { projectTypes } from '../data/configurator';
 
 interface Props {
   locale: Locale;
@@ -21,6 +22,12 @@ interface Props {
   extraSchema?: unknown;
   /** Path to an RSS feed to advertise for this page. */
   feed?: string;
+  /**
+   * Trail from the home page to here, excluding both ends: the home crumb is
+   * added below and the current page is the last item. Pages that sit directly
+   * under the root pass nothing.
+   */
+  breadcrumb?: { name: string; href: string }[];
   /** Keeps the page out of search results — the 404 has nothing to rank for. */
   noindex?: boolean;
 }
@@ -33,6 +40,7 @@ const {
   ogType = 'website',
   extraSchema,
   feed,
+  breadcrumb,
   noindex = false,
 } = Astro.props;
 const t = getContent(locale);
@@ -63,12 +71,35 @@ const alternates = locales
     href: new URL(alternateOverrides?.[code] ?? getRelativeLocaleUrl(code), Astro.site).href,
   }));
 
+/**
+ * The business, declared identically on every page.
+ *
+ * It used to carry `url: canonical.href` and no `@id`, which described twenty-odd
+ * separate businesses that happened to share a name — one per address. The whole
+ * node still repeats on every page (a bare `@id` reference is not resolved across
+ * documents), but now it always points at the same identifier and the same URL,
+ * so it reads as one entity seen many times.
+ */
+// One identifier and one address for the business. Pointing `url` at the current
+// locale's home would put two addresses under a single `@id`, which contradicts
+// itself; the language versions are already expressed through hreflang. Derived
+// from the default locale rather than hardcoded, so it follows `x-default`.
+const businessId = new URL('#business', Astro.site).href;
+const businessUrl = new URL(getRelativeLocaleUrl(locales[0]), Astro.site).href;
+
+// Ascending, to line up with the pricing cards — which the `offers` suite
+// already asserts are ordered cheapest to dearest.
+const offerFloors = projectTypes.map((type) => type.basePrice).sort((a, b) => a - b);
+
+const isHome = canonical.pathname === getRelativeLocaleUrl(locale);
+
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
+  '@id': businessId,
   name: site.name,
   description: pageDescription,
-  url: canonical.href,
+  url: businessUrl,
   email: `mailto:${site.email}`,
   areaServed: site.areaServed,
   address: { '@type': 'PostalAddress', addressCountry: 'RO', addressLocality: site.locality },
@@ -79,7 +110,50 @@ const structuredData = {
   ...(site.social.github || site.social.linkedin
     ? { sameAs: [site.social.github, site.social.linkedin].filter(Boolean) }
     : {}),
+  // What the packages cost, in a form a machine can read. Every price on the
+  // site is "from X", so these are minimum prices — a flat `price` would assert
+  // a fixed figure that is not on offer. The numbers come from the configurator
+  // rather than from the copy, so there is no second place to keep them right.
+  //
+  // Only on the landing page: that is where the prices are actually shown, and
+  // repeating the whole catalogue on a blog post would be noise on 24 pages.
+  ...(isHome ? { hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: t.pricing.title,
+    itemListElement: t.pricing.plans.map((plan, index) => ({
+      '@type': 'Offer',
+      name: plan.name,
+      description: plan.description,
+      priceSpecification: {
+        '@type': 'PriceSpecification',
+        minPrice: offerFloors[index] ?? null,
+        priceCurrency: 'EUR',
+        valueAddedTaxIncluded: false,
+      },
+    })),
+  } } : {}),
 };
+
+/**
+ * Home → … → this page. Only emitted when a page passes a trail, and only with
+ * crumbs that are real addresses — there is no `/servicii/` index, so a service
+ * page is two levels, not three.
+ */
+const breadcrumbSchema = breadcrumb?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { name: t.nav.home, href: getRelativeLocaleUrl(locale) },
+        ...breadcrumb,
+      ].map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: new URL(crumb.href, Astro.site).href,
+      })),
+    }
+  : null;
 ---
 
 <!doctype html>
@@ -113,6 +187,13 @@ const structuredData = {
     <meta property="og:description" content={pageDescription} />
     <meta property="og:url" content={canonical.href} />
     <meta property="og:locale" content={localeTags[locale].replace('-', '_')} />
+    {
+      alternates
+        .filter((alt) => alt.code !== locale)
+        .map((alt) => (
+          <meta property="og:locale:alternate" content={alt.tag.replace('-', '_')} />
+        ))
+    }
     <meta property="og:image" content={ogImage.href} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -134,6 +215,11 @@ const structuredData = {
     <Font cssVariable="--ff-body" preload />
 
     <script is:inline set:html={JSON.stringify(structuredData)} type="application/ld+json" />
+    {
+      breadcrumbSchema && (
+        <script is:inline set:html={JSON.stringify(breadcrumbSchema)} type="application/ld+json" />
+      )
+    }
     {
       extraSchema && (
         <script is:inline set:html={JSON.stringify(extraSchema)} type="application/ld+json" />

@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 594 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 609 verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -685,6 +685,33 @@ JavaScript.
 Iconurile din butoanele generate de script vin din `src/data/icons.ts`, aceeași
 sursă pe care o folosește `Icon.astro` — altfel demo-ul ar fi rămas cu un desen
 vechi la prima redesenare a setului.
+
+## Date structurate (JSON-LD)
+
+Fiecare pagină emite entitatea de afacere (`ProfessionalService`). Trei lucruri de
+știut dacă o atingi:
+
+**Un singur `@id`, o singură adresă.** Înainte, entitatea era emisă cu
+`url: canonical.href` și fără `@id` — adică douăzeci și ceva de afaceri distincte
+care se nimereau să aibă același nume, câte una pe pagină. Acum `@id` e
+`…/#business` peste tot, iar `url` e rădăcina site-ului. Nu referențiez entitatea
+doar prin `@id` de pe subpagini: Google nu dereferențiază `@id` între documente,
+deci s-ar pierde pe 24 de pagini fără să pice niciun test.
+
+**Prețurile vin din `configurator.ts`, nu din text.** `OfferCatalog` cu patru
+`Offer`, fiecare cu `minPrice` — nu `price`. Tot ce afișează site-ul e „de la X",
+iar un `price` fix ar afirma o sumă care nu se oferă. Catalogul se emite **doar pe
+prima pagină**, acolo unde prețurile chiar se văd; repetat pe fiecare articol de
+blog ar fi zgomot pe 24 de pagini.
+
+**Breadcrumb doar unde există un „deasupra".** Se dă prin prop-ul `breadcrumb` din
+`Base.astro`, fără capătul de sus (Acasă se adaugă singur) și fără verigi
+inventate: nu există pagină index `/servicii/`, deci un serviciu are două trepte,
+nu trei. Prima pagină n-are breadcrumb spre ea însăși.
+
+Nu validez cu Rich Results Test: `OfferCatalog` nu are tip de rezultat îmbogățit,
+deci testul ar raporta „nimic găsit" la nesfârșit. Structura se verifică în suita
+`completeness`, care compară prețurile din schemă cu cele din carduri.
 
 ## Imaginile de partajare (Open Graph)
 

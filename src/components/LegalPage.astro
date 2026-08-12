@@ -37,6 +37,7 @@ const alternates = Object.fromEntries(
   title={entry.data.metaTitle}
   description={entry.data.metaDescription}
   alternates={alternates}
+  breadcrumb={[{ name: entry.data.title, href: legalPath(locale, entry.data.urlSlug) }]}
 >
   <Header locale={locale} />
 

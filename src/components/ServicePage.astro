@@ -52,6 +52,7 @@ const faqSchema = {
   description={d.metaDescription}
   alternates={alternates}
   extraSchema={faqSchema}
+  breadcrumb={[{ name: d.title, href: servicePath(locale, d.urlSlug) }]}
 >
   <Header locale={locale} />
 

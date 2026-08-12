@@ -157,6 +157,84 @@ ck('a translated slug pairs across languages',
   optim?.links.some((l) => l.href.endsWith('/en/services/site-optimisation/')),
   optim?.links.map((l) => `${l.tag}=${new URL(l.href).pathname}`).join(' '));
 
+// --- One business, seen many times ---------------------------------------------
+// The entity used to be emitted with `url: canonical.href` and no `@id`, which
+// described twenty-odd separate businesses that shared a name. Nothing asserted
+// it, so the regression would have been invisible.
+{
+  const pages = [
+    '/', '/en/', '/demo/', '/demo/magazin/',
+    '/servicii/landing-page/', '/blog/de-ce-se-incarca-greu-site-ul-tau/',
+    '/confidentialitate/', '/studii-de-caz/acest-site/',
+  ];
+  const seen = [];
+  for (const path of pages) {
+    const s = await b.newPage();
+    await s.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    const blocks = await s.$$eval('script[type="application/ld+json"]', (nodes) =>
+      nodes.map((n) => JSON.parse(n.textContent)),
+    );
+    await s.close();
+    const business = blocks.find((entry) => entry['@type'] === 'ProfessionalService');
+    seen.push({ path, id: business?.['@id'], url: business?.url, catalog: business?.hasOfferCatalog });
+  }
+
+  ck('every page declares the business', seen.every((entry) => entry.id),
+    seen.filter((entry) => !entry.id).map((entry) => entry.path).join(' '));
+  ck('all under one identifier', new Set(seen.map((entry) => entry.id)).size === 1,
+    [...new Set(seen.map((entry) => entry.id))].join(' '));
+  ck('pointing at one address, not each page', new Set(seen.map((entry) => entry.url)).size === 1,
+    [...new Set(seen.map((entry) => entry.url))].join(' '));
+
+  // The catalogue belongs where the prices are shown, not on every blog post.
+  const withCatalog = seen.filter((entry) => entry.catalog).map((entry) => entry.path);
+  ck('the price list rides on the landing pages only',
+    withCatalog.length === 2 && withCatalog.every((path) => path === '/' || path === '/en/'),
+    withCatalog.join(' '));
+
+  const floors = (seen.find((entry) => entry.path === '/')?.catalog?.itemListElement ?? []).map(
+    (offer) => offer.priceSpecification?.minPrice,
+  );
+  // Same four figures the pricing cards show — `offers` asserts those against
+  // the service pages and the configurator, so this closes the loop.
+  ck('four offers, priced from the same numbers as the cards',
+    JSON.stringify(floors) === JSON.stringify([400, 900, 2200, 2500]), floors.join(', '));
+  // Every price on the site reads "from X"; a flat `price` would claim otherwise.
+  const specs = seen.find((entry) => entry.path === '/')?.catalog?.itemListElement ?? [];
+  ck('offers quote a minimum, never a fixed price',
+    specs.every((offer) => offer.priceSpecification?.minPrice && !('price' in offer)));
+}
+
+// --- Breadcrumbs on the pages that sit under something ---------------------------
+{
+  for (const [path, expected] of [
+    ['/servicii/landing-page/', 2],
+    ['/blog/de-ce-se-incarca-greu-site-ul-tau/', 3],
+    ['/demo/magazin/', 2],
+    ['/confidentialitate/', 2],
+  ]) {
+    const s = await b.newPage();
+    await s.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    const blocks = await s.$$eval('script[type="application/ld+json"]', (nodes) =>
+      nodes.map((n) => JSON.parse(n.textContent)),
+    );
+    await s.close();
+    const crumbs = blocks.find((entry) => entry['@type'] === 'BreadcrumbList')?.itemListElement ?? [];
+    ck(`${path} has a ${expected}-step trail`, crumbs.length === expected, `${crumbs.length}`);
+    ck(`${path} starts at the home page`, crumbs[0]?.position === 1 && /\/(en\/)?$/.test(crumbs[0]?.item ?? ''),
+      crumbs[0]?.item ?? 'none');
+  }
+
+  // The landing page is the root of the trail, so it has none.
+  const h = await b.newPage();
+  await h.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  const types = await h.$$eval('script[type="application/ld+json"]', (nodes) =>
+    nodes.map((n) => JSON.parse(n.textContent)['@type']),
+  );
+  ck('the landing page has no breadcrumb to itself', !types.includes('BreadcrumbList'), types.join(' '));
+  await h.close();
+}
+
 // --- Headers that only exist if the build script wrote them --------------------
 {
   const h = await b.newPage();

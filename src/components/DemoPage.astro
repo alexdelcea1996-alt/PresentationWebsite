@@ -39,7 +39,13 @@ const tabs = [
 ] as const;
 ---
 
-<Base locale={locale} title={d.metaTitle} description={d.metaDescription} alternates={alternates}>
+<Base
+  locale={locale}
+  title={d.metaTitle}
+  description={d.metaDescription}
+  alternates={alternates}
+  breadcrumb={[{ name: d.title, href: pathFor(locale) }]}
+>
   <Header locale={locale} />
 
   <main id="main">
