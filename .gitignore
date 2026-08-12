@@ -27,3 +27,4 @@ src/assets/fonts/.charset.txt
 
 # debug screenshots written by the test suites
 tests/screenshots/
+scripts/og-fonts/.raw-*

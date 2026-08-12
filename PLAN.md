@@ -69,10 +69,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **261 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+- **275 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
   dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (53), garanții (16)
+  programare (18), tranziții (15), completitudine (53), garanții (16), imagini de partajare (14)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -153,7 +153,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
    vizitatorului, sub afirmația din hero
 3. Auditul gratuit devine instrument real (Google PageSpeed API din browser)
 4. ✅ Tranziții între pagini, CSS nativ, zero JavaScript
-5. Imagine OG per pagină, generată în build
+5. ✅ Imagine OG per pagină, generată în build (19 pagini, câte una fiecare)
 6. Studiul de caz cu slider înainte/după și gauge-uri animate
 7. ✅ Secțiune de garanții în locul casetelor goale — două coloane, ce garantez
    și ce nu; fiecare rând e preluat din text deja publicat pe site, nicio
@@ -161,7 +161,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 8. Demo funcțional de aplicație web
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe 14 din 18 URL-uri din sitemap
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 261 de verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 275 de verificări
 
 ## 9. Idei pentru v2
 

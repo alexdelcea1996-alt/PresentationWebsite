@@ -44,7 +44,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 /** Join the configured `base` with a file in `public/`, collapsing double slashes. */
 const asset = (file: string) => `${import.meta.env.BASE_URL}/${file}`.replace(/\/{2,}/g, '/');
 
-const ogImage = new URL(asset(locale === 'en' ? 'og-image-en.png' : 'og-image.png'), Astro.site);
+/**
+ * One share image per page, carrying that page's own title. The file is drawn
+ * after the build by `scripts/generate-og-images.mjs`, which reads this very
+ * URL back out of the HTML — so the path is declared in exactly one place and
+ * the two cannot drift.
+ */
+const ogSlug = canonical.pathname.replace(/^\/+|\/+$/g, '').replace(/\//g, '-') || 'home';
+const ogImage = new URL(asset(`og/${ogSlug}.png`), Astro.site);
 const faviconHref = asset('favicon.svg');
 
 // One <link rel="alternate"> per language, plus x-default pointing at Romanian.

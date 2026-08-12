@@ -18,10 +18,24 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'src/assets/fonts');
+/** Build-only copies for the share images. Never served to a browser. */
+const ogFontDir = join(root, 'scripts/og-fonts');
 
 // A modern UA makes Google Fonts serve woff2 (and the variable font file).
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+// An ancient UA makes the same endpoint serve plain TTF. Satori, which lays out
+// the Open Graph images, reads ttf/otf/woff but not woff2 — so the browser fonts
+// above cannot be reused for it.
+const LEGACY_UA = 'Mozilla/4.0';
+
+/** Static instances the share images need, at the weights they actually use. */
+const OG_FONTS = [
+  { query: 'Space+Grotesk:wght@600', file: 'space-grotesk-600.ttf' },
+  { query: 'Inter:wght@400', file: 'inter-400.ttf' },
+  { query: 'Inter:wght@600', file: 'inter-600.ttf' },
+];
 
 // `latin` covers English; `latin-ext` carries the Romanian ș/ț/ă/â/î.
 const WANTED_SUBSETS = ['latin', 'latin-ext'];
@@ -172,3 +186,44 @@ console.log(
   `\nTotal: ${(before / 1024).toFixed(0)} kB → ${(after / 1024).toFixed(0)} kB ` +
     `(saved ${((before - after) / 1024).toFixed(0)} kB)`,
 );
+
+// --- TTFs for the share images ---------------------------------------------
+// Subsetted to the same character set, so these are tens of kilobytes rather
+// than the ~800 kB Google ships. They are committed because the build renders
+// the share images and must not depend on the network.
+await mkdir(ogFontDir, { recursive: true });
+console.log('\nBuild-only TTFs for the share images:');
+
+for (const font of OG_FONTS) {
+  const css = await fetch(`https://fonts.googleapis.com/css2?family=${font.query}`, {
+    headers: { 'User-Agent': LEGACY_UA },
+  });
+  if (!css.ok) throw new Error(`Google Fonts returned ${css.status} for ${font.query}`);
+
+  const url = (await css.text()).match(/https:\/\/[^)]*\.ttf/)?.[0];
+  if (!url) throw new Error(`No TTF offered for ${font.query} — did the legacy UA stop working?`);
+
+  const download = await fetch(url, { headers: { 'User-Agent': LEGACY_UA } });
+  if (!download.ok) throw new Error(`Failed to download ${url}`);
+
+  const original = Buffer.from(await download.arrayBuffer());
+  const rawFile = join(ogFontDir, `.raw-${font.file}`);
+  const target = join(ogFontDir, font.file);
+  await writeFile(rawFile, original);
+
+  // No --flavor here: that flag only accepts woff/woff2, and omitting it keeps
+  // the input's plain TTF, which is what satori needs.
+  execFileSync('pyftsubset', [
+    rawFile,
+    `--output-file=${target}`,
+    `--text-file=${charsetFile}`,
+    '--layout-features=kern,liga,calt,ccmp,locl',
+    '--no-hinting',
+  ]);
+
+  const subsetted = await readFile(target);
+  await writeFile(rawFile, '');
+  console.log(
+    `✓ ${font.file}: ${(original.length / 1024).toFixed(0)} kB → ${(subsetted.length / 1024).toFixed(1)} kB`,
+  );
+}

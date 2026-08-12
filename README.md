@@ -31,10 +31,9 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 261 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 275 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
-| `npm run og` | Regenerează imaginile de partajare pe social media |
 
 `npm test` are nevoie de un build recent — testele verifică ce e în `dist/`, nu
 codul sursă, fiindcă jumătate din ce se poate strica (hash-urile CSP, `_headers`,
@@ -448,6 +447,26 @@ Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textel
 
 **De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
 cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
+## Imaginile de partajare (Open Graph)
+
+Fiecare pagină are **propria imagine**, cu titlul ei. Se desenează în timpul
+build-ului, în `dist/og/`, de `scripts/generate-og-images.mjs`. Nu ai nimic de
+rulat manual și nu se poate învechi.
+
+Mecanismul e simplu: `Base.astro` declară unde stă imaginea paginii, scriptul
+citește adresa aia înapoi din HTML-ul construit și scrie fișierul exact acolo.
+Calea e definită într-un singur loc, deci cele două nu pot ajunge să nu mai
+corespundă. Marca și adresa de e-mail sunt citite din datele structurate ale
+paginii, deci vin tot din `src/data/site.ts`.
+
+Textul e desenat de `satori`, care are nevoie de TTF, nu de WOFF2. De aia
+`npm run fonts` produce și trei fișiere în `scripts/og-fonts/` — subsetate la
+aceleași caractere, 105 kB în total, folosite doar la build și niciodată trimise
+în browser.
+
+Dacă scriptul crapă, build-ul crapă. E intenționat: mai bine rămâne online
+versiunea precedentă decât să publicăm pagini a căror imagine de partajare dă 404.
 
 ## Iconuri, manifest și pagina 404
 
