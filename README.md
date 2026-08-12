@@ -16,10 +16,23 @@ Rulat cu Lighthouse pe build-ul de producție:
 | Mobil | 97–100 | 100 | 100 | 100 |
 
 Prima pagină e cea care dă 97 pe mobil, fiindcă e cea mai lungă; subpaginile stau
-la 99–100. A scăzut de la 98 când a intrat al cincilea card de serviciu — nu din
-greutate (pagina a crescut cu 227 de octeți prin brotli), ci fiindcă FCP-ul stă
-la 2,0 s, exact pe porțiunea abruptă a curbei de punctaj Lighthouse, unde câteva
-zecimi mută un punct întreg. Las cifra măsurată, nu pe cea care sună mai bine.
+la 99–100. Ce o ține acolo e **FCP-ul de 2,0 s**, singura metrică sub punctaj
+maxim: TBT e 0, CLS e 0, LCP-ul e egal cu FCP-ul. Curba de punctaj Lighthouse e
+abruptă exact în jurul valorii de 2 s, deci ultimul punct costă zecimi de secundă
+pe drumul critic.
+
+Am încercat două lucruri și le-am măsurat, nu le-am presupus:
+
+- **Hero-ul nu mai depinde de JavaScript** ca să fie vizibil (vezi mai jos). LCP-ul
+  a coborât până la FCP, dar scorul a rămas 97 — FCP-ul era bariera, nu reveal-ul.
+- **Fără preîncărcarea fonturilor**, FCP-ul scade la 1,7–1,8 s, dar CLS-ul sare de
+  la 0 la **0,19** (textul se reașază când intră fontul) și scorul cade la **85**.
+  Preload-urile rămân; compromisul e prost.
+
+Ce n-am făcut, deliberat: inlining la cei 55 kB de CSS ar scuti o rundă de rețea și
+probabil ar aduce punctul, dar ar adăuga ~10 kB comprimați pe **fiecare** pagină, fără
+cache între ele. Ar face vizita reală de 3 pagini mai lentă ca să câștige un punct
+sintetic pe una. Las cifra măsurată.
 
 Măsurat pe un server care comprimă ca Cloudflare (brotli): prima pagină trece
 prin rețea în **18,4 kB**, nu în 126. Fără compresie, măsurătoarea locală arăta
@@ -37,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 583 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 585 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -710,6 +723,25 @@ adresă greșită, în orice limbă, deci le conține pe amândouă: română pr
 engleză pe un rând. E marcată `noindex` și **nu** emite `canonical` sau
 `hreflang` — un 404 răspunde la orice adresă greșită, deci ar afirma lucruri
 despre URL-uri care nu există.
+
+## De ce hero-ul nu are `data-reveal`
+
+Restul site-ului își face conținutul vizibil la scroll: `.js [data-reveal]` îl pornește
+la `opacity: 0`, iar un observator îl descoperă și îi pune `.is-visible`. Hero-ul **nu**
+participă, intenționat.
+
+Motivul e ordinea: clasa `js` se pune pre-paint, dintr-un script blocant din `<head>`, dar
+observatorul e un modul deferat, **ultimul nod din body**. Aplicat pe hero, asta însemna că
+cel mai mare text din pagină era desenat invizibil și aștepta tot documentul, apoi se
+estompa 0,6 s. Conținutul de deasupra pliului n-are ce să dezvăluie la scroll — se vede
+deja.
+
+Măsurat: LCP-ul a coborât până la FCP, scorul a rămas 97 (FCP-ul era bariera). Am păstrat
+schimbarea fiindcă e corectă independent de scor — textul cel mai important de pe site nu
+mai depinde de rularea unui script ca să existe pe ecran.
+
+Suita `transitions` verifică **absența atributelor**, nu doar că textul ajunge vizibil:
+altfel verificarea de mai jos ar trece degeaba în clipa în care cineva le pune la loc.
 
 ## Tranziții între pagini
 

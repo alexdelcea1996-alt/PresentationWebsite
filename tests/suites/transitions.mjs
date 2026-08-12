@@ -54,6 +54,21 @@ ck('browser under test supports cross-document transitions',
   await p.goto(`${BASE}/`, { waitUntil: 'load' }).then(() =>
     p.evaluate(() => 'onpagereveal' in window && CSS.supports('view-transition-name: x'))));
 
+// --- The hero owes nothing to JavaScript -----------------------------------
+// It used to carry `data-reveal`, so the biggest text on the page was painted at
+// opacity 0 and waited for a deferred module at the very end of the body to
+// un-hide it. Assert the attributes are gone, not just that the text ends up
+// visible — the check further down would pass vacuously if they came back.
+{
+  const hidden = await p.locator('[data-hero] [data-reveal]').count();
+  ck('the hero does not start hidden behind JavaScript', hidden === 0, `${hidden} found`);
+  const opacity = await p.evaluate(() => {
+    const el = document.querySelector('[data-hero] h1');
+    return el ? getComputedStyle(el).opacity : 'no hero headline found';
+  });
+  ck('the headline is opaque from the start', opacity === '1', opacity);
+}
+
 await p.locator('header nav a[href$="/blog/"]').first().click();
 await p.waitForLoadState('load');
 await p.waitForTimeout(500);
@@ -70,8 +85,8 @@ ck('no router was shipped to buy the effect', jsBytes < 4000, `${jsBytes} B of i
 ck('no external script bundles', (await p.locator('script[src]').count()) === 0);
 
 // --- The arriving page is not left blank -----------------------------------
-// Content starts at opacity 0 for the scroll reveal, so the incoming snapshot
-// could in principle fade to an empty page. Verify it resolves quickly.
+// Below-the-fold content still starts at opacity 0 for the scroll reveal, so the
+// incoming snapshot could in principle fade to an empty page. Verify it resolves.
 // The reveal fade itself runs 0.6s, so wait for it rather than sampling mid-way.
 const settled = await p
   .waitForFunction(
