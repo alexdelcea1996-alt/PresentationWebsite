@@ -199,6 +199,15 @@ export interface Content {
     readMore: string;
     emptyTitle: string;
     emptyBody: string;
+    /**
+     * The framed example that sits beside the real work.
+     *
+     * Labelled as invented every time it appears: this section is where a
+     * visitor looks for proof, and fiction standing unlabelled among proof is
+     * the one thing this site will not do.
+     */
+    exampleTitle: string;
+    exampleBody: string;
   };
   caseStudy: {
     backToWork: string;
@@ -483,6 +492,29 @@ export interface Content {
     desktop: string;
     mobile: string;
     openFull: string;
+    /**
+     * Putting the visitor's own name and colour into the example.
+     *
+     * The fiction label stays visible the whole time: the point is showing
+     * them their own business in a working site, not convincing them the site
+     * already exists.
+     */
+    personalizeTitle: string;
+    personalizeBody: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    colourLabel: string;
+    colours: { id: string; label: string; value: string }[];
+    reset: string;
+    /** The ask, right next to the thing they just made theirs. */
+    cta: string;
+    /**
+     * Shown across the top of an example opened on its own, never inside the
+     * frame. Without it, a full-screen example is a dead end: a convincing
+     * plumbing site with no way back and no sign of who built it.
+     */
+    ribbonLabel: string;
+    ribbonBack: string;
   };
   /** The example-site demos: a landing page and a small business website. */
   landingDemo: ExampleDemoShell;

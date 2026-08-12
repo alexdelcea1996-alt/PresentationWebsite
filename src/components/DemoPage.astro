@@ -122,7 +122,12 @@ const frame = {
             ) : app === 'bookings' ? (
               <BookingDemo locale={locale} />
             ) : (
-              <DemoFrame locale={locale} src={frame.src} displayUrl={frame.displayUrl} />
+              <DemoFrame
+                locale={locale}
+                src={frame.src}
+                displayUrl={frame.displayUrl}
+                ctaHref={contactPath(locale, typeFor, `personalized-${app}`)}
+              />
             )
           }
         </div>

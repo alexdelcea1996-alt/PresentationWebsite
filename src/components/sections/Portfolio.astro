@@ -4,6 +4,8 @@ import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { caseStudyPath, getCaseStudies } from '../../data/case-studies';
+import DemoFrame from '../DemoFrame.astro';
+import { contactPath, exampleSitePath } from '../../data/demo';
 
 interface Props {
   locale: Locale;
@@ -97,6 +99,29 @@ const placeholderSlots = 2;
               </div>
             ))
       }
+    </div>
+
+    {/*
+      A working site, in the section where somebody is looking for proof — and
+      labelled as invented right above it, because fiction standing unlabelled
+      among proof is the one thing this site will not do.
+
+      Below the fold and lazily framed, so it costs the landing page nothing
+      until somebody scrolls this far. The frame's controller is per-instance,
+      which is what makes a second frame on this page safe at all.
+    */}
+    <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example>
+      <h3 class="font-display text-xl font-semibold">{t.exampleTitle}</h3>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.exampleBody}</p>
+
+      <div class="mt-8">
+        <DemoFrame
+          locale={locale}
+          src={exampleSitePath(locale)}
+          displayUrl="termoflux.example"
+          ctaHref={contactPath(locale, 'presentation', 'portfolio-example')}
+        />
+      </div>
     </div>
   </div>
 </section>

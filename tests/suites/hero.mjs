@@ -99,13 +99,20 @@ const countFrames = `
       wash: document.querySelector('[data-hero-glow]')?.style.transform ?? '',
     }));
 
+  // Two consecutive identical reads, not one. A single one is not evidence: on
+  // a loaded machine one poll interval can pass with no frame produced, which
+  // reads exactly like settled — and then motion resumes and the check below
+  // fails for a reason that has nothing to do with the code under test.
   let prev = await readState();
   let now = prev;
-  for (let i = 0; i < 30; i += 1) {
+  let stable = 0;
+  for (let i = 0; i < 40; i += 1) {
     await p.waitForTimeout(400);
     now = await readState();
-    if (now.glow === prev.glow && now.wash === prev.wash && now.frames === prev.frames) break;
+    const same = now.glow === prev.glow && now.wash === prev.wash && now.frames === prev.frames;
+    stable = same ? stable + 1 : 0;
     prev = now;
+    if (stable >= 2) break;
   }
 
   const settledOnce = { ...now };

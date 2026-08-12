@@ -13,7 +13,8 @@
  * and an invented plumbing company ranking under my domain helps nobody.
  */
 import type { Locale } from '../i18n';
-import { localeTags } from '../i18n';
+import { getContent, localeTags } from '../i18n';
+import { contactPath } from '../data/demo';
 
 interface Props {
   locale: Locale;
@@ -23,6 +24,11 @@ interface Props {
 }
 
 const { locale, title, theme } = Astro.props;
+const t = getContent(locale).demoFrame;
+
+// Which offer this example argues for, so the ribbon's link arrives at the
+// form already knowing what the visitor was just looking at.
+const offer = theme === 'workshop' ? 'landing' : 'presentation';
 ---
 
 <!doctype html>
@@ -38,7 +44,51 @@ const { locale, title, theme } = Astro.props;
   </head>
 
   <body>
+    {/*
+      Only ever seen when the example is opened on its own — inside the demo
+      frame the surrounding page already says all this, and a second label
+      would be noise. Hidden by default and revealed by the script below, so
+      the framed case costs nothing and needs no server-side guess.
+    */}
+    <aside class="ex-ribbon ex-hidden" aria-label={t.ribbonLabel} data-exit-ribbon>
+      <span>{t.ribbonLabel}</span>
+      <a href={contactPath(locale, offer, `example-${theme}`)} data-ribbon-cta>{t.ribbonBack}</a>
+    </aside>
+
     <slot />
+
+    <script is:inline>
+      /**
+       * The visitor's own name and colour, handed in from the demo page.
+       *
+       * Tiny on purpose: this ships inside every example page, which the weight
+       * suite holds under 2 kB of inline JavaScript. Written as a CSSOM
+       * property write because the CSP drops `style` attributes.
+       *
+       * The origin is checked before anything is read. These pages can be
+       * opened directly as well as framed, so a message could come from
+       * anywhere; only this site may repaint them.
+       */
+      // Top-level only. `window.self === window.top` is false inside the frame,
+      // where the host page already carries the label and the call to action.
+      if (window.self === window.top) {
+        document.querySelector('[data-exit-ribbon]')?.classList.remove('ex-hidden');
+      }
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        if (!data || data.type !== 'demo-brand') return;
+
+        if (data.accent) document.documentElement.style.setProperty('--ex-accent', data.accent);
+        else document.documentElement.style.removeProperty('--ex-accent');
+
+        for (const node of document.querySelectorAll('[data-ex-brand]')) {
+          if (!node.dataset.exOriginal) node.dataset.exOriginal = node.textContent;
+          node.textContent = data.brand || node.dataset.exOriginal;
+        }
+      });
+    </script>
   </body>
 </html>
 
@@ -190,7 +240,34 @@ const { locale, title, theme } = Astro.props;
     color: var(--ex-accent);
   }
 
-  .ex-hidden {
+  /* Doubled on purpose. `.ex-ribbon` below is also a display declaration and
+     sits later in the file, so at equal specificity it won and the ribbon
+     showed up inside the frame — where the host page already says all of it.
+     Both rules are unlayered here, so specificity is what decides. */
+  .ex-hidden.ex-hidden {
     display: none;
+  }
+
+  /* The ribbon belongs to the example's own stylesheet, not the site's: these
+     pages never load `global.css`, and the weight suite asserts they do not
+     start. */
+  .ex-ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1.25rem;
+    padding: 0.6rem 1.25rem;
+    background: var(--ex-ink);
+    color: var(--ex-bg);
+    font-family: var(--ex-font-ui);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .ex-ribbon a {
+    color: inherit;
+    font-weight: 700;
+    text-underline-offset: 3px;
   }
 </style>

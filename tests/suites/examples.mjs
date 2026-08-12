@@ -184,6 +184,98 @@ for (const c of CASES) {
   await p.close();
 }
 
+// --- Making it theirs -------------------------------------------------------------
+// The strongest thing these demos can do: show the visitor their own business
+// name on a working site. It must survive a navigation inside the frame (the
+// business-website example is three documents), it must repaint the accent,
+// and it must never stop saying the company is invented — the point is showing
+// them what theirs could look like, not convincing them it exists.
+for (const c of CASES) {
+  const p = await b.newPage(VIEWPORT);
+  const violations = [];
+  await p.addInitScript(() => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', (e) =>
+      window.__csp.push(`${e.violatedDirective} <- ${e.blockedURI}`),
+    );
+  });
+  await p.goto(`${BASE}${c.host}`, { waitUntil: 'load' });
+  await p.waitForTimeout(400);
+  const inside = p.frameLocator('[data-demo-frame] iframe');
+
+  const before = await inside.locator('[data-ex-brand]').first().innerText();
+  ck(`${c.label}: the example starts as the invented brand`, before === c.brand, before);
+
+  await p.locator('[data-brand-input]').fill('Croitoria Ana');
+  await p.locator('[data-brand-colour="#6b2d5c"]').click();
+  await p.waitForTimeout(400);
+
+  ck(`${c.label}: the name reaches inside the frame`,
+    (await inside.locator('[data-ex-brand]').first().innerText()) === 'Croitoria Ana');
+  ck(`${c.label}: and the colour repaints it`,
+    (await inside
+      .locator('html')
+      .evaluate((el) => getComputedStyle(el).getPropertyValue('--ex-accent').trim())) === '#6b2d5c');
+
+  // The disclaimer must survive personalisation — this is the moment it matters
+  // most, because the page now carries the visitor's own name.
+  ck(`${c.label}: it still says the business is invented`,
+    /invent/.test((await p.locator('[data-demo-disclaimer]').innerText()).toLowerCase()));
+  // And the fake address bar keeps the invented domain: rewriting it would be
+  // showing somebody a URL they do not own.
+  ck(`${c.label}: the address bar is not rewritten`,
+    /example$|example\//.test(await p.locator('.demo-frame-url').innerText()),
+    await p.locator('.demo-frame-url').innerText());
+
+  if (c.kind === 'site') {
+    // Three documents: a fresh one knows nothing until it is told again.
+    await inside.locator('nav a').nth(1).click();
+    await p.waitForTimeout(700);
+    ck(`${c.label}: the name survives navigating inside the frame`,
+      (await inside.locator('[data-ex-brand]').first().innerText()) === 'Croitoria Ana');
+  }
+
+  // The ask, right next to the thing they just made theirs.
+  const cta = p.locator('[data-personalize-cta]');
+  ck(`${c.label}: there is an ask beside it`, (await cta.count()) === 1);
+  ck(`${c.label}: which carries where it came from`,
+    /from=.+&via=personalized-/.test((await cta.getAttribute('href')) ?? ''),
+    await cta.getAttribute('href'));
+
+  await p.locator('[data-brand-reset]').click();
+  await p.waitForTimeout(400);
+  ck(`${c.label}: reset puts the invented brand back`,
+    (await inside.locator('[data-ex-brand]').first().innerText()) === c.brand);
+
+  violations.push(...(await p.evaluate(() => window.__csp)));
+  ck(`${c.label}: personalising violates no policy`, violations.length === 0, violations.join(' | '));
+  await p.close();
+}
+
+// --- The way out of a full-screen example -------------------------------------
+// Opened on its own, an example is a convincing site with no way back and no
+// sign of who built it. Inside the frame the host page says all of this already.
+for (const c of CASES) {
+  const framed = await b.newPage(VIEWPORT);
+  await framed.goto(`${BASE}${c.host}`, { waitUntil: 'load' });
+  await framed.waitForTimeout(400);
+  ck(`${c.label}: no ribbon inside the frame`,
+    !(await framed.frameLocator('[data-demo-frame] iframe').locator('[data-exit-ribbon]').isVisible()));
+  await framed.close();
+
+  const solo = await b.newPage(VIEWPORT);
+  await solo.goto(`${BASE}${c.example}`, { waitUntil: 'load' });
+  await solo.waitForTimeout(300);
+  const ribbon = solo.locator('[data-exit-ribbon]');
+  ck(`${c.label}: the standalone example carries a ribbon`, await ribbon.isVisible());
+  ck(`${c.label}: naming who built it and that it is invented`,
+    /invent/i.test(await ribbon.innerText()));
+  const href = await solo.locator('[data-ribbon-cta]').getAttribute('href');
+  ck(`${c.label}: with a way back that carries its origin`,
+    /via=example-/.test(href ?? ''), href);
+  await solo.close();
+}
+
 // --- The examples are fiction, and are treated as fiction ------------------------
 {
   const sitemap = await (await fetch(`${BASE}/sitemap-0.xml`)).text();
@@ -221,6 +313,45 @@ for (const [label, service, demo] of [
   await cta.click();
   await p.waitForURL(`**${demo}`, { timeout: 5000 }).catch(() => {});
   ck(`${label}: and the button gets there`, new URL(p.url()).pathname === demo, p.url());
+  await p.close();
+}
+
+// --- A second frame, on the landing page ------------------------------------------
+// Two frames on one page is the case the original controller could not have
+// handled: it reached for the document rather than its own root, so the
+// portfolio's frame would have driven the demo page's. Nothing here is about
+// looks — it is about the two being independent.
+for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
+
+  const block = p.locator('[data-portfolio-example]');
+  ck(`${label} home: the portfolio carries a working example`, (await block.count()) === 1);
+  // Fiction standing unlabelled among proof is the one thing this section
+  // must not do — and this is the section where somebody looks for proof.
+  ck(`${label} home: labelled as invented before you reach it`,
+    /invent/i.test(await block.innerText()));
+
+  const iframe = block.locator('iframe');
+  ck(`${label} home: framed lazily, so it costs nothing above the fold`,
+    (await iframe.getAttribute('loading')) === 'lazy');
+
+  // Independence: driving this one must not be driving anything else.
+  await block.scrollIntoViewIfNeeded();
+  await p.waitForTimeout(600);
+  await block.locator('[data-brand-input]').fill('Croitoria Ana');
+  await p.waitForTimeout(500);
+  const inside = p.frameLocator('[data-portfolio-example] iframe');
+  ck(`${label} home: personalising it works here too`,
+    (await inside.locator('[data-ex-brand]').first().innerText()) === 'Croitoria Ana');
+
+  await block.locator('[data-frame-width="mobile"]').click();
+  await p.waitForTimeout(500);
+  ck(`${label} home: and its own width switch answers`,
+    (await block.locator('[data-demo-frame]').getAttribute('data-width')) === 'mobile' ||
+      (await p.locator('[data-portfolio-example] [data-demo-frame]').getAttribute('data-width')) ===
+        'mobile');
+
   await p.close();
 }
 

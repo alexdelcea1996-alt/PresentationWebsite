@@ -189,6 +189,9 @@ export const ro: Content = {
     emptyTitle: 'Studiu de caz în pregătire',
     emptyBody:
       'Aici vor apărea proiecte reale, cu problema clientului, soluția aleasă și rezultatul măsurabil.',
+    exampleTitle: 'Și un exemplu, cu numele firmei tale pe el',
+    exampleBody:
+      'Firma de mai jos e inventată — dar site-ul e real și funcționează. Scrie-ți numele și alege o culoare: vezi pe loc cum ar arăta al tău.',
   },
 
   caseStudy: {
@@ -706,6 +709,23 @@ export const ro: Content = {
     desktop: 'Ecran mare',
     mobile: 'Telefon',
     openFull: 'Deschide-l pe tot ecranul',
+    personalizeTitle: 'Pune numele firmei tale',
+    personalizeBody:
+      'Scrie numele și alege o culoare — exemplul de mai jos se schimbă pe loc. Rămâne o firmă inventată; se schimbă doar ce ai scris tu.',
+    nameLabel: 'Numele firmei tale',
+    namePlaceholder: 'ex. Croitoria Ana',
+    colourLabel: 'Culoarea',
+    colours: [
+      { id: 'brown', label: 'Cărămiziu', value: '#8a4a1d' },
+      { id: 'blue', label: 'Albastru', value: '#12508f' },
+      { id: 'green', label: 'Verde', value: '#1f6b44' },
+      { id: 'plum', label: 'Prună', value: '#6b2d5c' },
+      { id: 'ink', label: 'Grafit', value: '#2b3440' },
+    ],
+    reset: 'Înapoi la exemplu',
+    cta: 'Vreau varianta reală, cu firma mea',
+    ribbonLabel: 'Exemplu construit de Alex Delcea — firma din pagină e inventată',
+    ribbonBack: 'Vreau un site ca ăsta',
   },
 
   landingDemo: {

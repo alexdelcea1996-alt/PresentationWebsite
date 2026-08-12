@@ -1,17 +1,23 @@
 ---
 /**
- * A browser window with a real page inside it.
+ * A browser window with a real page inside it — and a way to put the visitor's
+ * own name on that page.
  *
  * The example sites are framed rather than embedded inline for one reason: they
  * bring their own stylesheet and their own type stack, and inlining them would
  * mean either bleeding this site's design into the example or fighting it with
  * specificity forever. An iframe gives the example a document of its own — which
- * is also what makes the width switch below honest, since resizing the frame
- * makes the example's own media queries fire exactly as they would on a phone.
+ * is also what makes the width switch honest, since resizing the frame makes the
+ * example's own media queries fire exactly as they would on a phone.
  *
  * Framing our own pages needed `frame-ancestors 'self'` instead of `'none'`, and
  * `X-Frame-Options: SAMEORIGIN` instead of `DENY`. Third-party framing — the
  * actual clickjacking risk — is still refused; see `scripts/build-headers.mjs`.
+ *
+ * Everything below is per-instance. The first version reached for the document
+ * with `document.querySelector`, which was fine while exactly one frame existed
+ * on the site and would have silently wired the second one to the first the
+ * moment a frame appeared beside it.
  */
 import Icon from './Icon.astro';
 import { getContent, type Locale } from '../i18n';
@@ -22,13 +28,79 @@ interface Props {
   src: string;
   /** Shown in the fake address bar. Not a link — it is a picture of a URL. */
   displayUrl: string;
+  /** Where the "I want the real thing" button goes. Omitted hides it. */
+  ctaHref?: string;
+  /** Personalisation is the demo pages' party trick; other placements opt out. */
+  personalize?: boolean;
 }
 
-const { locale, src, displayUrl } = Astro.props;
+const { locale, src, displayUrl, ctaHref, personalize = true } = Astro.props;
 const t = getContent(locale).demoFrame;
 ---
 
 <div class="demo-frame" data-demo-frame data-width="desktop">
+  {
+    personalize && (
+      <div class="card mb-5" data-personalize>
+        {/* h2, not h3: on the demo pages this is the first heading under the
+            page title, and skipping a level is what axe caught here. In the
+            portfolio it sits under an h3 heading of its own — see below. */}
+        <h2 class="font-display text-base font-semibold text-fg">{t.personalizeTitle}</h2>
+        <p class="mt-2 text-sm leading-relaxed text-fg-muted">{t.personalizeBody}</p>
+
+        <div class="mt-4 grid gap-4 sm:grid-cols-[1.4fr_1fr] sm:items-start">
+          <div>
+            <label class="demo-field" for={`brand-${displayUrl}`}>
+              {t.nameLabel}
+              <input
+                id={`brand-${displayUrl}`}
+                type="text"
+                maxlength="28"
+                autocomplete="organization"
+                placeholder={t.namePlaceholder}
+                data-brand-input
+              />
+            </label>
+          </div>
+
+          <div role="group" aria-label={t.colourLabel}>
+            <p class="demo-field">{t.colourLabel}</p>
+            <div class="mt-1.5 flex flex-wrap gap-2">
+              {
+                t.colours.map((colour, index) => (
+                  <button
+                    type="button"
+                    class="brand-swatch"
+                    data-brand-colour={colour.value}
+                    aria-pressed={index === 0 ? 'true' : 'false'}
+                    aria-label={colour.label}
+                    title={colour.label}
+                  >
+                    <span class="brand-swatch-dot" data-swatch-dot={colour.id} />
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          {
+            ctaHref && (
+              <a href={ctaHref} class="btn btn-primary text-sm" data-personalize-cta>
+                {t.cta}
+                <Icon name="arrow-right" class="size-4" />
+              </a>
+            )
+          }
+          <button type="button" class="demo-chip hidden" data-brand-reset>
+            {t.reset}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-1.5" role="group" aria-label={t.viewLabel}>
       <button type="button" class="demo-chip" data-frame-width="desktop" aria-pressed="true">
@@ -57,6 +129,8 @@ const t = getContent(locale).demoFrame;
         <span class="demo-frame-dot" aria-hidden="true"></span>
         <span class="demo-frame-dot" aria-hidden="true"></span>
         <span class="demo-frame-dot" aria-hidden="true"></span>
+        {/* Never rewritten when the visitor personalises the example: showing
+            somebody a URL they do not own would be the one dishonest part. */}
         <span class="demo-frame-url">{displayUrl}</span>
       </div>
 
@@ -66,18 +140,77 @@ const t = getContent(locale).demoFrame;
 </div>
 
 <script>
-  // Width switch. The iframe keeps its document; only the viewport it believes
-  // it has changes, so the example's own breakpoints do the work.
-  const frame = document.querySelector<HTMLElement>('[data-demo-frame]');
-  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-frame-width]');
+  /**
+   * One controller per frame. Two frames can live on one page — the landing
+   * page carries one and the demo pages carry another — so nothing here may
+   * reach past its own root.
+   */
+  for (const frame of document.querySelectorAll<HTMLElement>('[data-demo-frame]')) {
+    const iframe = frame.querySelector<HTMLIFrameElement>('iframe')!;
 
-  for (const button of buttons) {
-    button.addEventListener('click', () => {
-      const width = button.dataset.frameWidth ?? 'desktop';
-      if (frame) frame.dataset.width = width;
-      for (const other of buttons) {
-        other.setAttribute('aria-pressed', String(other === button));
-      }
+    // --- Width switch. The iframe keeps its document; only the viewport it
+    // believes it has changes, so the example's own breakpoints do the work.
+    const widthButtons = frame.querySelectorAll<HTMLButtonElement>('[data-frame-width]');
+    for (const button of widthButtons) {
+      button.addEventListener('click', () => {
+        frame.dataset.width = button.dataset.frameWidth ?? 'desktop';
+        for (const other of widthButtons) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+      });
+    }
+
+    // --- Personalisation
+    const brandInput = frame.querySelector<HTMLInputElement>('[data-brand-input]');
+    if (!brandInput) continue;
+
+    const swatches = frame.querySelectorAll<HTMLButtonElement>('[data-brand-colour]');
+    const resetButton = frame.querySelector<HTMLButtonElement>('[data-brand-reset]');
+    let brand = '';
+    let accent = '';
+
+    /**
+     * The example lives in its own document, so the only way in is postMessage.
+     * Targeted at this exact origin rather than '*': the payload is harmless,
+     * but broadcasting to any origin is a habit that stops being harmless the
+     * first time the frame points somewhere else.
+     */
+    const push = () => {
+      iframe.contentWindow?.postMessage(
+        { type: 'demo-brand', brand, accent },
+        window.location.origin,
+      );
+      resetButton?.classList.toggle('hidden', !brand && !accent);
+    };
+
+    brandInput.addEventListener('input', () => {
+      brand = brandInput.value.trim();
+      push();
+    });
+
+    for (const swatch of swatches) {
+      swatch.addEventListener('click', () => {
+        accent = swatch.dataset.brandColour ?? '';
+        for (const other of swatches) {
+          other.setAttribute('aria-pressed', String(other === swatch));
+        }
+        push();
+      });
+    }
+
+    resetButton?.addEventListener('click', () => {
+      brand = '';
+      accent = '';
+      brandInput.value = '';
+      swatches.forEach((s, index) => s.setAttribute('aria-pressed', String(index === 0)));
+      push();
+      brandInput.focus();
+    });
+
+    // The business-website example is three pages: every navigation inside the
+    // frame loads a fresh document that knows nothing about what was typed.
+    iframe.addEventListener('load', () => {
+      if (brand || accent) push();
     });
   }
 </script>
@@ -137,5 +270,47 @@ const t = getContent(locale).demoFrame;
     height: min(78vh, 680px);
     border: 0;
     background: #fff;
+  }
+
+  /*
+   * The colour swatches. The dot's colour is the one thing that varies per
+   * button, and a `style` attribute would be dropped by the CSP — so the five
+   * values live here, keyed by the same ids the buttons render from.
+   */
+  .brand-swatch {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.2s var(--ease-out-soft);
+  }
+
+  .brand-swatch[aria-pressed='true'] {
+    border-color: var(--color-accent-alt);
+  }
+
+  .brand-swatch-dot {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 999px;
+  }
+
+  [data-swatch-dot='brown'] {
+    background: #8a4a1d;
+  }
+  [data-swatch-dot='blue'] {
+    background: #12508f;
+  }
+  [data-swatch-dot='green'] {
+    background: #1f6b44;
+  }
+  [data-swatch-dot='plum'] {
+    background: #6b2d5c;
+  }
+  [data-swatch-dot='ink'] {
+    background: #2b3440;
   }
 </style>

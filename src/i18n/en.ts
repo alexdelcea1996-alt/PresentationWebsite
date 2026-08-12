@@ -189,6 +189,9 @@ export const en: Content = {
     emptyTitle: 'Case study in progress',
     emptyBody:
       'Real projects will appear here, each with the client problem, the approach taken and the measurable result.',
+    exampleTitle: 'And an example, with your own name on it',
+    exampleBody:
+      'The company below is invented — but the site is real and it works. Type your name, pick a colour, and see how yours would look.',
   },
 
   caseStudy: {
@@ -706,6 +709,23 @@ export const en: Content = {
     desktop: 'Large screen',
     mobile: 'Phone',
     openFull: 'Open it full screen',
+    personalizeTitle: 'Put your own name on it',
+    personalizeBody:
+      'Type your business name and pick a colour — the example below changes as you type. It stays an invented company; only what you typed changes.',
+    nameLabel: 'Your business name',
+    namePlaceholder: 'e.g. Ana Tailoring',
+    colourLabel: 'Colour',
+    colours: [
+      { id: 'brown', label: 'Terracotta', value: '#8a4a1d' },
+      { id: 'blue', label: 'Blue', value: '#12508f' },
+      { id: 'green', label: 'Green', value: '#1f6b44' },
+      { id: 'plum', label: 'Plum', value: '#6b2d5c' },
+      { id: 'ink', label: 'Graphite', value: '#2b3440' },
+    ],
+    reset: 'Back to the example',
+    cta: 'I want the real version, with my business on it',
+    ribbonLabel: 'An example built by Alex Delcea — the company on this page is invented',
+    ribbonBack: 'I want a site like this',
   },
 
   landingDemo: {

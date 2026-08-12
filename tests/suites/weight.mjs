@@ -72,10 +72,12 @@ for (const page of pages) {
 weighed.sort((a, b) => b.raw - a.raw);
 
 // The landing page is by far the heaviest document: every section of the site
-// is on it. Today: 19.7 kB brotli, 138.5 kB raw.
+// is on it. Today: 22.0 kB brotli, 158 kB raw — up from 19.7/138.5 when the
+// portfolio gained a second framed example and the contact form became
+// stepped. Raised deliberately, in the commits that spent it.
 const home = weighed.find((page) => page.name === '/index.html');
-ck('the landing page compresses under budget', home.br <= 22 * KB, `${kb(home.br)} brotli`);
-ck('and its markup stays under budget', home.raw <= 155 * KB, `${kb(home.raw)} raw`);
+ck('the landing page compresses under budget', home.br <= 25 * KB, `${kb(home.br)} brotli`);
+ck('and its markup stays under budget', home.raw <= 175 * KB, `${kb(home.raw)} raw`);
 
 // No page may quietly become a second landing page. Today the largest after the
 // two home pages is a service page at 45.4 kB raw / 8.4 kB brotli.
