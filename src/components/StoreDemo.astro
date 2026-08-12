@@ -13,6 +13,7 @@
  * own page so its JavaScript never touches the landing page.
  */
 import { getContent, localeTags, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
 
 interface Props {
   locale: Locale;
@@ -109,7 +110,15 @@ const config = {
           ))
         }
       </ul>
-      <button type="button" class="btn btn-ghost mt-6 text-sm" data-store-again>{t.newOrder}</button>
+      {/* The peak-engagement moment: an order just went through in front of
+          them. Server-rendered anchor, zero extra JS — the screen toggle the
+          demo already does is what reveals it. */}
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={contactPath(locale, 'shop', 'demo-store')} class="btn btn-primary text-sm" data-store-cta>
+          {t.doneCta}
+        </a>
+        <button type="button" class="btn btn-ghost text-sm" data-store-again>{t.newOrder}</button>
+      </div>
     </div>
 
     <!-- Basket -->

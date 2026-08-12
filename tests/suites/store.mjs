@@ -195,6 +195,18 @@ for (const [label, path, currency, freeWord] of [
   ck('the confirmation is shown', await p.locator('[data-store-done]').isVisible());
   ck('it carries an order number', /#\d+/.test(await p.locator('[data-store-order-id]').innerText()));
   ck('it lists what happens next', (await p.locator('[data-store-done] li').count()) === 3);
+
+  // The ask lands where engagement peaks — an order has just gone through in
+  // front of them — and it hands the form its context instead of dropping the
+  // visitor on a blank one.
+  const peak = p.locator('[data-store-cta]');
+  ck('the confirmation screen asks for the business', await peak.isVisible());
+  const peakHref = await peak.getAttribute('href');
+  ck('and it carries type and origin to the form',
+    (peakHref ?? '').includes('from=shop') &&
+      (peakHref ?? '').includes('via=demo-store') &&
+      (peakHref ?? '').endsWith('#contact'),
+    String(peakHref));
   ck(
     'focus moves to the confirmation',
     await p.evaluate(() => document.activeElement?.tagName === 'H2'),

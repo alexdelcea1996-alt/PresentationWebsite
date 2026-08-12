@@ -8,7 +8,6 @@
  * a demo cannot drift into looking like a different site, and so the switcher
  * between them exists in exactly one place.
  */
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
@@ -16,8 +15,9 @@ import Icon from './Icon.astro';
 import BookingDemo from './BookingDemo.astro';
 import StoreDemo from './StoreDemo.astro';
 import DemoFrame from './DemoFrame.astro';
-import { getContent, sectionIds, locales, type Locale } from '../i18n';
+import { getContent, locales, type Locale } from '../i18n';
 import {
+  contactPath,
   demoPath,
   storeDemoPath,
   landingDemoPath,
@@ -48,7 +48,9 @@ const alternates = Object.fromEntries(
   locales.map((code) => [code, pathFor(code)]),
 ) as Partial<Record<Locale, string>>;
 
-const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+// Which offer this demo argues for, so the form arrives already knowing.
+const typeFor = { bookings: 'webapp', store: 'shop', landing: 'landing', site: 'presentation' }[app];
+const contactAnchor = contactPath(locale, typeFor, `demo-${app}`);
 
 const tabs = [
   { id: 'landing', href: landingDemoPath(locale), label: t.demoNav.landing },

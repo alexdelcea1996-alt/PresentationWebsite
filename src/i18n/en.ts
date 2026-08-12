@@ -488,6 +488,7 @@ export const en: Content = {
       fallbackWhatsapp: 'Send the message on WhatsApp',
       fallbackCopy: 'Copy the message and the address',
       fallbackCopied: 'Copied — paste it wherever suits you',
+      prefillNote: 'Preselected from the page you came from: {label}. Change it if it does not fit.',
       required: 'required',
       privacy: 'Your details land in my inbox and are used only to reply to you. They go on no list.',
     },
@@ -731,6 +732,7 @@ export const en: Content = {
     cta: 'I want a site like this',
   },
   demo: {
+    doneCta: 'I want a tool like this in my business',
     metaTitle: 'Demo: what a custom web application looks like | Alex Delcea',
     metaDescription:
       'A working bookings application, right on the page. Add, confirm and cancel appointments — the kind of internal tool that replaces a spreadsheet and a group chat.',
@@ -868,6 +870,7 @@ export const en: Content = {
     paymentCash: 'Cash on delivery',
     paymentCashFee: '+{amount} cash-on-delivery fee',
     placeOrder: 'Place the order',
+    doneCta: 'I want a store that does exactly this',
     doneTitle: 'The order is in',
     doneBody: 'In a real store, from here on you touch nothing:',
     doneSteps: [

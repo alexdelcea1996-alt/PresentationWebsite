@@ -12,6 +12,7 @@
  */
 import Icon from './Icon.astro';
 import { getContent, localeTags, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
 
 interface Props {
   locale: Locale;
@@ -140,6 +141,18 @@ const config = {
       >
         {t.reset}
       </button>
+    </div>
+
+    {/* The ask, at the moment somebody has just worked the app rather than
+        read about it. A plain anchor: no JavaScript is added for it. */}
+    <div class="border-t border-border px-5 py-4">
+      <a
+        href={contactPath(locale, 'webapp', 'demo-bookings')}
+        class="btn btn-primary w-full text-sm sm:w-auto"
+        data-booking-cta
+      >
+        {t.doneCta}
+      </a>
     </div>
   </div>
 </div>

@@ -6,6 +6,7 @@ import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
 import { getServiceTranslations, servicePath, type ServicePage } from '../data/services';
 import { demoForService } from '../data/demo';
 
@@ -83,7 +84,7 @@ const faqSchema = {
             <p class="mt-6 text-lg leading-relaxed text-fg-muted">{d.lead}</p>
 
             <div class="mt-8 flex flex-wrap gap-3">
-              <a href={anchor(sectionIds.contact)} class="btn btn-primary text-sm">
+              <a href={contactPath(locale, d.key, `service-${d.key}`)} class="btn btn-primary text-sm">
                 {d.ctaButton}
                 <Icon name="arrow-right" class="size-4" />
               </a>
@@ -233,7 +234,7 @@ const faqSchema = {
                 <h2 class="font-display text-2xl font-semibold">{d.ctaTitle}</h2>
                 <p class="mt-3 max-w-lg text-sm leading-relaxed text-fg-muted">{d.ctaBody}</p>
               </div>
-              <a href={anchor(sectionIds.contact)} class="btn btn-primary shrink-0">
+              <a href={contactPath(locale, d.key, `service-${d.key}`)} class="btn btn-primary shrink-0">
                 {d.ctaButton}
                 <Icon name="arrow-right" class="size-4" />
               </a>

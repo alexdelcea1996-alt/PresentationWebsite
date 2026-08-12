@@ -1,11 +1,11 @@
 ---
 import { render } from 'astro:content';
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
-import { getContent, localeTags, sectionIds, type Locale } from '../i18n';
+import { getContent, localeTags, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
 import {
   blogIndexPath,
   formatDate,
@@ -34,7 +34,8 @@ const alternates = Object.fromEntries(
   ]),
 ) as Partial<Record<Locale, string>>;
 
-const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+// Stamped with its origin, but no preselect: a reader's intent is unknown.
+const contactAnchor = contactPath(locale, undefined, 'blog');
 
 const articleSchema = {
   '@context': 'https://schema.org',

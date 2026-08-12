@@ -8,6 +8,7 @@ import Icon from './Icon.astro';
 import DeviceShowcase from './DeviceShowcase.astro';
 import ScoreGauge from './ScoreGauge.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
 import { caseStudyPath, getTranslations, type CaseStudy } from '../data/case-studies';
 
 interface Props {
@@ -32,7 +33,8 @@ const portfolioAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.portfolio}
   /\/{2,}/g,
   '/',
 );
-const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+// Stamped with its origin, but no preselect: a reader's intent is unknown.
+const contactAnchor = contactPath(locale, undefined, 'case-study');
 
 /**
  * One rule per distinct score on this page, telling its dial how far to sweep.

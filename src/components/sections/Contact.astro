@@ -144,6 +144,18 @@ const labelClass = 'block text-sm font-medium text-fg';
             placeholder={t.form.messagePlaceholder}></textarea>
         </div>
 
+        {/*
+          Filled by the script when a `?from=` link preselected the type. The
+          form must never change silently under the visitor: they can see what
+          was chosen for them, and change it.
+        */}
+        <p
+          class="hidden rounded-xl border border-accent/25 bg-accent/5 px-4 py-3 text-xs leading-relaxed text-fg-muted"
+          data-prefill-note
+          data-template={t.form.prefillNote}
+        >
+        </p>
+
         {/* Honeypot: hidden from people, tempting to bots. */}
         <input
           type="checkbox"
@@ -299,6 +311,42 @@ const labelClass = 'block text-sm font-medium text-fg';
     const errorBox = form.querySelector<HTMLElement>('[data-form-error]')!;
     const fallbackBox = form.querySelector<HTMLElement>('[data-form-fallback]')!;
 
+    /**
+     * Context handed over by whatever page sent the visitor here.
+     *
+     * `from` preselects the project type through the same stable `data-id`
+     * handles the configurator uses; `via` is stamped into the message so the
+     * lead email says which page did the convincing. Both are announced in a
+     * visible note — a form that rearranges itself silently is a form the
+     * visitor stops trusting.
+     */
+    {
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from');
+      const via = params.get('via');
+      const typeSelect = form.querySelector<HTMLSelectElement>('#field-type');
+      const note = form.querySelector<HTMLElement>('[data-prefill-note]');
+
+      if (from && typeSelect) {
+        const match = [...typeSelect.options].find((option) => option.dataset.id === from);
+        if (match) {
+          typeSelect.value = match.value;
+          if (note?.dataset.template) {
+            note.textContent = note.dataset.template.replace('{label}', match.textContent ?? '');
+            note.classList.remove('hidden');
+          }
+        }
+      }
+
+      if (via) {
+        const stamp = document.createElement('input');
+        stamp.type = 'hidden';
+        stamp.name = 'origin';
+        stamp.value = via;
+        form.append(stamp);
+      }
+    }
+
     const setBusy = (state: boolean) => {
       submit.disabled = state;
       idle.classList.toggle('hidden', state);
@@ -325,10 +373,14 @@ const labelClass = 'block text-sm font-medium text-fg';
       // WhatsApp with the same message, or the message on the clipboard.
       if (!accessKey) {
         const website = String(data.get('website') ?? '').trim();
+        const origin = String(data.get('origin') ?? '').trim();
         const lines = [
           `${data.get('name')} <${data.get('email')}>`,
           `${data.get('project_type')} — ${data.get('budget')}`,
           ...(website ? [website] : []),
+          // Same stamp as the Web3Forms path carries, so both routes tell me
+          // which page did the convincing.
+          ...(origin ? [`(${origin})`] : []),
           '',
           String(data.get('message') ?? ''),
         ];

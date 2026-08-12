@@ -334,6 +334,9 @@ export interface Content {
       fallbackWhatsapp: string;
       fallbackCopy: string;
       fallbackCopied: string;
+      /** Shown when a ?from= link preselected the project type; {label} is the
+       *  chosen option. Transparency: the form never changes silently. */
+      prefillNote: string;
       required: string;
       privacy: string;
     };
@@ -451,6 +454,8 @@ export interface Content {
   landingDemo: ExampleDemoShell;
   siteDemo: ExampleDemoShell;
   demo: DemoShell & {
+    /** The ask at the moment of engagement, under the running app. */
+    doneCta: string;
     /** Day navigation. */
     prevDay: string;
     nextDay: string;
@@ -489,6 +494,8 @@ export interface Content {
    * order" — so the demo puts the delivery cost on screen from the first item.
    */
   storeDemo: DemoShell & {
+    /** The ask on the confirmation screen — the moment of peak engagement. */
+    doneCta: string;
     /** Heading over the grid — the product names below it are h3, so it has to exist. */
     catalogueTitle: string;
     /** Fictional stock. A sold-out variant and a sold-out product are both here on purpose. */

@@ -143,6 +143,53 @@ if (rescueShown) {
   check('and says it did', await desktop.locator('[data-copy-done]').isVisible());
 }
 
+// --- The origin pipeline: sub-pages hand their context to the form ---
+// A visitor arriving from a service page or a demo has already said what they
+// want; making them restate it at the commitment moment is friction, and the
+// lead email saying nothing about where it came from is free analytics thrown
+// away. The prefill must be transparent — a visible note, not a silent change.
+{
+  await desktop.goto(`${BASE}/?from=shop&via=demo-store#contact`, { waitUntil: 'networkidle' });
+  const picked = await desktop
+    .locator('#field-type')
+    .evaluate((el) => el.options[el.selectedIndex].dataset.id);
+  check('?from= preselects the project type', picked === 'shop', String(picked));
+  check(
+    'and says so out loud',
+    await desktop.locator('[data-prefill-note]').isVisible(),
+  );
+  const origin = await desktop
+    .locator('[data-contact-form] input[name="origin"]')
+    .inputValue()
+    .catch(() => null);
+  check('the origin rides along as a hidden field', origin === 'demo-store', String(origin));
+
+  // And it reaches the payload on the real path.
+  let stampedPost = null;
+  await desktop.route('https://api.web3forms.com/submit', async (route) => {
+    stampedPost = route.request().postData();
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":true}' });
+  });
+  await desktop.evaluate(() => {
+    document.querySelector('[data-contact-form]').dataset.accessKey = 'test-key-123';
+  });
+  await desktop.locator('#field-name').fill('Test SRL');
+  await desktop.locator('#field-email').fill('test@example.com');
+  await desktop.locator('#field-message').fill('Vreau un magazin.');
+  await desktop.locator('[data-submit]').click();
+  await desktop.waitForTimeout(700);
+  check('the payload carries the origin stamp', (stampedPost ?? '').includes('demo-store'));
+  await desktop.unroute('https://api.web3forms.com/submit');
+
+  // A plain visit stays plain: no note, no phantom origin.
+  await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+  check(
+    'no note and no origin without the parameter',
+    (await desktop.locator('[data-prefill-note]').isHidden()) &&
+      (await desktop.locator('[data-contact-form] input[name="origin"]').count()) === 0,
+  );
+}
+
 // --- Contact form: the real Web3Forms path, once a key is configured ---
 await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
 let posted = null;

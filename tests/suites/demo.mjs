@@ -320,6 +320,25 @@ for (const [label, path, currency, addLabel] of [
   await p.close();
 }
 
+// --- The ask, under the running app -------------------------------------------
+// Somebody who has just worked the app is more convinced than somebody who has
+// only read about it; the CTA used to sit below the explanation cards, past
+// that moment. It is a plain anchor, so it costs the demo no JavaScript.
+for (const [label, path, from] of [
+  ['RO', '/demo/', 'webapp'],
+  ['EN', '/en/demo/', 'webapp'],
+]) {
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+  const cta = p.locator('[data-booking-cta]');
+  ck(`${label}: the app itself asks for the business`, (await cta.count()) === 1);
+  const href = await cta.getAttribute('href');
+  ck(`${label}: and hands the form its context`,
+    (href ?? '').includes(`from=${from}`) && (href ?? '').includes('via=demo-bookings'),
+    String(href));
+  await p.close();
+}
+
 // --- Where the demo is offered in the content --------------------------------
 // The header and footer carry it everywhere; these are the two places inside the
 // page where someone reading about web applications is actually invited to try it.

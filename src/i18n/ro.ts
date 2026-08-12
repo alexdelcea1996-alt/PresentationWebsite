@@ -488,6 +488,7 @@ export const ro: Content = {
       fallbackWhatsapp: 'Trimite mesajul pe WhatsApp',
       fallbackCopy: 'Copiază mesajul și adresa',
       fallbackCopied: 'Copiat — lipește-l unde îți e ușor',
+      prefillNote: 'Preselectat după pagina din care vii: {label}. Schimbă-l dacă nu se potrivește.',
       required: 'obligatoriu',
       privacy: 'Datele tale ajung în inboxul meu și le folosesc exclusiv ca să îți răspund. Nu le adaug pe nicio listă.',
     },
@@ -731,6 +732,7 @@ export const ro: Content = {
     cta: 'Vreau un site ca ăsta',
   },
   demo: {
+    doneCta: 'Vreau un instrument ca ăsta în firma mea',
     metaTitle: 'Demo: cum arată o aplicație web făcută la comandă | Alex Delcea',
     metaDescription:
       'O aplicație de programări, funcțională, direct în pagină. Adaugă, confirmă și anulează programări — exact felul de instrument intern care înlocuiește un Excel și un grup de WhatsApp.',
@@ -868,6 +870,7 @@ export const ro: Content = {
     paymentCash: 'Ramburs la curier',
     paymentCashFee: '+{amount} taxă ramburs',
     placeOrder: 'Plasează comanda',
+    doneCta: 'Vreau un magazin care face exact asta',
     doneTitle: 'Comanda a fost înregistrată',
     doneBody: 'Într-un magazin adevărat, de aici mai departe nu mai atingi nimic:',
     doneSteps: [

@@ -41,6 +41,23 @@ export const exampleSitePath = (locale: Locale, page: 'home' | 'services' | 'con
   return withBase(root + segment);
 };
 
+/**
+ * The contact form's address, carrying where the visitor came from.
+ *
+ * `from` preselects the project type (it must be a `data-id` the form knows);
+ * `via` stamps the lead with its origin, so the email says which page did the
+ * convincing. The form shows a visible note when it acts on these — context
+ * should travel with the visitor, never change things behind their back.
+ */
+export const contactPath = (locale: Locale, from?: string, via?: string) => {
+  const home = withBase(locale === 'en' ? 'en/' : '');
+  const params = new URLSearchParams();
+  if (from) params.set('from', from);
+  if (via) params.set('via', via);
+  const query = params.toString();
+  return `${home}${query ? `?${query}` : ''}#contact`;
+};
+
 /** Which demo, if any, a service card links to. Keyed by the service `key`. */
 export const demoForService = (locale: Locale, key: string | undefined) => {
   if (key === 'webapp') return demoPath(locale);

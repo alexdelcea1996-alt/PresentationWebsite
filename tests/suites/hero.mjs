@@ -16,7 +16,24 @@ const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 const b = await launch();
 
-// Count animation frames so we can prove the loop stops when idle.
+/**
+ * Frame counter, kept as printed detail rather than as an assertion.
+ *
+ * This suite used to claim it proved "the animation loop stops when the
+ * pointer leaves". It could not, and never could — a fact worth writing down
+ * so nobody trusts it again. Chromium stops producing frames once nothing on
+ * the page changes visually, so rAF goes quiet whether the loop asked to stop
+ * or not. Verified twice with deliberately broken code: an unconditional
+ * `requestAnimationFrame(render)`, and an easing that never marks itself
+ * settled. Both froze the counter exactly like healthy code, in both themes.
+ * The transform string stops changing too, because the easing converges to
+ * the same sub-pixel value.
+ *
+ * From outside the page, a converged-but-running loop is indistinguishable
+ * from a stopped one. So the check below asserts only what is observable —
+ * motion settles and stays settled, which catches oscillation, a target that
+ * never converges, and a wrong easing — and no longer claims the rest.
+ */
 const countFrames = `
   window.__frames = 0;
   const raf = window.requestAnimationFrame.bind(window);
@@ -70,11 +87,46 @@ const countFrames = `
 
   await p.mouse.move(600, 1200);
   await p.dispatchEvent('[data-hero]', 'pointerleave');
-  await p.waitForTimeout(4000); // headless runs well under 60fps; allow the drift to finish
-  const before = await p.evaluate(() => window.__frames);
-  await p.waitForTimeout(2000);
-  const after = await p.evaluate(() => window.__frames);
-  ck('animation loop stops when the pointer settles', after === before, `${before} → ${after} frames`);
+
+  // Poll for quiet rather than sleeping a fixed time and measuring once: how
+  // long the easing takes to settle depends on how loaded the machine is, and
+  // a fixed 4s window passed alone but failed once under a full suite run —
+  // that is a flaky test, not a broken loop.
+  const readState = () =>
+    p.evaluate(() => ({
+      frames: window.__frames,
+      glow: document.querySelector('[data-cursor-glow]')?.style.transform ?? '',
+      wash: document.querySelector('[data-hero-glow]')?.style.transform ?? '',
+    }));
+
+  let prev = await readState();
+  let now = prev;
+  for (let i = 0; i < 30; i += 1) {
+    await p.waitForTimeout(400);
+    now = await readState();
+    if (now.glow === prev.glow && now.wash === prev.wash && now.frames === prev.frames) break;
+    prev = now;
+  }
+
+  const settledOnce = { ...now };
+  await p.waitForTimeout(1200);
+  const stillSettled = await readState();
+  ck(
+    'motion settles after the pointer leaves, and stays settled',
+    stillSettled.glow === settledOnce.glow && stillSettled.wash === settledOnce.wash,
+    `glow ${settledOnce.glow} → ${stillSettled.glow}; ` +
+      `${settledOnce.frames} → ${stillSettled.frames} frames (see the note above)`,
+  );
+
+  // Divergence is the failure the settle check cannot see: an easing that
+  // overshoots flings the element off-screen, where it stops painting and so
+  // stops looking like it is moving. The coordinates have to stay plausible.
+  const coords = [...stillSettled.glow.matchAll(/(-?[\d.]+)px/g)].map(([, n]) => Number(n));
+  ck(
+    'and it settles somewhere on the screen, not flung off it',
+    coords.length >= 2 && coords.every((n) => Math.abs(n) < 4000),
+    stillSettled.glow || 'no transform',
+  );
 
   // Leaving the window entirely, as opposed to moving between elements in it.
   await p.dispatchEvent('body', 'mouseout', { relatedTarget: null });
