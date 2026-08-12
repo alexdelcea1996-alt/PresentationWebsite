@@ -198,6 +198,65 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   await f.close();
 }
 
+// --- The one human element -----------------------------------------------------
+// The section exists to put a person behind the promises, which is exactly why
+// it is the easiest place on the site for an unverifiable claim to appear. The
+// number check below is the guard: the only figures allowed are the two the
+// site already publishes everywhere (24 hours, 30 minutes). A line like "10
+// years of experience" or "200 projects delivered" fails here.
+for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+  const a = await b.newPage();
+  await a.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+
+  const about = a.locator('#about');
+  ck(`${label} about: the section is on the page`, (await about.count()) === 1);
+
+  const card = a.locator('#about [data-about-card]');
+  ck(`${label} about: there is a name behind the promises`,
+    (await card.count()) === 1 && (await card.innerText()).includes('Alex Delcea'));
+
+  const facts = await a.$$eval('#about [data-about-card] li', (n) => n.length);
+  const principles = await a.$$eval('#about [data-about-principle]', (n) =>
+    n.map((node) => node.innerText.trim()),
+  );
+  ck(`${label} about: the card lists its facts`, facts === 3, `${facts}`);
+  ck(`${label} about: three principles, each with a body`,
+    principles.length === 3 && principles.every((text) => text.length > 120),
+    `${principles.length}, shortest ${Math.min(...principles.map((t) => t.length))}`);
+
+  const paragraphs = await a.$$eval('#about [data-about-body]', (n) =>
+    n.map((node) => node.textContent.trim()).filter(Boolean),
+  );
+  ck(`${label} about: the introduction is written, not a stub`,
+    paragraphs.length === 3 && paragraphs.every((text) => text.length > 150),
+    `${paragraphs.length} paragraph(s)`);
+
+  const numbers = [...(await about.innerText()).matchAll(/\d+/g)].map(([n]) => n);
+  ck(`${label} about: no figure the site does not already publish`,
+    numbers.every((n) => n === '24' || n === '30'),
+    numbers.filter((n) => n !== '24' && n !== '30').join(' ') || 'only 24 and 30');
+
+  // The portrait is optional; when one is added it must still be described.
+  const photo = a.locator('#about [data-about-photo]');
+  const alt = (await photo.count()) === 1 ? await photo.getAttribute('alt') : 'no portrait yet';
+  ck(`${label} about: a portrait, if present, is described`, Boolean(alt && alt.length > 5), alt);
+
+  // It has to lead somewhere, and the anchor it names has to be on this page.
+  const cta = a.locator('#about [data-about-cta]');
+  const href = await cta.getAttribute('href');
+  ck(`${label} about: the section leads to the form`,
+    href?.endsWith('#contact') && (await a.locator('#contact').count()) === 1, String(href));
+
+  // Placement is the argument: promises first, then the person making them.
+  const order = await a.$$eval('main section[id]', (n) => n.map((node) => node.id));
+  ck(`${label} about: it stands between the guarantees and the form`,
+    order.indexOf('about') > order.indexOf('guarantees') &&
+      order.indexOf('about') < order.indexOf('contact'),
+    order.join(' → '));
+
+  await a.close();
+}
+
 // --- One business, seen many times ---------------------------------------------
 // The entity used to be emitted with `url: canonical.href` and no `@id`, which
 // described twenty-odd separate businesses that shared a name. Nothing asserted

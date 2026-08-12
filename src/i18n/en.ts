@@ -571,6 +571,41 @@ export const en: Content = {
     ],
   },
 
+  about: {
+    eyebrow: 'About me',
+    title: 'Who actually builds it',
+    subtitle:
+      'Not an agency with departments. One developer, who answers personally and delivers personally.',
+    body: [
+      "I'm Alex Delcea and I work on my own. When you write, I'm the one who answers — within 24 hours, usually the same working day. Nobody sits in between, translating what you said into what somebody else understood.",
+      "The first conversation is 30 minutes, free and with no obligation. If it turns out you need something else — or nothing — I'll tell you straight. After that you get the scope, the final price and the deadline in writing, and the price doesn't move unless we change the requirements together.",
+      'The site you are reading was built by the same rules I am proposing to you: no bought templates, measured before it went live, and the numbers near the top of this page were measured by your own browser, on this visit.',
+    ],
+    name: 'Alex Delcea',
+    role: 'Web developer',
+    facts: [
+      'An answer within 24 hours',
+      'First conversation: 30 minutes, free',
+      'We work directly, no middlemen',
+    ],
+    principles: [
+      {
+        title: 'Measurements, not adjectives',
+        body: 'I measure with Lighthouse before delivery and send you the report. For optimisation work, the same measurements before and after — so you can see the difference instead of taking my word for it.',
+      },
+      {
+        title: 'What I build stays yours',
+        body: 'The code and the accounts are in your name from day one, and once the included support period ends you owe nothing. Making you dependent on me is not my business model.',
+      },
+      {
+        title: "I also say what I can't do",
+        body: "I don't guarantee first place on Google and I don't play lawyer with your legal texts. The full list of what I won't promise is right above, among the guarantees.",
+      },
+    ],
+    photoAlt: 'Alex Delcea, web developer',
+    cta: "Let's talk for 30 minutes",
+  },
+
   guarantees: {
     eyebrow: 'Guarantees',
     title: 'What I guarantee, and what I do not',

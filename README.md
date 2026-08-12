@@ -227,6 +227,27 @@ Coloana `no` nu e decor. Site-ul spune în două locuri că nimeni onest nu poat
 garanta locul întâi în Google; o secțiune de garanții care ar sări peste asta ar
 contrazice restul site-ului și ar arăta ca oricare alta.
 
+### „Despre mine" și poza
+
+`about` în `src/i18n/ro.ts` și `en.ts`, afișat de `src/components/sections/About.astro`,
+imediat sub garanții — întâi promisiunile, apoi cine le face.
+
+Aceeași regulă, a treia oară: **niciun rând nu are voie să afirme ceva ce nu e deja
+pe site.** Fără ani de experiență, fără număr de proiecte, fără biografie. Textul
+reformulează răspunsul în 24 de ore, discuția gratuită de 30 de minute, prețul fix
+din ofertă, codul pe numele tău și refuzul de a garanta locul în Google.
+
+Testul păzește exact asta: adună toate cifrele din secțiune și cade dacă apare
+alta în afară de **24** și **30**. Un rând ca „10 ani de experiență" nu trece de
+suită — a fost verificat prin plantarea lui.
+
+**Ca să apară poza:** pui un fișier numit exact `portrait.jpg` (sau `.png`, `.webp`,
+`.avif`) în `src/assets/about/` și gata — nu se schimbă niciun cod. Format vertical
+4:5 (de pildă 1200×1500 px); Astro o convertește în AVIF. Textul alternativ vine din
+`about.photoAlt`. Fără fișier, cardul arată terminat: nume, rol, trei fapte și
+buton — nu există chenar punctat care să aștepte ceva. Detalii în
+`src/assets/about/README.md`.
+
 ### Prețurile
 
 **Aceeași ofertă apare în patru liste scrise de mână**, în fișiere diferite:

@@ -355,6 +355,29 @@ export interface Content {
     items: { question: string; answer: string }[];
   };
   /**
+   * The one human element on an otherwise impersonal page. Same rule again:
+   * every sentence restates something the site already says, so it stays true
+   * without a biography nobody can verify. The portrait is optional — the
+   * layout is designed to look finished without one.
+   */
+  about: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    /** Introduction paragraphs, in order. */
+    body: string[];
+    /** Name and role on the identity card. */
+    name: string;
+    role: string;
+    /** Short facts under the name, each already stated elsewhere. */
+    facts: string[];
+    /** How the work gets done — restatements, not new promises. */
+    principles: Promise_[];
+    /** Used only when a portrait exists in `src/assets/about/`. */
+    photoAlt: string;
+    cta: string;
+  };
+  /**
    * Commitments already made elsewhere on the site, gathered in one place —
    * including the ones deliberately *not* made. Nothing here may be a new
    * promise: every line has to be traceable to existing copy.

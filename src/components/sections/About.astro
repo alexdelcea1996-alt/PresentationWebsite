@@ -1,0 +1,112 @@
+---
+/**
+ * The one human element on the page.
+ *
+ * Every sentence here restates something the site already says somewhere else
+ * — the response time, the free first call, the fixed price, the ownership
+ * terms, the refusal to guarantee a Google rank. No biography, no years of
+ * experience, no client count: those would be unverifiable claims dressed up
+ * as personality.
+ *
+ * The portrait is optional and the layout does not depend on it. Drop a file
+ * named `portrait.{jpg,png,webp,avif}` into `src/assets/about/` and it appears
+ * at the top of the identity card; with no file, the card is a finished card,
+ * not a dotted placeholder waiting for one.
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, sectionIds, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).about;
+
+// Resolved at build time: an empty glob means no portrait was ever added, and
+// the identity card renders text-only. Adding the file is the whole change.
+const portraits = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/about/portrait.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+const portrait = Object.values(portraits)[0]?.default;
+
+const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+---
+
+<section id={sectionIds.about} class="relative overflow-hidden py-20 sm:py-28">
+  <div class="glow left-[-12rem] bottom-0 size-[26rem] bg-accent/10" aria-hidden="true"></div>
+
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mx-auto mt-16 grid max-w-5xl gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+      <div class="card" data-reveal data-about-card>
+        {
+          portrait && (
+            <div class="-mx-6 -mt-6 mb-6 overflow-hidden rounded-t-2xl border-b border-border">
+              <Image
+                src={portrait}
+                alt={t.photoAlt}
+                widths={[320, 640]}
+                sizes="(min-width: 1024px) 320px, 100vw"
+                format="avif"
+                loading="lazy"
+                class="block aspect-[4/5] w-full object-cover object-top"
+                data-about-photo
+              />
+            </div>
+          )
+        }
+
+        <p class="font-display text-xl font-semibold text-fg">{t.name}</p>
+        <p class="mt-1 text-sm text-fg-muted">{t.role}</p>
+
+        <ul class="mt-6 space-y-3 border-t border-border pt-6">
+          {
+            t.facts.map((fact) => (
+              <li class="flex items-start gap-3 text-sm text-fg-muted">
+                <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-accent/10 text-accent-alt">
+                  <Icon name="check" class="size-3" />
+                </span>
+                {fact}
+              </li>
+            ))
+          }
+        </ul>
+
+        <a href={contactHref} class="btn btn-ghost mt-6 w-full text-sm" data-about-cta>
+          {t.cta}
+          <Icon name="arrow-right" class="size-4" />
+        </a>
+      </div>
+
+      <div class="space-y-5" data-reveal data-reveal-delay="100">
+        {
+          t.body.map((paragraph) => (
+            <p class="text-base leading-relaxed text-fg-muted" data-about-body>
+              {paragraph}
+            </p>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* Across the full width rather than stacked beside the card: three short
+        columns balance the row above instead of leaving it lopsided. */}
+    <ul class="mx-auto mt-12 grid max-w-5xl gap-8 border-t border-border pt-10 sm:grid-cols-3">
+      {
+        t.principles.map((principle, index) => (
+          <li data-about-principle data-reveal data-reveal-delay={index * 80}>
+            <p class="font-display text-sm font-semibold text-fg">{principle.title}</p>
+            <p class="mt-2 text-sm leading-relaxed text-fg-muted">{principle.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

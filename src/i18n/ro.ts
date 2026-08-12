@@ -571,6 +571,41 @@ export const ro: Content = {
     ],
   },
 
+  about: {
+    eyebrow: 'Despre mine',
+    title: 'Cine construiește, de fapt',
+    subtitle:
+      'Nu o agenție cu departamente. Un singur dezvoltator, care răspunde personal și livrează personal.',
+    body: [
+      'Sunt Alex Delcea și lucrez singur. Când îmi scrii, îți răspund eu — în cel mult 24 de ore, de obicei în aceeași zi lucrătoare. Nu există intermediar care să traducă ce ai spus tu în ce a înțeles altcineva.',
+      'Prima discuție e de 30 de minute, gratuită și fără obligații. Dacă îmi dau seama că ai nevoie de altceva — sau de nimic — îți spun direct. Apoi primești în scris ce conține proiectul, prețul final și termenul, iar prețul nu se schimbă pe parcurs dacă nu schimbăm împreună cerințele.',
+      'Site-ul pe care îl citești acum e construit după aceleași reguli pe care ți le propun: fără șabloane cumpărate, măsurat înainte de publicare, cu cifrele de la începutul paginii măsurate chiar de browserul tău, la vizita asta.',
+    ],
+    name: 'Alex Delcea',
+    role: 'Dezvoltator web',
+    facts: [
+      'Răspuns în cel mult 24 de ore',
+      'Prima discuție: 30 de minute, gratuit',
+      'Lucrăm direct, fără intermediari',
+    ],
+    principles: [
+      {
+        title: 'Măsurători, nu adjective',
+        body: 'Măsor cu Lighthouse înainte de livrare și îți trimit raportul. La optimizări, aceleași măsurători înainte și după — ca să vezi diferența, nu ca să mă crezi pe cuvânt.',
+      },
+      {
+        title: 'Ce construiesc rămâne al tău',
+        body: 'Codul și conturile sunt pe numele tău din prima zi, iar după perioada de suport inclusă nu ai nimic de plătit. Nu îmi construiesc afacerea din dependența ta de mine.',
+      },
+      {
+        title: 'Spun și ce nu pot',
+        body: 'Nu îți garantez primul loc în Google și nu mă dau avocat pe textele juridice. Lista întreagă cu ce nu promit e chiar deasupra, printre garanții.',
+      },
+    ],
+    photoAlt: 'Alex Delcea, dezvoltator web',
+    cta: 'Hai să vorbim 30 de minute',
+  },
+
   guarantees: {
     eyebrow: 'Garanții',
     title: 'Ce îți garantez și ce nu',

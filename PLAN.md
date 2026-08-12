@@ -123,7 +123,9 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 ### A. Esențiale înainte de lansarea oficială (propuse 2026-08-11)
 
 1. Portofoliu cu proiecte reale + suport de capturi (primul studiu de caz: acest site)
-2. Secțiune „Despre mine" cu fotografie
+2. 🟡 Secțiune „Despre mine" — ✅ publicată sub garanții, RO+EN, numai reformulări
+   ale afirmațiilor deja existente (testul cade dacă apare o cifră nouă).
+   *Mai lipsește fotografia: `portrait.jpg` în `src/assets/about/` și apare singură.*
 3. Activarea livrării reale a formularului (cheie Web3Forms)
 4. ✅ WhatsApp și telefon ca și canale de contact — în cardul de contact și în
    footer (deci pe toate paginile). WhatsApp cu mesaj pre-scris, RO/EN;

@@ -34,6 +34,7 @@ export const sectionIds = {
   comparison: 'comparison',
   portfolio: 'portfolio',
   guarantees: 'guarantees',
+  about: 'about',
   testimonials: 'testimonials',
   pricing: 'pricing',
   estimate: 'estimate',
