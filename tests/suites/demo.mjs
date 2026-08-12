@@ -312,7 +312,15 @@ for (const [label, path, currency, addLabel] of [
     !scripts.some((url) => url.includes('BookingDemo')),
     scripts.join(' '),
   );
-  ck('the landing page still loads no external script', scripts.length === 0, `${scripts.length}`);
+  // This used to assert zero external scripts. The configurator outgrew Astro's
+  // inline threshold and became a bundle of its own, deliberately (see
+  // weight.mjs). The property worth keeping is narrower and is the one this
+  // suite is about: nothing a demo needs may load on the landing page.
+  ck(
+    'the only script the landing page fetches is the configurator',
+    scripts.every((url) => url.includes('Configurator')),
+    scripts.join(' ') || 'none',
+  );
 
   // The nav link is what carries people there.
   const link = p.locator(`a[href$="/demo/"]`);

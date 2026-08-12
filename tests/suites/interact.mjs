@@ -160,7 +160,9 @@ if (rescueShown) {
     copied.includes('@') && copied.includes('Test SRL') && copied.includes('Vreau un site'),
     copied.slice(0, 60).replace(/\n/g, ' '),
   );
-  check('and says it did', await desktop.locator('[data-copy-done]').isVisible());
+  // Scoped to the form: the configurator's share row carries the same hooks.
+  check('and says it did',
+    await desktop.locator('[data-form-fallback] [data-copy-done]').isVisible());
 }
 
 // --- The form asks one thing at a time ---

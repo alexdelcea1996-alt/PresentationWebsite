@@ -95,6 +95,54 @@ check(
   await page.locator('[data-step-counter]').innerText(),
 );
 
+// --- The estimate can leave the page ---
+// An estimate that only exists while the tab is open is one nobody discusses
+// with a business partner. Both exits must quote the same numbers the page
+// shows — they are built from the same estimate(), and this proves it.
+{
+  const shownPrice = await page.locator('[data-result-price]').innerText();
+  const wa = await cfg.locator('[data-action="whatsapp"]').getAttribute('href');
+  const message = decodeURIComponent(wa ?? '');
+  check(
+    'the WhatsApp exit carries the estimate as text',
+    (wa ?? '').startsWith('https://wa.me/40767079882?text=') &&
+      message.includes('Site de prezentare') &&
+      !message.includes('{details}'),
+    (wa ?? '').slice(0, 50),
+  );
+  // Both figures of the range, exactly as rendered.
+  const [low, high] = shownPrice.split('–').map((part) => part.replace(/\D/g, ''));
+  check(
+    'and quotes the same numbers the page shows',
+    message.replace(/\D/g, '').includes(low) && message.replace(/\D/g, '').includes(high),
+    `${shownPrice} vs ${message.slice(0, 80).replace(/\n/g, ' ')}`,
+  );
+
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await cfg.locator('[data-action="copy-link"]').click();
+  await page.waitForTimeout(200);
+  const link = await page.evaluate(() => navigator.clipboard.readText());
+  check('copy puts a shareable link on the clipboard', /#estimare=/.test(link), link.slice(-40));
+  // Scoped: the contact form's rescue panel carries the same copy hooks.
+  check('and says it did', await cfg.locator('[data-copy-done]').isVisible());
+
+  // Opening that link must rebuild the same estimate — and say where it came
+  // from, rather than letting somebody think the site guessed their project.
+  const shared = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+  await shared.goto(link, { waitUntil: 'networkidle' });
+  await shared.waitForTimeout(500);
+  check(
+    'a shared link restores the estimate',
+    (await shared.locator('[data-result-price]').innerText()) === shownPrice,
+    `${await shared.locator('[data-result-price]').innerText()} vs ${shownPrice}`,
+  );
+  check('and admits it was restored', await shared.locator('[data-restored-note]').isVisible());
+  // The hash names no element, so it must not fight the #estimate anchor.
+  check('the hash does not collide with a section id',
+    (await shared.evaluate(() => document.querySelectorAll('[id="estimare"]').length)) === 0);
+  await shared.close();
+}
+
 // --- Changing type clears now-invalid add-ons ---
 await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 await cfg.locator('input[data-type-input][value="presentation"]').check({ force: true });

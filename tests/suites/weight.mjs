@@ -113,10 +113,16 @@ for (const file of pages.filter((f) => isExample(named(f)))) {
 // Astro inlines the small scripts and emits a bundle per demo. Both matter for
 // different reasons: inline bytes are paid by every visitor to that page, bundle
 // bytes only by whoever opens the demo.
-// Today: 5.6 kB (store) and 5.0 kB (bookings), raw. The frame switch and the
-// example forms are small enough to be inlined, so they add no third bundle.
+// Today: 5.6 kB (store), 5.0 kB (bookings), 4.9 kB (configurator), raw. The
+// frame switch and the example forms stay inline; the configurator crossed
+// Astro's 4 kB inline threshold when sharing was added to it and became a file
+// of its own. That was accepted rather than shrunk back: a 5 kB tool a visitor
+// may never touch is better as one cacheable request than as bytes in every
+// landing-page response — and the landing page's inline JS fell 18.1 → 15.0 kB
+// when it moved out. What must stay true is that no DEMO bundle loads here,
+// which the demo and store suites assert directly.
 const bundles = pick((name) => name.endsWith('.js'));
-ck('the demos are the only JS bundles', bundles.length === 2,
+ck('three bundles: two demos and the configurator', bundles.length === 3,
   bundles.map(named).join(' ') || 'none');
 for (const bundle of bundles) {
   const buffer = await readFile(bundle);

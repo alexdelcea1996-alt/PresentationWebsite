@@ -266,6 +266,12 @@ export interface Content {
     cta: string;
     /** Pre-filled into the contact message; {details} is replaced with the picks. */
     messageTemplate: string;
+    /** Taking the estimate out of the page: to WhatsApp, or as a link. */
+    sendWhatsapp: string;
+    copyLink: string;
+    copied: string;
+    /** Shown when a shared link restored somebody else's picks. */
+    restored: string;
   };
   audit: {
     eyebrow: string;

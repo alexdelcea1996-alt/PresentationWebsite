@@ -405,6 +405,10 @@ export const en: Content = {
     cta: 'Send me this estimate',
     messageTemplate:
       'I used the configurator on your site and picked:\n\n{details}\n\nI would like to discuss this project.',
+    sendWhatsapp: 'Send me the estimate on WhatsApp',
+    copyLink: 'Copy the estimate link',
+    copied: 'Link copied',
+    restored: 'This estimate came from the link you opened. Change anything and it recalculates.',
   },
 
   audit: {

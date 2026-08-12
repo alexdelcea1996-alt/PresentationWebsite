@@ -405,6 +405,10 @@ export const ro: Content = {
     cta: 'Trimite-mi această estimare',
     messageTemplate:
       'Am folosit configuratorul de pe site și am ales:\n\n{details}\n\nAș vrea să discutăm despre acest proiect.',
+    sendWhatsapp: 'Trimite-mi estimarea pe WhatsApp',
+    copyLink: 'Copiază linkul estimării',
+    copied: 'Link copiat',
+    restored: 'Estimarea vine din linkul pe care l-ai deschis. Schimbă orice, se recalculează.',
   },
 
   audit: {

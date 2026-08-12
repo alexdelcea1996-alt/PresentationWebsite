@@ -299,7 +299,11 @@ for (const [label, here, there, current] of [
     if (r.resourceType() === 'script') scripts.push(r.url());
   });
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-  ck('the landing page loads no demo bundle', scripts.length === 0, scripts.join(' '));
+  ck(
+    'the landing page loads no demo bundle',
+    scripts.every((url) => url.includes('Configurator')),
+    scripts.join(' ') || 'none',
+  );
   // Four of the five offers have a demo; site optimisation has none, because a
   // before-and-after measurement is not something you can play with.
   ck(
