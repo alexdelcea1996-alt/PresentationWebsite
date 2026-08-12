@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 585 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 594 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -785,6 +785,32 @@ nu coste nimic:
   filă lăsată deschisă nu consumă nimic.
 
 Intensitatea în tema light e redusă la 40%, altfel ar arăta ca o pată pe alb.
+
+## Cache și security.txt
+
+`scripts/build-headers.mjs` scrie și regulile de cache, nu doar CSP-ul:
+
+| Cale | Regulă | De ce |
+|---|---|---|
+| `/_astro/*` | 1 an, `immutable` | numele conțin hash de conținut |
+| `/og/*` | 1 oră | se regenerează la fiecare build, dar cu **aceleași nume** |
+| iconuri, `site.webmanifest` | 1 zi | se schimbă rar, nu au hash |
+| `/version.txt` | `no-store` | există fix ca să verifici ce e live; o copie din cache ar răspunde greșit exact la întrebarea pentru care a fost făcut |
+
+**O capcană pe care a prins-o testul, nu ochiul:** regulile de iconuri erau scrise
+ca `/*.png`, care în `_headers` se potrivește și cu `/og/home.png` — iar la reguli
+suprapuse **câștigă ultima**. Imaginile de partajare moșteneau tăcut cache-ul de o
+zi. Acum regulile se generează din fișierele care chiar există în `dist/`, una pe
+fișier, deci nu se mai pot suprapune.
+
+`Strict-Transport-Security` e pus fără `preload` intenționat: `preload` înseamnă
+înscrierea domeniului într-o listă compilată în browsere, iar domeniul final încă
+nu e ales.
+
+`public/.well-known/security.txt` — contact pentru raportarea problemelor de
+securitate. **Are dată de expirare** (cerută de RFC 9116) și testul verifică să nu
+fie în trecut; un fișier expirat e mai rău decât niciunul. Reîmprospăteaz-o o dată
+pe an.
 
 ## Securitate
 

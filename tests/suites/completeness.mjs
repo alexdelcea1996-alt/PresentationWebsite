@@ -146,9 +146,57 @@ ck('every hreflang target is itself a page in the sitemap',
 // The translated slugs are the reason the built-in pairing failed; prove the
 // pairs really do cross languages rather than pointing at themselves twice.
 const optim = urls.find((u) => u.loc.endsWith('/servicii/optimizare-site/'));
+// The generator annotates a few URLs itself but never emits x-default, and the
+// top-up used to skip exactly those — leaving the sitemap contradicting the
+// pages' own <head>.
+ck('every sitemap entry names a default language',
+  urls.every((u) => u.links.some((l) => l.tag === 'x-default')),
+  `${urls.filter((u) => !u.links.some((l) => l.tag === 'x-default')).length} without`);
+
 ck('a translated slug pairs across languages',
   optim?.links.some((l) => l.href.endsWith('/en/services/site-optimisation/')),
   optim?.links.map((l) => `${l.tag}=${new URL(l.href).pathname}`).join(' '));
+
+// --- Headers that only exist if the build script wrote them --------------------
+{
+  const h = await b.newPage();
+  const res = await h.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  const sent = res?.headers() ?? {};
+  ck('HSTS is set', /max-age=\d+/.test(sent['strict-transport-security'] ?? ''),
+    sent['strict-transport-security'] ?? 'absent');
+  // Never `preload`: that submits the apex to a browser-baked list, and the
+  // final domain is not decided yet.
+  ck('HSTS does not claim preload', !/preload/.test(sent['strict-transport-security'] ?? ''));
+
+  const og = await h.goto(`${BASE}/og/home.png`, { waitUntil: 'domcontentloaded' });
+  ck('share images are cacheable but not forever',
+    /max-age=3600/.test(og?.headers()['cache-control'] ?? ''),
+    og?.headers()['cache-control'] ?? 'absent');
+
+  // The file exists to answer "is what I am looking at current?". A cached copy
+  // answers it wrongly.
+  const version = await h.goto(`${BASE}/version.txt`, { waitUntil: 'domcontentloaded' });
+  ck('version.txt is never cached', /no-store/.test(version?.headers()['cache-control'] ?? ''),
+    version?.headers()['cache-control'] ?? 'absent');
+
+  const icon = await h.goto(`${BASE}/favicon.svg`, { waitUntil: 'domcontentloaded' });
+  ck('icons carry a cache rule', /max-age=86400/.test(icon?.headers()['cache-control'] ?? ''),
+    icon?.headers()['cache-control'] ?? 'absent');
+  await h.close();
+}
+
+// --- security.txt ----------------------------------------------------------------
+{
+  const s = await b.newPage();
+  const res = await s.goto(`${BASE}/.well-known/security.txt`, { waitUntil: 'domcontentloaded' });
+  const text = await s.evaluate(() => document.body.textContent ?? '');
+  ck('security.txt is served', res?.status() === 200, String(res?.status()));
+  ck('it gives a contact', /^Contact:\s*mailto:/m.test(text));
+  // RFC 9116 requires Expires, and a date in the past is worse than no file.
+  const expires = text.match(/^Expires:\s*(.+)$/m)?.[1]?.trim();
+  ck('it has not expired', Boolean(expires) && Date.parse(expires) > Date.now(), String(expires));
+  await s.close();
+}
 
 // --- The deployed build identifies itself ------------------------------------
 // Without this there is no way to look at the live site and tell whether it is

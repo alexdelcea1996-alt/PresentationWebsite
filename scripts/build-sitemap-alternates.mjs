@@ -41,6 +41,7 @@ function fileFor(loc) {
 let annotated = 0;
 let alreadyHad = 0;
 let noAlternates = 0;
+let defaulted = 0;
 
 for (const name of sitemaps) {
   const path = join(dist, name);
@@ -50,8 +51,30 @@ for (const name of sitemaps) {
   for (const match of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
     const [whole, inner] = match;
 
+    // @astrojs/sitemap annotates a handful of URLs itself — the ones whose paths
+    // match across locales — but it never emits x-default. Skipping them wholesale
+    // left the sitemap disagreeing with the pages' own <head>, which do have it.
+    // So top the entry up instead of walking past it.
     if (inner.includes('xhtml:link')) {
       alreadyHad += 1;
+      if (!inner.includes('hreflang="x-default"')) {
+        const loc = inner.match(/<loc>(.*?)<\/loc>/)?.[1];
+        const file = loc && fileFor(loc);
+        if (!file) continue;
+        const html = await readFile(file, 'utf8');
+        const fallback = html.match(
+          /<link rel="alternate" hreflang="x-default" href="([^"]+)"\s*\/?>/,
+        )?.[1];
+        if (!fallback) continue;
+        blocks.push([
+          whole,
+          whole.replace(
+            '</url>',
+            `<xhtml:link rel="alternate" hreflang="x-default" href="${fallback}"/></url>`,
+          ),
+        ]);
+        defaulted += 1;
+      }
       continue;
     }
 
@@ -80,5 +103,6 @@ for (const name of sitemaps) {
 console.log(
   `sitemap: ${annotated} URL(s) annotated with hreflang` +
     `, ${alreadyHad} already had them` +
+    (defaulted ? `, ${defaulted} topped up with x-default` : '') +
     (noAlternates ? `, ${noAlternates} have none to add` : ''),
 );
