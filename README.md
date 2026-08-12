@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 623 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 674 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -627,6 +627,36 @@ Cateva lucruri gandite dinainte:
 - **Suita de teste urmareste starea build-ului.** Acum verifica varianta cu
   buton. In clipa in care pui cheia, aceleasi teste incep sa verifice unealta,
   cu API-ul simulat. Nu ai nimic de schimbat.
+
+## Bugete de greutate
+
+Cât cântărește site-ul nu mai e doar raportat, ci **asertat**: suita `weight`
+citește direct `dist/` și pică dacă vreun artefact trece de bugetul lui. Fără
+browser și fără cronometru — o picare înseamnă mereu că s-a îngrășat ceva, nu că
+mașina era ocupată. Brotli se calculează local cu `node:zlib`, la calitatea 11,
+adică fix ce livrează Cloudflare pentru un fișier static.
+
+Măsurătorile de azi și pragurile puse peste ele (azi + ~10-15%):
+
+| Ce | Azi | Buget |
+|---|---|---|
+| Prima pagină, comprimată | 19,7 kB | 22 kB |
+| Prima pagină, HTML brut | 138,5 kB | 155 kB |
+| Cea mai grea sub-pagină | 45,4 kB brut | 60 kB |
+| Foaia de stil (una singură) | 8,9 kB / 54,6 kB | 10,5 / 62 kB |
+| Fiecare bundle de demo | 5,6 și 5,0 kB | 7 kB |
+| JS inline pe prima pagină | 14,6 kB | 17 kB |
+| Fonturile, toate patru | 56,8 kB | 64 kB |
+| Cea mai mare imagine OG | 90,9 kB | 120 kB |
+
+Când depășești un buget **intenționat** — o secțiune nouă, o fotografie, un
+demo în plus — îl ridici în `tests/suites/weight.mjs` și actualizezi comentariul
+„azi e X" de deasupra. Editarea aia e evidența deciziei; fără ea, creșterea trece
+neobservată an de an, care e exact felul în care ajung site-urile la 4 MB.
+
+Suita verifică și forma, nu doar cifrele: o singură foaie de stil, exact două
+bundle-uri de JS, exact patru fonturi. Dacă apare al treilea bundle, pică — chiar
+dacă e mic.
 
 ## Statistici de trafic (Cloudflare Web Analytics)
 

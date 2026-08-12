@@ -1,0 +1,147 @@
+/**
+ * Byte budgets, asserted.
+ *
+ * The a11y suite already *reports* what each page weighs, which is useful for
+ * diagnosis and useless as a guard: a slow drift upward passes green forever.
+ * This suite fails instead.
+ *
+ * It reads `dist/` directly — no browser, no server, no timing — so a failure
+ * always means the artefacts changed, never that the machine was busy. Brotli is
+ * computed here with `node:zlib` because the build does not emit `.br` files;
+ * Cloudflare compresses on the fly, and quality 11 is what it uses for static
+ * assets, so these numbers are what a visitor actually downloads.
+ *
+ * Every threshold carries the measurement it was set from. They are today's
+ * figures plus roughly 10-15%: enough air for ordinary content growth, tight
+ * enough that a stray dependency or an un-subsetted font is caught the same day.
+ * When a budget is exceeded on purpose, raise it deliberately and update the
+ * "today" comment — that edit is the record of the decision.
+ */
+import { readFile, readdir } from 'node:fs/promises';
+import { brotliCompressSync, constants } from 'node:zlib';
+import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const R = [];
+const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
+
+const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
+const KB = 1024;
+const kb = (bytes) => `${(bytes / KB).toFixed(1)} kB`;
+
+/** Quality 11 — what a CDN serves for a static file it can compress once. */
+const brotli = (buffer) =>
+  brotliCompressSync(buffer, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }).length;
+
+async function walk(dir) {
+  const found = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...(await walk(path)));
+    else found.push(path);
+  }
+  return found;
+}
+
+const files = await walk(dist);
+const named = (path) => `/${relative(dist, path).replace(/\\/g, '/')}`;
+
+/** Fail loudly rather than pass vacuously when a category disappears. */
+const pick = (test) => files.filter((file) => test(named(file)));
+
+// --- HTML --------------------------------------------------------------------
+const pages = pick((name) => name.endsWith('.html'));
+ck('there are pages to weigh', pages.length >= 25, `${pages.length} page(s)`);
+
+const weighed = [];
+for (const page of pages) {
+  const buffer = await readFile(page);
+  weighed.push({ name: named(page), raw: buffer.length, br: brotli(buffer) });
+}
+weighed.sort((a, b) => b.raw - a.raw);
+
+// The landing page is by far the heaviest document: every section of the site
+// is on it. Today: 19.7 kB brotli, 138.5 kB raw.
+const home = weighed.find((page) => page.name === '/index.html');
+ck('the landing page compresses under budget', home.br <= 22 * KB, `${kb(home.br)} brotli`);
+ck('and its markup stays under budget', home.raw <= 155 * KB, `${kb(home.raw)} raw`);
+
+// No page may quietly become a second landing page. Today the largest after the
+// two home pages is a service page at 45.4 kB raw / 8.4 kB brotli.
+const inner = weighed.filter((page) => !/^\/(en\/)?index\.html$/.test(page.name));
+const heaviestInner = inner[0];
+ck('no sub-page approaches the landing page in weight',
+  heaviestInner.raw <= 60 * KB, `${heaviestInner.name} at ${kb(heaviestInner.raw)} raw`);
+const INNER_BROTLI_BUDGET = 11 * KB;
+ck('and none of them compresses badly',
+  inner.every((page) => page.br <= INNER_BROTLI_BUDGET),
+  inner.filter((page) => page.br > INNER_BROTLI_BUDGET)
+    .map((page) => `${page.name} ${kb(page.br)}`).join(' '));
+
+// --- CSS ---------------------------------------------------------------------
+// One stylesheet for the whole site, shared across every page. Today: 54.6 kB
+// raw, 8.9 kB brotli.
+const stylesheets = pick((name) => name.endsWith('.css'));
+ck('the site ships one stylesheet', stylesheets.length === 1, `${stylesheets.length}`);
+const css = await readFile(stylesheets[0]);
+ck('the stylesheet compresses under budget', brotli(css) <= 10.5 * KB, `${kb(brotli(css))} brotli`);
+ck('and stays under budget uncompressed', css.length <= 62 * KB, `${kb(css.length)} raw`);
+
+// --- JavaScript --------------------------------------------------------------
+// Astro inlines the small scripts and emits a bundle per demo. Both matter for
+// different reasons: inline bytes are paid by every visitor to that page, bundle
+// bytes only by whoever opens the demo.
+// Today: 5.6 kB (store) and 5.0 kB (bookings), raw.
+const bundles = pick((name) => name.endsWith('.js'));
+ck('the demos are the only JS bundles', bundles.length === 2,
+  bundles.map(named).join(' ') || 'none');
+for (const bundle of bundles) {
+  const buffer = await readFile(bundle);
+  const label = named(bundle).replace(/^\/_astro\//, '').replace(/\..*$/, '');
+  ck(`the ${label} bundle is under budget`, buffer.length <= 7 * KB, `${kb(buffer.length)} raw`);
+}
+
+/** Inline script bytes, excluding JSON-LD — data blocks are never executed. */
+async function inlineJs(page) {
+  const html = await readFile(join(dist, page), 'utf8');
+  let total = 0;
+  for (const [, attrs, body] of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    if (/\ssrc\s*=/i.test(attrs)) continue;
+    if (/type\s*=\s*["']application\/ld\+json/i.test(attrs)) continue;
+    total += Buffer.byteLength(body);
+  }
+  return total;
+}
+
+// Today: 14.6 kB on the landing page, 3.2 kB on a demo page.
+const homeJs = await inlineJs('index.html');
+ck('inline JS on the landing page is under budget', homeJs <= 17 * KB, `${kb(homeJs)} raw`);
+const demoJs = await inlineJs(join('demo', 'index.html'));
+ck('inline JS on a demo page is under budget', demoJs <= 5 * KB, `${kb(demoJs)} raw`);
+
+// --- Fonts -------------------------------------------------------------------
+// Four subsetted files: two families × latin and latin-ext. Today: 56.8 kB.
+// The number that matters is the total, because all four are preloaded.
+const fonts = pick((name) => name.endsWith('.woff2'));
+ck('the fonts are still subsetted, not the full families', fonts.length === 4, `${fonts.length} file(s)`);
+let fontBytes = 0;
+for (const font of fonts) fontBytes += (await readFile(font)).length;
+ck('the font payload is under budget', fontBytes <= 64 * KB, kb(fontBytes));
+
+// --- Share images ------------------------------------------------------------
+// Drawn at build time, one per page, and fetched by crawlers rather than
+// visitors — so the budget is per file, not total. Today the largest is 90.9 kB;
+// the figure moves with title length, so the budget is looser than the others.
+const shareImages = pick((name) => name.startsWith('/og/'));
+ck('every page still has a share image', shareImages.length >= pages.length - 2,
+  `${shareImages.length} image(s) for ${pages.length} page(s)`);
+let largestShare = { name: '', size: 0 };
+for (const image of shareImages) {
+  const { length } = await readFile(image);
+  if (length > largestShare.size) largestShare = { name: named(image), size: length };
+}
+ck('no share image is oversized', largestShare.size <= 120 * KB,
+  `${largestShare.name} at ${kb(largestShare.size)}`);
+
+console.log(R.join('\n'));
+if (R.some((line) => line.startsWith('FAIL'))) process.exitCode = 1;

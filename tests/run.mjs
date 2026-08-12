@@ -31,6 +31,7 @@ const SUITES = [
   'store',
   'offers',
   'share-images',
+  'weight',
   'case-study',
   'audit',
   'analytics',

@@ -118,6 +118,8 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
    Codul e pus și testat; se aprinde din `PUBLIC_CF_BEACON_TOKEN`.
 3. Afișăm prețuri concrete sau trecem pe „cere ofertă"?
 4. ~~Adăugăm o secțiune FAQ?~~ — ✅ da, șase întrebări deasupra formularului Ajută la SEO și reduce întrebările repetitive.
+5. Pragurile din suita `weight` — sunt măsurătoarea de azi + ~10-15%. Se ridică
+   deliberat când crește ceva intenționat, nu se șterg.
 
 ## 8. Backlog de îmbunătățiri propuse
 

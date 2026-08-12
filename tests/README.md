@@ -71,7 +71,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `hero` | parallax la cursor, oprit sub `prefers-reduced-motion` și pe pointer grosier | 12 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
-| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină | 98 |
+| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 116 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 38 |
 | `share-images` | fiecare pagină are propria imagine OG, la dimensiunea declarată, și există | 14 |
@@ -80,10 +80,20 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 92 |
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator și în formular | 44 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie | 4 / 30 |
+| `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
+| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 17 |
 
 **Suitele urmăresc starea build-ului.** `audit` detectează dacă e configurată o
 cheie PageSpeed și verifică varianta care chiar e livrată: 4 verificări fără
-cheie, 30 cu ea. Nu trebuie editat nimic când se schimbă starea.
+cheie, 30 cu ea. `analytics` face la fel cu tokenul Cloudflare: 16 verificări fără
+el (niciun script, nicio cerere, CSP nelărgit), 29 cu el. Nu trebuie editat nimic
+când se schimbă starea.
+
+**`weight` nu deschide browserul.** Citește direct `dist/` și comprimă cu
+`node:zlib`, deci o picare înseamnă mereu că s-au schimbat artefactele, niciodată
+că mașina era ocupată. Fiecare prag are scris lângă el cât e măsurătoarea de azi;
+când depășești unul intenționat, îl ridici și actualizezi comentariul — editarea
+aia e evidența deciziei.
 
 ## Ce nu e aici
 
