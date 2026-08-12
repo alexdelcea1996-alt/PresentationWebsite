@@ -1,0 +1,459 @@
+---
+/**
+ * A working bookings manager, playable in the page.
+ *
+ * The site sells web applications and, the quote configurator aside, only ever
+ * demonstrated a website. This is the claim made checkable: a small but complete
+ * internal tool of exactly the kind that replaces a spreadsheet and a group chat.
+ *
+ * No framework, no build-time hydration, state in localStorage. It lives on its
+ * own page rather than the landing page so its JavaScript cannot weigh on the
+ * one visitors actually land on.
+ */
+import Icon from './Icon.astro';
+import { getContent, localeTags, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).demo;
+
+// Everything the client script needs, handed over as data rather than baked
+// into the bundle — the two locales then share one script.
+const config = {
+  locale: localeTags[locale],
+  services: t.services,
+  seed: t.seed,
+  statuses: t.statuses,
+  actions: t.actions,
+  minutes: t.minutes,
+  currency: t.currency,
+  todayLabel: t.todayLabel,
+  countLabel: t.statBookings,
+};
+---
+
+<div class="js-only" data-booking-demo data-demo-config={JSON.stringify(config)}>
+  <div class="overflow-hidden rounded-2xl border border-border bg-surface-raised/60">
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border px-5 py-4">
+      <div class="flex items-center gap-1">
+        <button type="button" class="demo-icon-btn" data-demo-prev aria-label={t.prevDay}>
+          <Icon name="arrow-right" class="size-4 rotate-180" />
+        </button>
+        <p class="min-w-44 px-2 text-center">
+          <span class="block font-display text-sm font-semibold text-fg" data-demo-date></span>
+          <span class="block text-xs text-fg-subtle" data-demo-relative></span>
+        </p>
+        <button type="button" class="demo-icon-btn" data-demo-next aria-label={t.nextDay}>
+          <Icon name="arrow-right" class="size-4" />
+        </button>
+      </div>
+
+      <!-- Term before definition, as the grammar of a <dl> requires; the number
+           sits above its label by reversing the column, not by reversing the DOM. -->
+      <dl class="flex items-center gap-6 text-sm">
+        <div class="flex flex-col-reverse">
+          <dt class="text-xs text-fg-subtle">{t.statBookings}</dt>
+          <dd class="font-display text-lg font-semibold tabular-nums text-fg" data-demo-count>0</dd>
+        </div>
+        <div class="flex flex-col-reverse">
+          <dt class="text-xs text-fg-subtle">{t.statRevenue}</dt>
+          <dd class="font-display text-lg font-semibold tabular-nums text-gradient" data-demo-revenue>
+            0
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Filters -->
+    <div
+      class="flex flex-wrap items-center gap-2 border-b border-border px-5 py-3"
+      role="group"
+      aria-label={t.filterLabel}
+    >
+      {
+        (['all', 'confirmed', 'arrived', 'cancelled'] as const).map((key) => (
+          <button type="button" class="demo-chip" data-demo-filter={key} aria-pressed={key === 'all'}>
+            {t.filters[key]}
+          </button>
+        ))
+      }
+      <button type="button" class="btn btn-primary ml-auto text-xs" data-demo-add aria-expanded="false">
+        {t.addButton}
+      </button>
+    </div>
+
+    <!-- New booking -->
+    <form class="hidden border-b border-border bg-surface/60 px-5 py-5" data-demo-form novalidate>
+      <h2 class="font-display text-sm font-semibold text-fg">{t.addTitle}</h2>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <label class="demo-field">
+          <span>{t.fields.name}</span>
+          <input name="name" type="text" required autocomplete="off" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.phone}</span>
+          <input name="phone" type="tel" autocomplete="off" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.service}</span>
+          <select name="service">
+            {t.services.map((service, index) => <option value={index}>{service}</option>)}
+          </select>
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.time}</span>
+          <input name="time" type="time" required value="12:00" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.duration} ({t.minutes})</span>
+          <input name="duration" type="number" min="15" step="15" value="60" />
+        </label>
+        <label class="demo-field">
+          <span>{t.fields.price}</span>
+          <input name="price" type="number" min="0" step="10" value="100" />
+        </label>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button type="submit" class="btn btn-primary text-xs">{t.save}</button>
+        <button type="button" class="btn btn-ghost text-xs" data-demo-cancel>{t.cancelEdit}</button>
+      </div>
+    </form>
+
+    <!-- Bookings. The live region is the summary below, not the list: replacing
+         every row on each render would make a screen reader read the whole day
+         out again for a single click. -->
+    <ul class="divide-y divide-border" data-demo-list></ul>
+
+    <p class="hidden px-5 py-12 text-center text-sm text-fg-subtle" data-demo-empty>{t.empty}</p>
+    <p class="sr-only" role="status" data-demo-status></p>
+
+    <div class="flex items-center justify-between gap-4 border-t border-border px-5 py-3">
+      <p class="text-xs text-fg-subtle">{t.disclaimer}</p>
+      <button
+        type="button"
+        class="shrink-0 text-xs text-fg-muted underline underline-offset-4 transition-colors hover:text-accent-alt"
+        data-demo-reset
+      >
+        {t.reset}
+      </button>
+    </div>
+  </div>
+</div>
+
+<p class="no-js-only card text-sm text-fg-muted">{t.noJs}</p>
+
+<script>
+  import { arrowRight, check, close, minus } from '../data/icons';
+
+  type Status = 'confirmed' | 'arrived' | 'cancelled';
+
+  interface Booking {
+    id: string;
+    name: string;
+    phone: string;
+    service: number;
+    time: string;
+    duration: number;
+    price: number;
+    status: Status;
+    /** `YYYY-MM-DD`, local time. */
+    date: string;
+  }
+
+  /** A seed row carries a day offset from today instead of a fixed date. */
+  type SeedRow = Omit<Booking, 'id' | 'date'> & { day: number };
+
+  interface Config {
+    locale: string;
+    services: string[];
+    seed: SeedRow[];
+    statuses: Record<Status, string>;
+    actions: { arrived: string; cancel: string; restore: string; remove: string };
+    minutes: string;
+    currency: string;
+    todayLabel: string;
+    countLabel: string;
+  }
+
+  /** What goes into localStorage: the rows plus the day they were last anchored to. */
+  interface Stored {
+    anchor: string;
+    bookings: Booking[];
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-booking-demo]');
+
+  if (root) {
+    const config = JSON.parse(root.dataset.demoConfig!) as Config;
+
+    const STORE = 'demo-bookings-v1';
+    const DAY_MS = 86_400_000;
+    const dayNames = new Intl.DateTimeFormat(config.locale, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+    const numbers = new Intl.NumberFormat(config.locale, { maximumFractionDigits: 0 });
+    const money = (value: number) => `${numbers.format(value)} ${config.currency}`;
+
+    /** `YYYY-MM-DD` in local time; toISOString would shift the day east of UTC. */
+    const key = (date: Date) =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+    const fromKey = (value: string) => {
+      const [year, month, day] = value.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    };
+
+    const shiftKey = (value: string, days: number) => {
+      const date = fromKey(value);
+      date.setDate(date.getDate() + days);
+      return key(date);
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const seeded = (): Booking[] =>
+      config.seed.map(({ day, ...row }, index) => ({
+        ...row,
+        id: `seed-${index}`,
+        date: shiftKey(key(today), day),
+      }));
+
+    /**
+     * Restores the saved board, rolled forward by however many days have passed.
+     * Without that, someone who played with the demo last week would come back
+     * to an empty day and conclude it is broken — so the whole board travels
+     * with them, keeping every booking where they left it relative to today.
+     */
+    function load(): Booking[] {
+      let raw: string | null = null;
+      try {
+        raw = localStorage.getItem(STORE);
+      } catch {
+        return seeded(); // Private mode. The demo still works, just not across visits.
+      }
+      if (!raw) return seeded();
+
+      try {
+        const parsed = JSON.parse(raw) as Stored;
+        if (!parsed || typeof parsed.anchor !== 'string' || !Array.isArray(parsed.bookings)) {
+          return seeded();
+        }
+        const rows = parsed.bookings.filter(
+          (row): row is Booking =>
+            Boolean(row) && typeof row.id === 'string' && typeof row.date === 'string',
+        );
+        // Round: a daylight-saving change makes the raw division 6.96 or 7.04.
+        const shift = Math.round((today.getTime() - fromKey(parsed.anchor).getTime()) / DAY_MS);
+        if (!Number.isFinite(shift) || shift === 0) return rows;
+        return rows.map((row) => ({ ...row, date: shiftKey(row.date, shift) }));
+      } catch {
+        return seeded();
+      }
+    }
+
+    let bookings = load();
+    let viewing = new Date(today);
+    let filter: 'all' | Status = 'all';
+    let added = 0;
+
+    const el = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
+    const list = el<HTMLUListElement>('[data-demo-list]');
+    const emptyNote = el<HTMLElement>('[data-demo-empty]');
+    const status = el<HTMLElement>('[data-demo-status]');
+    const form = el<HTMLFormElement>('[data-demo-form]');
+    const addButton = el<HTMLButtonElement>('[data-demo-add]');
+
+    const save = () => {
+      try {
+        localStorage.setItem(STORE, JSON.stringify({ anchor: key(today), bookings } as Stored));
+      } catch {
+        /* Storage full or blocked; the session still behaves. */
+      }
+    };
+
+    const relativeLabel = () => {
+      const days = Math.round((viewing.getTime() - today.getTime()) / DAY_MS);
+      if (days === 0) return config.todayLabel;
+      return days > 0 ? `+${days}` : String(days);
+    };
+
+    function render() {
+      const day = key(viewing);
+      const onDay = bookings
+        .filter((booking) => booking.date === day)
+        .sort((a, b) => a.time.localeCompare(b.time));
+      const shown = filter === 'all' ? onDay : onDay.filter((booking) => booking.status === filter);
+      const dayLabel = dayNames.format(viewing);
+
+      el('[data-demo-date]').textContent = dayLabel;
+      el('[data-demo-relative]').textContent = relativeLabel();
+
+      // Cancelled bookings are not takings.
+      const live = onDay.filter((booking) => booking.status !== 'cancelled');
+      el('[data-demo-count]').textContent = String(live.length);
+      el('[data-demo-revenue]').textContent = money(
+        live.reduce((sum, booking) => sum + booking.price, 0),
+      );
+
+      list.replaceChildren(...shown.map(row));
+      emptyNote.classList.toggle('hidden', shown.length > 0);
+      status.textContent = `${shown.length} ${config.countLabel} · ${dayLabel}`;
+    }
+
+    function row(booking: Booking) {
+      const item = document.createElement('li');
+      item.className = 'flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4';
+      item.dataset.status = booking.status;
+
+      const time = document.createElement('p');
+      time.className = 'w-14 shrink-0 font-display text-sm font-semibold tabular-nums text-fg';
+      time.textContent = booking.time;
+
+      const who = document.createElement('div');
+      who.className = 'min-w-40 grow';
+      const name = document.createElement('p');
+      name.className = 'text-sm font-medium text-fg';
+      name.textContent = booking.name;
+      const detail = document.createElement('p');
+      detail.className = 'text-xs text-fg-subtle';
+      detail.textContent =
+        `${config.services[booking.service] ?? ''} · ${booking.duration} ${config.minutes}` +
+        (booking.phone ? ` · ${booking.phone}` : '');
+      who.append(name, detail);
+
+      const price = document.createElement('p');
+      price.className = 'text-sm tabular-nums text-fg-muted';
+      price.textContent = money(booking.price);
+
+      const badge = document.createElement('span');
+      badge.className = 'demo-badge';
+      badge.dataset.status = booking.status;
+      badge.textContent = config.statuses[booking.status];
+
+      const actions = document.createElement('div');
+      actions.className = 'flex items-center gap-1';
+
+      if (booking.status === 'cancelled') {
+        actions.append(action(config.actions.restore, arrowRight, () => setStatus(booking.id, 'confirmed')));
+      } else {
+        if (booking.status !== 'arrived') {
+          actions.append(action(config.actions.arrived, check, () => setStatus(booking.id, 'arrived')));
+        }
+        actions.append(action(config.actions.cancel, close, () => setStatus(booking.id, 'cancelled')));
+      }
+      actions.append(action(config.actions.remove, minus, () => remove(booking.id)));
+
+      item.append(time, who, price, badge, actions);
+      return item;
+    }
+
+    /** Icon-only button with a real accessible name — a tooltip is not one. */
+    function action(label: string, icon: string, onClick: () => void) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'demo-icon-btn';
+      button.title = label;
+      button.setAttribute('aria-label', label);
+      button.innerHTML = `<svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg>`;
+      button.addEventListener('click', onClick);
+      return button;
+    }
+
+    function setStatus(id: string, status: Status) {
+      const booking = bookings.find((entry) => entry.id === id);
+      if (!booking) return;
+      booking.status = status;
+      save();
+      render();
+    }
+
+    function remove(id: string) {
+      bookings = bookings.filter((entry) => entry.id !== id);
+      save();
+      render();
+    }
+
+    /** Closing returns focus to the button that opened the form. */
+    function closeForm() {
+      form.reset();
+      form.classList.add('hidden');
+      addButton.setAttribute('aria-expanded', 'false');
+      addButton.focus();
+    }
+
+    // --- Wiring ---------------------------------------------------------------
+    el('[data-demo-prev]').addEventListener('click', () => {
+      viewing.setDate(viewing.getDate() - 1);
+      render();
+    });
+    el('[data-demo-next]').addEventListener('click', () => {
+      viewing.setDate(viewing.getDate() + 1);
+      render();
+    });
+
+    for (const chip of root.querySelectorAll<HTMLButtonElement>('[data-demo-filter]')) {
+      chip.addEventListener('click', () => {
+        filter = chip.dataset.demoFilter as typeof filter;
+        for (const other of root.querySelectorAll('[data-demo-filter]')) {
+          other.setAttribute('aria-pressed', String(other === chip));
+        }
+        render();
+      });
+    }
+
+    addButton.addEventListener('click', () => {
+      form.classList.remove('hidden');
+      addButton.setAttribute('aria-expanded', 'true');
+      form.querySelector<HTMLInputElement>('[name="name"]')!.focus();
+    });
+
+    el('[data-demo-cancel]').addEventListener('click', closeForm);
+
+    form.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeForm();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const data = new FormData(form);
+      bookings.push({
+        // Two bookings saved in the same millisecond would otherwise share an id.
+        id: `b-${Date.now()}-${added++}`,
+        name: String(data.get('name')).trim(),
+        phone: String(data.get('phone') ?? '').trim(),
+        service: Number(data.get('service')),
+        time: String(data.get('time')),
+        duration: Number(data.get('duration')),
+        price: Number(data.get('price')),
+        status: 'confirmed',
+        date: key(viewing),
+      });
+
+      save();
+      closeForm();
+      render();
+    });
+
+    el('[data-demo-reset]').addEventListener('click', () => {
+      bookings = seeded();
+      save();
+      viewing = new Date(today);
+      filter = 'all';
+      for (const chip of root.querySelectorAll('[data-demo-filter]')) {
+        chip.setAttribute('aria-pressed', String(chip.getAttribute('data-demo-filter') === 'all'));
+      }
+      render();
+    });
+
+    render();
+  }
+</script>

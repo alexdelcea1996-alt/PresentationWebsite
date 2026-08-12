@@ -9,6 +9,7 @@ for (const [label, path] of [
   ['blog index', '/blog/'],
   ['post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
   ['case study', '/studii-de-caz/acest-site/'],
+  ['demo', '/demo/'],
 ]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
   await page.addInitScript({ path: axePath });

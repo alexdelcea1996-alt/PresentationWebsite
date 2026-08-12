@@ -69,10 +69,12 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **297 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
-  dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
-  contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (53), garanții (16), imagini de partajare (14), studiu de caz (19), audit (4 fără cheie / 30 cu ea)
+- **374 de verificări** rulate cu `npm test`, din repo: accesibilitate (18 pagini
+  dark + 6 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
+  contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
+  programare (18), tranziții (15), completitudine (53), garanții (16), imagini de
+  partajare (14), studiu de caz (19), demo-ul de aplicație (73), audit (4 fără
+  cheie / 30 cu ea)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -160,7 +162,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
    trei probleme, CTA cu adresa precompletata. *Inactiv pana Alex pune cheia;
    testat complet cu API-ul simulat.*
 4. ✅ Tranziții între pagini, CSS nativ, zero JavaScript
-5. ✅ Imagine OG per pagină, generată în build (19 pagini, câte una fiecare)
+5. ✅ Imagine OG per pagină, generată în build (21 de pagini, câte una fiecare)
 6. 🟡 Studiul de caz vizual — capturi reale in rame de device si cadrane
    de scor animate, fara JavaScript. *Sliderul inainte/dupa asteapta un proiect
    care chiar are un „inainte”; acest site nu are, iar unul inventat
@@ -168,10 +170,13 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 7. ✅ Secțiune de garanții în locul casetelor goale — două coloane, ce garantez
    și ce nu; fiecare rând e preluat din text deja publicat pe site, nicio
    promisiune nouă
-8. Demo funcțional de aplicație web
+8. ✅ Demo funcțional de aplicație web — o aplicație de programări jucabilă la
+   `/demo/`, cu stare în `localStorage`, pe pagina ei ca să nu încarce prima
+   pagină; date inventate, spus explicit în pagină
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
-   (56 de întrebări), `hreflang` reparat pe 14 din 18 URL-uri din sitemap
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 297 de verificări
+   (56 de întrebări), `hreflang` reparat pe cele 14 URL-uri din sitemap care nu-l
+   aveau
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 374 de verificări
 
 ## 9. Idei pentru v2
 

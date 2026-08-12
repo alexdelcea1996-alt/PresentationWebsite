@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 297 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 374 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -511,6 +511,56 @@ hash in CSP. Exista si un test care verifica asta pe tot site-ul.
 
 (Scrierile din JavaScript prin `element.style.x = ...` sunt in regula - CSP nu le
 acopera. Doar atributele din markup sunt refuzate.)
+
+## Demo-ul de aplicație (`/demo/`, `/en/demo/`)
+
+Site-ul vinde aplicații web, dar până acum demonstra doar un site. Pagina asta
+e afirmația făcută verificabilă: **o aplicație de programări care chiar
+funcționează** — adaugi, marchezi „a venit", anulezi, reactivezi, ștergi, treci
+dintr-o zi în alta, filtrezi după stare, iar încasările se recalculează.
+
+**Datele sunt inventate și nu pleacă nicăieri.** Se salvează în `localStorage`,
+sub cheia `demo-bookings-v1`, în browserul vizitatorului. Nu există server, nu
+există cont, nu văd nimic. Scrie asta și în pagină, sub aplicație.
+
+**Stă pe pagina ei, nu pe prima pagină.** E singura bucată de JavaScript din
+site care nu e inline: 4,4 kB (1,6 kB prin brotli), servit din `/_astro/` cu
+cache permanent. Pusă în hero, ar fi urcat bugetul primei pagini cu ~40% pentru
+ceva ce majoritatea vizitatorilor nu deschid. Așa, prima pagină rămâne **exact
+la aceeași greutate ca înainte** — suita `demo` verifică la fiecare rulare că
+bundle-ul nu s-a strecurat acolo.
+
+### Ce se schimbă și unde
+
+Totul stă în `src/i18n/ro.ts` și `en.ts`, în blocul `demo`:
+
+- `services` — lista de servicii din dropdown (`['Tuns', 'Vopsit', …]`);
+- `seed` — programările din care pleacă demo-ul. `day` e **decalajul în zile
+  față de azi**, nu o dată fixă: `0` = azi, `1` = mâine. Indicele `service`
+  trimite în lista de mai sus;
+- `currency` — se lipește după fiecare sumă (`lei` / `RON`).
+
+Dacă schimbi `seed`, actualizează și cifrele din `tests/suites/demo.mjs`
+(`TODAY_LIVE`, `TODAY_TAKINGS`) — suita verifică exact sumele, tocmai ca o
+greșeală de calcul să nu treacă neobservată.
+
+### Două lucruri care nu se văd
+
+**Tabla se mută odată cu ziua.** Cine se joacă cu demo-ul azi și revine peste o
+săptămână ar găsi altfel o zi goală și ar crede că s-a stricat. Starea salvată
+ține minte ziua la care a fost ancorată, iar la încărcare toate programările
+sunt împinse înainte cu diferența. Programările tale rămân unde le-ai lăsat,
+raportat la „azi".
+
+**Un rând anulat nu se stinge cu `opacity`.** Prima variantă îl estompa la 0,55
+— arăta bine și pica accesibilitatea: pe tema luminoasă numele clientului
+ajungea la 3,9:1, adică exact rândul pe care ai nevoie să-l citești devenea cel
+mai greu de citit. Acum e tăiat cu linie și coborât cu o treaptă de culoare,
+fără transparență.
+
+Iconurile din butoanele generate de script vin din `src/data/icons.ts`, aceeași
+sursă pe care o folosește `Icon.astro` — altfel demo-ul ar fi rămas cu un desen
+vechi la prima redesenare a setului.
 
 ## Imaginile de partajare (Open Graph)
 

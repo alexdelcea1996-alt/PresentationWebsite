@@ -120,6 +120,98 @@
     border-radius: 4px;
   }
 
+  /* --- The bookings demo ------------------------------------------------- */
+  .demo-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+    color: var(--color-fg-muted);
+    transition:
+      color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft);
+  }
+
+  .demo-icon-btn:hover {
+    color: var(--color-fg);
+    border-color: var(--color-border-strong);
+  }
+
+  .demo-chip {
+    border-radius: 9999px;
+    border: 1px solid var(--color-border);
+    padding: 0.3rem 0.85rem;
+    font-size: 0.75rem;
+    color: var(--color-fg-muted);
+    transition:
+      color 0.2s var(--ease-out-soft),
+      border-color 0.2s var(--ease-out-soft),
+      background-color 0.2s var(--ease-out-soft);
+  }
+
+  .demo-chip[aria-pressed='true'] {
+    border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+    background-color: color-mix(in oklab, var(--color-accent) 12%, transparent);
+    color: var(--color-fg);
+  }
+
+  .demo-field {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-fg-subtle);
+  }
+
+  .demo-field input,
+  .demo-field select {
+    margin-top: 0.35rem;
+    width: 100%;
+    border-radius: 0.6rem;
+    border: 1px solid var(--color-border);
+    background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+    color: var(--color-fg);
+  }
+
+  .demo-field input:focus,
+  .demo-field select:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .demo-badge {
+    border-radius: 9999px;
+    border: 1px solid var(--color-border);
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    color: var(--color-fg-muted);
+  }
+
+  .demo-badge[data-status='arrived'] {
+    border-color: color-mix(in oklab, var(--color-accent-alt) 45%, transparent);
+    color: var(--color-accent-alt);
+  }
+
+  .demo-badge[data-status='cancelled'] {
+    color: var(--color-fg-subtle);
+  }
+
+  /* A cancelled row should read as struck off without disappearing. Dimming the
+     whole row with opacity was the obvious move and the wrong one: at 0.55 the
+     client's name falls to 3.9:1 on the light theme, and a cancellation is
+     exactly the row someone needs to read. Soften the strong text by one step
+     instead, and leave the already-quiet detail line where it is. */
+  [data-status='cancelled'] > p,
+  [data-status='cancelled'] > div > p {
+    text-decoration: line-through;
+  }
+
+  [data-status='cancelled'] .text-fg {
+    color: var(--color-fg-muted);
+  }
+
   /* Lighthouse-style score dials. The arc sweeps in on `.is-visible`, which the
      reveal observer already sets — so the animation costs no JavaScript at all.
      Without scripting the arc is drawn full straight away. */

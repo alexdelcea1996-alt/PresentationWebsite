@@ -26,6 +26,7 @@ const SUITES = [
   'transitions',
   'completeness',
   'guarantees',
+  'demo',
   'share-images',
   'case-study',
   'audit',

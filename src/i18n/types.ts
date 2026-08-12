@@ -76,6 +76,7 @@ export interface Content {
     portfolio: string;
     pricing: string;
     estimate: string;
+    demo: string;
     blog: string;
     contact: string;
     cta: string;
@@ -317,6 +318,58 @@ export interface Content {
     noTitle: string;
     yes: Promise_[];
     no: Promise_[];
+  };
+  /**
+   * The playable demo. The site sells web applications but, the configurator
+   * aside, only demonstrates a website — this is the thing that shows the claim
+   * rather than repeating it.
+   */
+  demo: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    lead: string;
+    disclaimer: string;
+    noJs: string;
+    /** Day navigation. */
+    prevDay: string;
+    nextDay: string;
+    todayLabel: string;
+    statBookings: string;
+    statRevenue: string;
+    filterLabel: string;
+    filters: { all: string; confirmed: string; arrived: string; cancelled: string };
+    statuses: { confirmed: string; arrived: string; cancelled: string };
+    addButton: string;
+    addTitle: string;
+    fields: { name: string; phone: string; service: string; time: string; duration: string; price: string };
+    minutes: string;
+    /** Suffix on every money figure; both locales quote in RON. */
+    currency: string;
+    save: string;
+    cancelEdit: string;
+    actions: { arrived: string; cancel: string; restore: string; remove: string };
+    empty: string;
+    reset: string;
+    /** Names offered in the service dropdown; also used by the seed rows. */
+    services: string[];
+    /** Fictional bookings the demo starts from. `day` is an offset from today. */
+    seed: {
+      name: string;
+      phone: string;
+      service: number;
+      time: string;
+      duration: number;
+      price: number;
+      status: 'confirmed' | 'arrived' | 'cancelled';
+      day: number;
+    }[];
+    whyTitle: string;
+    whyBody: string;
+    builtTitle: string;
+    builtBody: string;
+    cta: string;
   };
   notFound: {
     metaTitle: string;

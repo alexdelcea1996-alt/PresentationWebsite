@@ -20,6 +20,8 @@ for (const [label, path] of [
   ['EN blog index', '/en/blog/'],
   ['RO post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
   ['EN post', '/en/blog/why-your-site-is-slow/'],
+  ['RO demo', '/demo/'],
+  ['EN demo', '/en/demo/'],
 ]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   // Injected via addInitScript: the site's CSP blocks inline <script> tags, so
