@@ -213,6 +213,30 @@ export interface Content {
     bullets: string[];
     cta: string;
     promise: string;
+    /**
+     * The instant check, shown only when a PageSpeed key is configured. Without
+     * one the band keeps the plain call to action above.
+     */
+    tool: {
+      /** Replaces `body` above when the tool is live: that one promises 48 hours. */
+      body: string;
+      label: string;
+      placeholder: string;
+      submit: string;
+      running: string;
+      runningNote: string;
+      resultTitle: string;
+      /** Names of the four Lighthouse categories, in order. */
+      categories: { performance: string; accessibility: string; bestPractices: string; seo: string };
+      issuesTitle: string;
+      noIssues: string;
+      source: string;
+      ctaTitle: string;
+      cta: string;
+      errorUrl: string;
+      errorFailed: string;
+      errorBusy: string;
+    };
   };
   contact: {
     eyebrow: string;

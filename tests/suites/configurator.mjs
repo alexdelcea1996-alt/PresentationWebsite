@@ -108,14 +108,10 @@ const anyTypeChecked = await cfg.evaluate((root) =>
 );
 check('restart clears every選 selection', !anyTypeChecked);
 
-// --- Audit lead magnet ---
-await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-await page.locator('[data-audit-cta]').click();
-await page.waitForTimeout(900);
-const auditType = await page.locator('#field-type').inputValue();
-check('audit CTA preselects the audit option', auditType.includes('Audit'), auditType);
-const focused = await page.evaluate(() => document.activeElement?.id);
-check('audit CTA focuses the website field', focused === 'field-website', String(focused));
+// The audit band's hand-off to the contact form used to be checked here. It
+// moved to the `audit` suite, which knows whether the instant check is switched
+// on: with a PageSpeed key configured there is no standing CTA to click, because
+// the tool itself is the call to action until it has produced a result.
 
 // --- Comparison section is present in both layouts ---
 const rowsDesktop = await page.locator('#comparison table tbody tr').count();

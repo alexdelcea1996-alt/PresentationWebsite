@@ -1,6 +1,7 @@
 ---
 import Icon from '../Icon.astro';
-import { getContent, sectionIds, type Locale } from '../../i18n';
+import { getContent, localeTags, sectionIds, type Locale } from '../../i18n';
+import { site } from '../../data/site';
 
 interface Props {
   locale: Locale;
@@ -8,9 +9,35 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale).audit;
+const tool = t.tool;
+
+/**
+ * The instant check only exists when a key does. Without one the PageSpeed API
+ * answers 429 straight away, so the alternative to hiding it is a button that
+ * always fails — see `pageSpeedKey` in `src/data/site.ts`.
+ */
+const live = Boolean(site.pageSpeedKey);
+
+const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
 ---
 
-<section id={sectionIds.audit} class="py-10 sm:py-14">
+<section
+  id={sectionIds.audit}
+  class="py-10 sm:py-14"
+  data-psi-endpoint={live ? PSI_ENDPOINT : undefined}
+  data-psi-key={live ? site.pageSpeedKey : undefined}
+  data-psi-locale={live ? localeTags[locale] : undefined}
+  data-audit-copy={live
+    ? JSON.stringify({
+        heading: tool.resultTitle,
+        categories: tool.categories,
+        noIssues: tool.noIssues,
+        errorUrl: tool.errorUrl,
+        errorFailed: tool.errorFailed,
+        errorBusy: tool.errorBusy,
+      })
+    : undefined}
+>
   <div class="container-page">
     <div
       class="relative overflow-hidden rounded-3xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
@@ -22,7 +49,11 @@ const t = getContent(locale).audit;
         <div>
           <p class="eyebrow">{t.eyebrow}</p>
           <h2 class="mt-4 text-2xl font-semibold sm:text-3xl">{t.title}</h2>
-          <p class="mt-4 max-w-xl text-base leading-relaxed text-fg-muted">{t.body}</p>
+          {/* The static body promises a written audit in 48 hours; the live tool
+              answers in seconds, so it needs its own sentence. */}
+          <p class="mt-4 max-w-xl text-base leading-relaxed text-fg-muted">
+            {live ? tool.body : t.body}
+          </p>
 
           <ul class="mt-6 space-y-2.5">
             {
@@ -36,26 +67,104 @@ const t = getContent(locale).audit;
           </ul>
         </div>
 
-        <div class="lg:justify-self-end">
-          <a
-            href={`#${sectionIds.contact}`}
-            class="btn btn-primary w-full lg:w-auto"
-            data-audit-cta
-          >
-            {t.cta}
-            <Icon name="arrow-right" class="size-4" />
-          </a>
-          <p class="mt-4 max-w-xs text-xs leading-relaxed text-fg-subtle">{t.promise}</p>
+        <div class="lg:justify-self-end lg:w-72">
+          {
+            live ? (
+              <form data-audit-form novalidate>
+                <label class="block text-sm font-medium text-fg" for="audit-url">
+                  {tool.label}
+                </label>
+                <input
+                  id="audit-url"
+                  name="url"
+                  type="text"
+                  inputmode="url"
+                  autocomplete="url"
+                  required
+                  placeholder={tool.placeholder}
+                  class="mt-2 w-full rounded-xl border border-border bg-surface/70 px-4 py-3 text-sm text-fg placeholder:text-fg-subtle transition-colors focus:border-accent focus:outline-none"
+                />
+                <button type="submit" class="btn btn-primary mt-3 w-full" data-audit-submit>
+                  <span data-audit-idle>{tool.submit}</span>
+                  <span class="hidden" data-audit-busy>{tool.running}</span>
+                  <Icon name="arrow-right" class="size-4" />
+                </button>
+                <p
+                  class="mt-3 hidden text-xs leading-relaxed text-red-300"
+                  role="alert"
+                  data-audit-error
+                />
+                <p class="mt-3 text-xs leading-relaxed text-fg-subtle">{t.promise}</p>
+              </form>
+            ) : (
+              <>
+                <a href={`#${sectionIds.contact}`} class="btn btn-primary w-full" data-audit-cta>
+                  {t.cta}
+                  <Icon name="arrow-right" class="size-4" />
+                </a>
+                <p class="mt-4 text-xs leading-relaxed text-fg-subtle">{t.promise}</p>
+              </>
+            )
+          }
         </div>
       </div>
+
+      {
+        live && (
+          <div
+            class="mt-10 hidden border-t border-border pt-8"
+            data-audit-result
+            aria-live="polite"
+          >
+            {/* Filled in from the API response. The dials reuse the case-study
+                markup, but their arcs are set through CSSOM rather than a
+                <style> block, since the scores are not known until runtime. */}
+            <p class="font-display text-lg font-semibold text-fg" data-audit-heading />
+            <p class="mt-1 truncate text-sm text-fg-subtle" data-audit-target />
+
+            <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4" data-audit-scores />
+
+            <div class="mt-8 hidden" data-audit-issues-wrap>
+              <h3 class="font-display text-sm font-semibold text-fg">{tool.issuesTitle}</h3>
+              <ul class="mt-4 space-y-3" data-audit-issues />
+            </div>
+
+            <p class="mt-6 text-xs leading-relaxed text-fg-subtle">{tool.source}</p>
+
+            <div class="mt-6 flex flex-wrap items-center gap-4 border-t border-border pt-6">
+              <p class="text-sm font-medium text-fg">{tool.ctaTitle}</p>
+              <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm" data-audit-cta>
+                {tool.cta}
+                <Icon name="arrow-right" class="size-4" />
+              </a>
+            </div>
+          </div>
+        )
+      }
     </div>
   </div>
+
+  {
+    live && (
+      <template data-audit-gauge>
+        <div class="score-gauge flex flex-col items-center text-center">
+          <div class="relative">
+            <svg viewBox="0 0 120 120" class="size-20 -rotate-90" aria-hidden="true">
+              <circle cx="60" cy="60" r="52" class="gauge-track" />
+              <circle cx="60" cy="60" r="52" pathLength="100" class="gauge-arc" />
+            </svg>
+            <span class="absolute inset-0 grid place-items-center font-display text-lg font-semibold tabular-nums text-fg" />
+          </div>
+          <p class="mt-2 text-xs font-medium text-fg-muted" />
+        </div>
+      </template>
+    )
+  }
 </section>
 
 <script>
-  // Jumping to the form from here means one thing: the visitor wants the audit.
-  // Preselect it and put the cursor where they need to type.
-  document.querySelector<HTMLAnchorElement>('[data-audit-cta]')?.addEventListener('click', () => {
+  /** Carry an address over to the contact form and select the audit option. */
+  const handOverToForm = (url?: string) => {
     const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');
     const auditOption = typeSelect
       ? Array.from(typeSelect.options).find((option) => option.dataset.id === 'audit')
@@ -66,8 +175,169 @@ const t = getContent(locale).audit;
       typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
+    const website = document.querySelector<HTMLInputElement>('#field-website');
+    if (website && url) website.value = url;
+
     window.setTimeout(() => {
-      document.querySelector<HTMLInputElement>('#field-website')?.focus({ preventScroll: true });
+      // Focus the first thing still empty, not always the same box.
+      const target = url
+        ? document.querySelector<HTMLInputElement>('#field-name')
+        : website;
+      target?.focus({ preventScroll: true });
     }, 600);
-  });
+  };
+
+  // Jumping to the form from here means one thing: the visitor wants the audit.
+  for (const cta of document.querySelectorAll<HTMLAnchorElement>('[data-audit-cta]')) {
+    cta.addEventListener('click', () => handOverToForm(cta.dataset.url));
+  }
+
+  // --- The instant check -----------------------------------------------------
+  const section = document.querySelector<HTMLElement>('[data-psi-endpoint]');
+  const form = section?.querySelector<HTMLFormElement>('[data-audit-form]');
+
+  if (section && form) {
+    const copy = JSON.parse(section.dataset.auditCopy!) as {
+      heading: string;
+      categories: Record<string, string>;
+      noIssues: string;
+      errorUrl: string;
+      errorFailed: string;
+      errorBusy: string;
+    };
+
+    const input = form.querySelector<HTMLInputElement>('#audit-url')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-audit-submit]')!;
+    const idle = form.querySelector<HTMLElement>('[data-audit-idle]')!;
+    const busy = form.querySelector<HTMLElement>('[data-audit-busy]')!;
+    const errorBox = form.querySelector<HTMLElement>('[data-audit-error]')!;
+
+    const result = section.querySelector<HTMLElement>('[data-audit-result]')!;
+    const heading = result.querySelector<HTMLElement>('[data-audit-heading]')!;
+    const target = result.querySelector<HTMLElement>('[data-audit-target]')!;
+    const scores = result.querySelector<HTMLElement>('[data-audit-scores]')!;
+    const issuesWrap = result.querySelector<HTMLElement>('[data-audit-issues-wrap]')!;
+    const issues = result.querySelector<HTMLElement>('[data-audit-issues]')!;
+    const resultCta = result.querySelector<HTMLAnchorElement>('[data-audit-cta]')!;
+    const gaugeTemplate = section.querySelector<HTMLTemplateElement>('[data-audit-gauge]')!;
+
+    /** People type "example.com"; the API wants a URL. */
+    const normalise = (raw: string) => {
+      const trimmed = raw.trim();
+      if (!trimmed) return null;
+      const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      try {
+        const url = new URL(withScheme);
+        // A hostname with no dot is a typo, not a site.
+        return url.hostname.includes('.') ? url : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const setBusy = (state: boolean) => {
+      submit.disabled = state;
+      idle.classList.toggle('hidden', state);
+      busy.classList.toggle('hidden', !state);
+    };
+
+    const fail = (message: string) => {
+      errorBox.textContent = message;
+      errorBox.classList.remove('hidden');
+    };
+
+    const drawGauge = (score: number, label: string) => {
+      const node = gaugeTemplate.content.cloneNode(true) as DocumentFragment;
+      const gauge = node.querySelector<HTMLElement>('.score-gauge')!;
+      gauge.dataset.score = String(score);
+      gauge.dataset.band = score >= 90 ? 'good' : score >= 50 ? 'ok' : 'poor';
+      node.querySelector('span')!.textContent = String(score);
+      node.querySelector('p')!.textContent = label;
+
+      // Set through CSSOM, not a style attribute: the CSP drops attributes, and
+      // these values are only known once Google has answered.
+      const arc = node.querySelector<SVGCircleElement>('.gauge-arc')!;
+      arc.style.strokeDashoffset = String(100 - score);
+      return node;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      errorBox.classList.add('hidden');
+
+      const url = normalise(input.value);
+      if (!url) return fail(copy.errorUrl);
+
+      setBusy(true);
+      result.classList.add('hidden');
+
+      const endpoint = new URL(section.dataset.psiEndpoint!);
+      endpoint.searchParams.set('url', url.href);
+      endpoint.searchParams.set('strategy', 'mobile');
+      endpoint.searchParams.set('locale', section.dataset.psiLocale!.split('-')[0]!);
+      endpoint.searchParams.set('key', section.dataset.psiKey!);
+      for (const category of ['performance', 'accessibility', 'best-practices', 'seo']) {
+        endpoint.searchParams.append('category', category);
+      }
+
+      try {
+        const response = await fetch(endpoint);
+        if (response.status === 429) throw new Error('busy');
+        if (!response.ok) throw new Error('failed');
+
+        const data = await response.json();
+        const lighthouse = data.lighthouseResult;
+        if (!lighthouse) throw new Error('failed');
+
+        const categories: [string, string][] = [
+          ['performance', copy.categories.performance],
+          ['accessibility', copy.categories.accessibility],
+          ['best-practices', copy.categories.bestPractices],
+          ['seo', copy.categories.seo],
+        ];
+
+        scores.replaceChildren();
+        for (const [key, label] of categories) {
+          const raw = lighthouse.categories?.[key]?.score;
+          if (typeof raw !== 'number') continue;
+          scores.append(drawGauge(Math.round(raw * 100), label));
+        }
+
+        // Lighthouse marks the fixable, time-costing findings as "opportunity".
+        const opportunities = Object.values(lighthouse.audits ?? {})
+          .filter((audit: any) => audit?.details?.type === 'opportunity' && audit.numericValue > 0)
+          .sort((a: any, b: any) => b.numericValue - a.numericValue)
+          .slice(0, 3) as any[];
+
+        issues.replaceChildren();
+        for (const audit of opportunities) {
+          const item = document.createElement('li');
+          item.className = 'flex items-start gap-3 text-sm';
+          const bullet = document.createElement('span');
+          bullet.className = 'mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-alt';
+          const text = document.createElement('span');
+          text.className = 'text-fg-muted';
+          const title = document.createElement('strong');
+          title.className = 'font-medium text-fg';
+          title.textContent = audit.title;
+          text.append(title);
+          if (audit.displayValue) text.append(` — ${audit.displayValue}`);
+          item.append(bullet, text);
+          issues.append(item);
+        }
+
+        issuesWrap.classList.toggle('hidden', opportunities.length === 0);
+        heading.textContent = opportunities.length === 0 ? copy.noIssues : copy.heading;
+        target.textContent = url.hostname;
+        resultCta.dataset.url = url.href;
+
+        result.classList.remove('hidden');
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } catch (error) {
+        fail((error as Error).message === 'busy' ? copy.errorBusy : copy.errorFailed);
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
 </script>

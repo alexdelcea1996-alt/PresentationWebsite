@@ -12,6 +12,8 @@ interface Site {
   locality: string;
   social: { github: string; linkedin: string };
   web3formsKey: string;
+  /** Google PageSpeed API key. Empty turns the instant audit back into a form. */
+  pageSpeedKey: string;
 }
 
 /**
@@ -61,6 +63,19 @@ export const site: Site = {
    * degrades gracefully into a pre-filled mailto: link.
    */
   web3formsKey: import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '',
+
+  /**
+   * Google PageSpeed Insights key, for the instant audit in the audit band.
+   * Set PUBLIC_PAGESPEED_KEY in the build environment.
+   *
+   * The call happens in the visitor's browser, so this key is visible in the
+   * page — that is how the API is meant to be used. Restrict it to your own
+   * domain (HTTP referrer restriction) in Google Cloud Console and it is
+   * useless to anyone else. Without a key the API answers 429 almost
+   * immediately, which is why the tool refuses to render rather than offering
+   * a button that fails.
+   */
+  pageSpeedKey: import.meta.env.PUBLIC_PAGESPEED_KEY ?? '',
 };
 
 /** Both schemes reject spaces and punctuation, so the display format above is

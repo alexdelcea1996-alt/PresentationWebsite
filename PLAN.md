@@ -69,10 +69,10 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **98–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **295 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
+- **297 de verificări** rulate cu `npm test`, din repo: accesibilitate (16 pagini
   dark + 5 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (19), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (53), garanții (16), imagini de partajare (14), studiu de caz (19)
+  programare (18), tranziții (15), completitudine (53), garanții (16), imagini de partajare (14), studiu de caz (19), audit (4 fără cheie / 30 cu ea)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -92,7 +92,10 @@ Pași care necesită decizii sau conținut de la Alex:
    Programarea Cal.com e activă și verificată în producție:
    `cal.com/delcea-alexandru-arqdvl/30min` — calendarul se afișează corect în
    modal.
-8. **Cumpără domeniul**, leagă-l în Cloudflare și setează `SITE_URL`.
+8. **Pune cheia Google PageSpeed** (`PUBLIC_PAGESPEED_KEY`) ca să pornești
+   auditul instant din banda de audit. Instrucțiuni în README. Fără ea banda
+   rămâne butonul de dinainte, deci nu se strică nimic dacă amâni.
+9. **Cumpără domeniul**, leagă-l în Cloudflare și setează `SITE_URL`.
 
 ### Traseul până la Cloudflare
 
@@ -153,7 +156,9 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
    *Mai lipsesc: fotografia lui Alex și proiectele clienților.*
 2. ✅ Bandă care se măsoară singură — LCP, greutate și JS, măsurate în browserul
    vizitatorului, sub afirmația din hero
-3. Auditul gratuit devine instrument real (Google PageSpeed API din browser)
+3. ✅ Auditul gratuit devine instrument real — scoruri Lighthouse pe loc, primele
+   trei probleme, CTA cu adresa precompletata. *Inactiv pana Alex pune cheia;
+   testat complet cu API-ul simulat.*
 4. ✅ Tranziții între pagini, CSS nativ, zero JavaScript
 5. ✅ Imagine OG per pagină, generată în build (19 pagini, câte una fiecare)
 6. 🟡 Studiul de caz vizual — capturi reale in rame de device si cadrane
@@ -166,7 +171,7 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 8. Demo funcțional de aplicație web
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe 14 din 18 URL-uri din sitemap
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 295 de verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 297 de verificări
 
 ## 9. Idei pentru v2
 

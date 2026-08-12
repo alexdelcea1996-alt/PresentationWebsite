@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 295 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 297 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -464,6 +464,36 @@ Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textel
 
 **De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
 cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
+## Auditul instant (Google PageSpeed)
+
+Banda de audit poate verifica pe loc site-ul unui vizitator: introduce adresa,
+iar in ~30 de secunde vede cele patru scoruri Lighthouse si primele trei
+probleme, in designul site-ului, urmate de un buton spre formular cu adresa deja
+completata.
+
+**E oprit pana pui o cheie.** Fara ea, banda ramane exact ce era: un buton care
+duce la formular. Nu randam un camp care esueaza mereu - API-ul Google raspunde
+429 aproape imediat fara cheie.
+
+Ca sa-l pornesti:
+
+1. Creeaza o cheie in Google Cloud Console pentru **PageSpeed Insights API**
+   (gratuita).
+2. **Restrictioneaz-o pe domeniul tau** (HTTP referrer). Apelul se face din
+   browserul vizitatorului, deci cheia e vizibila in pagina - asa e proiectat
+   API-ul. Cu restrictia pusa, nu o poate folosi altcineva.
+3. In Cloudflare, variabila `PUBLIC_PAGESPEED_KEY`. Apoi redeploy.
+
+Cateva lucruri gandite dinainte:
+
+- **CSP-ul se largeste singur.** `connect-src` primeste `googleapis.com` doar
+  cand unealta e pe pagina. Fara cheie, politica ramane stransa.
+- **Textul benzii se schimba.** Varianta statica promite un audit scris in 48 de
+  ore; cea live raspunde in secunde, deci are propria fraza.
+- **Suita de teste urmareste starea build-ului.** Acum verifica varianta cu
+  buton. In clipa in care pui cheia, aceleasi teste incep sa verifice unealta,
+  cu API-ul simulat. Nu ai nimic de schimbat.
 
 ## Cadranele de scor din studiul de caz
 

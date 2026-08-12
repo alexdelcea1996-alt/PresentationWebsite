@@ -35,6 +35,9 @@ const styleHashes = new Set();
 // Only opened up when the booking feature is actually switched on, so an
 // unconfigured site keeps the tighter policy.
 let embedsBooking = false;
+// Same idea for the instant site audit: only widen connect-src when the tool is
+// actually on the page, which it only is when a PageSpeed key was configured.
+let callsPageSpeed = false;
 
 // Matches an inline <script> (no src) or <style>, capturing its attributes and body.
 const inlineBlock = /<(script|style)([^>]*)>([\s\S]*?)<\/\1>/gi;
@@ -42,6 +45,7 @@ const inlineBlock = /<(script|style)([^>]*)>([\s\S]*?)<\/\1>/gi;
 for (const file of await htmlFiles(dist)) {
   const html = await readFile(file, 'utf8');
   if (html.includes('href="https://cal.com/')) embedsBooking = true;
+  if (html.includes('data-psi-endpoint="https://www.googleapis.com/')) callsPageSpeed = true;
 
   for (const [, tag, attrs, body] of html.matchAll(inlineBlock)) {
     if (/\ssrc\s*=/i.test(attrs)) continue; // external, covered by 'self'
@@ -64,6 +68,9 @@ for (const file of await htmlFiles(dist)) {
 // cal.com is framed directly rather than through their embed script, so this
 // needs a frame-src and nothing more — no third-party script, no unsafe-inline.
 const bookingOrigins = embedsBooking ? ' https://cal.com https://app.cal.com' : '';
+// The audit runs in the visitor's browser, so the call to Google goes out from
+// the page rather than from a server of ours.
+const auditOrigin = callsPageSpeed ? ' https://www.googleapis.com' : '';
 
 const csp = [
   "default-src 'self'",
@@ -72,7 +79,7 @@ const csp = [
   "img-src 'self' data:",
   "font-src 'self'",
   // The contact form posts here when a Web3Forms key is configured.
-  "connect-src 'self' https://api.web3forms.com",
+  `connect-src 'self' https://api.web3forms.com${auditOrigin}`,
   "form-action 'self' https://api.web3forms.com",
   `frame-src 'none'${bookingOrigins}`.replace("'none' ", ''),
   "base-uri 'none'",
