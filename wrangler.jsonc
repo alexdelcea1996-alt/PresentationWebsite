@@ -1,0 +1,26 @@
+{
+  // Deploy configuration for Cloudflare Workers.
+  //
+  // Without this file the site builds on every push and then never ships: the
+  // Workers Builds deploy step runs `npx wrangler deploy`, which has nothing to
+  // read and fails, leaving whatever was published last frozen in place. The
+  // build log looks healthy right up to the last line, so the symptom is a site
+  // that quietly stops keeping up with the repository.
+  //
+  // `name` has to stay exactly this — it is the worker being updated, and the
+  // first half of presentationwebsite.alexdelcea1996.workers.dev. A different
+  // value here creates a second worker at a second address instead.
+  "name": "presentationwebsite",
+  "compatibility_date": "2026-08-01",
+
+  "assets": {
+    // `npm run build` writes here, including `_headers` — Workers static assets
+    // reads that file, which is what puts the CSP and the cache rules in front
+    // of the pages.
+    "directory": "./dist",
+
+    // Unknown addresses get the designed 404 page with a real 404 status,
+    // rather than Cloudflare's default one.
+    "not_found_handling": "404-page"
+  }
+}

@@ -343,6 +343,26 @@ Proiectul e deja conectat la repository în Cloudflare, cu setările:
 
 Fiecare push pe branch-ul de producție declanșează un build nou, automat.
 
+### `wrangler.jsonc` — fără el, site-ul nu se publică
+
+Un proiect Workers legat la Git rulează, după build, pasul de deploy
+(`npx wrangler deploy`). Ăla citește `wrangler.jsonc` din rădăcina repo-ului. Fără
+fișier, **build-ul reușește și publicarea eșuează** — iar site-ul rămâne înghețat
+pe ultima versiune publicată, la nesfârșit, fără ca vreo pagină să arate stricat.
+Așa a stat o vreme aici: codul se aduna în repo, adresa live arăta altceva.
+
+Ce e important în el:
+
+| Câmp | De ce contează |
+|---|---|
+| `name` | **Trebuie să rămână `presentationwebsite`** — e workerul care se actualizează, adică prima jumătate din `presentationwebsite.alexdelcea1996.workers.dev`. Altă valoare creează un worker nou, la altă adresă, și cel vechi rămâne cum era. |
+| `assets.directory` | `./dist`. De acolo se ia și `_headers`, deci CSP-ul și regulile de cache vin odată cu paginile. |
+| `assets.not_found_handling` | `404-page` — adresele inexistente primesc pagina 404 desenată, cu status 404 real. |
+
+Dacă vreodată site-ul pare că a rămas în urmă față de repo, ăsta e primul loc de
+verificat: Cloudflare → proiect → **Deployments**, și compari commit-ul de sus cu
+`git log -1`.
+
 ### Adresa site-ului
 
 `astro.config.ts` decide adresa în această ordine: variabila `SITE_URL`, apoi
