@@ -3,6 +3,7 @@ import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { getServicePages, servicePath } from '../../data/services';
+import { demoPath } from '../../data/demo';
 
 interface Props {
   locale: Locale;
@@ -22,7 +23,12 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
 
     <div class="mt-16 grid gap-6 sm:grid-cols-2">
       {
-        t.items.map((service, index) => (
+        t.items.map((service, index) => {
+          const href = service.key ? pathByKey.get(service.key) : undefined;
+          // The bookings demo is a web application, so it only belongs on that card.
+          const showsDemo = service.key === 'webapp';
+
+          return (
           <article
             class="card card-hover flex flex-col"
             data-reveal
@@ -34,11 +40,8 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
 
             <h3 class="mt-5 text-xl font-semibold">
               {
-                service.key && pathByKey.has(service.key) ? (
-                  <a
-                    href={pathByKey.get(service.key)}
-                    class="after:absolute after:inset-0 hover:text-accent-alt"
-                  >
+                href ? (
+                  <a href={href} class="after:absolute after:inset-0 hover:text-accent-alt">
                     {service.title}
                   </a>
                 ) : (
@@ -57,14 +60,32 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
               ))}
             </ul>
 
-            {service.key && pathByKey.has(service.key) && (
-              <p class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-alt">
-                {t.readMore}
-                <Icon name="arrow-right" class="size-4" />
-              </p>
+            {(href || showsDemo) && (
+              <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                {href && (
+                  <p class="inline-flex items-center gap-2 text-sm font-semibold text-accent-alt">
+                    {t.readMore}
+                    <Icon name="arrow-right" class="size-4" />
+                  </p>
+                )}
+                {/* The title above is a stretched link covering the whole card, so
+                    this one needs to sit above that overlay or the click is eaten
+                    and the visitor lands on the service page instead. */}
+                {showsDemo && (
+                  <a
+                    href={demoPath(locale)}
+                    class="btn btn-ghost relative z-10 px-3.5 py-2 text-xs"
+                    data-demo-cta
+                  >
+                    {t.demoCta}
+                    <Icon name="arrow-right" class="size-3.5" />
+                  </a>
+                )}
+              </div>
             )}
           </article>
-        ))
+          );
+        })
       }
     </div>
   </div>

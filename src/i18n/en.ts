@@ -68,6 +68,7 @@ export const en: Content = {
     subtitle:
       'From a first online presence to applications your team uses every day. Every project ships with clean code, real speed and room to grow.',
     readMore: 'See details and pricing',
+    demoCta: 'See a working demo',
     backToOverview: 'Back to services',
     items: [
       {

@@ -1,6 +1,6 @@
 # Teste
 
-374 de verificări care rulează un browser real peste site-ul construit.
+392 de verificări care rulează un browser real peste site-ul construit.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -75,7 +75,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `share-images` | fiecare pagină are propria imagine OG, la dimensiunea declarată, și există | 14 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
-| `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload | 73 |
+| `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 91 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie | 4 / 30 |
 
 **Suitele urmăresc starea build-ului.** `audit` detectează dacă e configurată o

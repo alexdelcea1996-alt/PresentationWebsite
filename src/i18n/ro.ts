@@ -68,6 +68,7 @@ export const ro: Content = {
     subtitle:
       'De la o primă prezență online până la aplicații pe care echipa ta le folosește zilnic. Fiecare proiect vine cu cod curat, viteză și posibilitatea de a crește ulterior.',
     readMore: 'Vezi detalii și prețuri',
+    demoCta: 'Vezi un demo funcțional',
     backToOverview: 'Înapoi la servicii',
     items: [
       {

@@ -7,6 +7,7 @@ import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
 import { getServiceTranslations, servicePath, type ServicePage } from '../data/services';
+import { demoPath } from '../data/demo';
 
 interface Props {
   locale: Locale;
@@ -88,6 +89,15 @@ const faqSchema = {
               <a href={anchor(sectionIds.estimate)} class="btn btn-ghost text-sm">
                 {t.configurator.eyebrow}
               </a>
+              {/* Only on the web-application page: the demo is an application, and
+                  offering it under "shop" or "optimisation" would promise the wrong
+                  thing. */}
+              {d.key === 'webapp' && (
+                <a href={demoPath(locale)} class="btn btn-ghost text-sm" data-demo-cta>
+                  {t.services.demoCta}
+                  <Icon name="arrow-right" class="size-4" />
+                </a>
+              )}
             </div>
           </div>
 

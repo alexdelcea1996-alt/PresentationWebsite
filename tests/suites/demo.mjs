@@ -320,6 +320,70 @@ for (const [label, path, currency, addLabel] of [
   await p.close();
 }
 
+// --- Where the demo is offered in the content --------------------------------
+// The header and footer carry it everywhere; these are the two places inside the
+// page where someone reading about web applications is actually invited to try it.
+for (const [label, home, service, otherServices, demo] of [
+  [
+    'RO',
+    '/',
+    '/servicii/aplicatie-web/',
+    ['/servicii/site-de-prezentare/', '/servicii/magazin-online/', '/servicii/optimizare-site/'],
+    '/demo/',
+  ],
+  [
+    'EN',
+    '/en/',
+    '/en/services/web-application/',
+    [
+      '/en/services/business-website/',
+      '/en/services/online-store/',
+      '/en/services/site-optimisation/',
+    ],
+    '/en/demo/',
+  ],
+]) {
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}${home}`, { waitUntil: 'domcontentloaded' });
+
+  const cta = p.locator('[data-demo-cta]');
+  ck(`${label}: the services grid offers the demo once`, (await cta.count()) === 1, `${await cta.count()}`);
+  // By the card's link target, not its title: the two locales word it differently
+  // ("Aplicație web" / "Custom web app") and the copy is free to change.
+  const cardHref = await cta.locator('xpath=ancestor::article').locator('h3 a').getAttribute('href');
+  ck(`${label}: it is on the web-application card`, cardHref === service, `${cardHref}`);
+
+  // The card title is a stretched link over the whole card. If this button ever
+  // loses its stacking context the click is swallowed and the visitor silently
+  // lands on the service page instead — which looks like nothing is wrong.
+  await cta.click();
+  await p.waitForURL(`**${demo}`, { timeout: 5000 }).catch(() => {});
+  ck(`${label}: clicking it reaches the demo`, new URL(p.url()).pathname === demo, p.url());
+  await p.close();
+
+  const s = await b.newPage(VIEWPORT);
+  await s.goto(`${BASE}${service}`, { waitUntil: 'domcontentloaded' });
+  const hero = s.locator('[data-demo-cta]');
+  ck(`${label}: the web-application page offers the demo`, (await hero.count()) === 1);
+  ck(
+    `${label}: it sits with the other calls to action`,
+    (await hero.locator('xpath=ancestor::div[1]').locator('a').count()) === 3,
+  );
+  await hero.click();
+  await s.waitForURL(`**${demo}`, { timeout: 5000 }).catch(() => {});
+  ck(`${label}: the service page button reaches the demo`, new URL(s.url()).pathname === demo, s.url());
+  await s.close();
+
+  // The demo is a booking application. Offering it under "online store" or
+  // "site optimisation" would promise something it does not show.
+  for (const other of otherServices) {
+    const o = await b.newPage(VIEWPORT);
+    await o.goto(`${BASE}${other}`, { waitUntil: 'domcontentloaded' });
+    ck(`${label}: no demo button on ${other}`, (await o.locator('[data-demo-cta]').count()) === 0);
+    await o.close();
+  }
+}
+
 // --- Accessibility ------------------------------------------------------------
 for (const [label, path] of [
   ['RO', '/demo/'],

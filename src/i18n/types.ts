@@ -123,6 +123,8 @@ export interface Content {
     subtitle: string;
     items: Service[];
     readMore: string;
+    /** Shown only on the web-application service — the one the demo demonstrates. */
+    demoCta: string;
     backToOverview: string;
   };
   process: {

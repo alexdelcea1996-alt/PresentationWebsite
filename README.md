@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 374 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 392 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -518,6 +518,19 @@ Site-ul vinde aplicații web, dar până acum demonstra doar un site. Pagina ast
 e afirmația făcută verificabilă: **o aplicație de programări care chiar
 funcționează** — adaugi, marchezi „a venit", anulezi, reactivezi, ștergi, treci
 dintr-o zi în alta, filtrezi după stare, iar încasările se recalculează.
+
+**Cum ajungi la ea:** „Demo" în meniul de sus și în footer, pe fiecare pagină;
+plus un buton „Vezi un demo funcțional" în două locuri unde subiectul e chiar
+ăsta — cardul „Aplicație web custom" de pe prima pagină și antetul paginii
+`/servicii/aplicatie-web/`. Butonul apare **doar** acolo: un demo de programări
+oferit sub „magazin online" ar promite altceva decât arată. Textul e în
+`services.demoCta`.
+
+Butonul din card e singurul link dintr-un card al cărui titlu e *stretched*
+(`after:inset-0`, adică toată suprafața cardului duce la pagina de serviciu).
+De-aia are `relative z-10`: fără el, clicul e înghițit de suprafață și
+vizitatorul ajunge pe pagina de serviciu, nu pe demo — o defecțiune care nu se
+vede. Suita chiar dă click pe el și verifică unde ajunge.
 
 **Datele sunt inventate și nu pleacă nicăieri.** Se salvează în `localStorage`,
 sub cheia `demo-bookings-v1`, în browserul vizitatorului. Nu există server, nu
