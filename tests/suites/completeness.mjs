@@ -149,6 +149,19 @@ ck('a translated slug pairs across languages',
   optim?.links.some((l) => l.href.endsWith('/en/services/site-optimisation/')),
   optim?.links.map((l) => `${l.tag}=${new URL(l.href).pathname}`).join(' '));
 
+// --- The deployed build identifies itself ------------------------------------
+// Without this there is no way to look at the live site and tell whether it is
+// current — which is exactly how a page stayed missing through two green builds.
+{
+  const v = await b.newPage();
+  const res = await v.goto(`${BASE}/version.txt`, { waitUntil: 'domcontentloaded' });
+  const body = await v.evaluate(() => document.body.textContent ?? '');
+  ck('version.txt is served', res?.status() === 200, String(res?.status()));
+  ck('it names the commit', /^commit: [0-9a-f]{7,40}$/m.test(body), body.split('\n')[0]);
+  ck('it carries a build time', /^built:  \d{4}-\d{2}-\d{2}T/m.test(body), body.split('\n')[2]);
+  await v.close();
+}
+
 // --- Accessibility of the new page -------------------------------------------
 const a = await b.newPage({ viewport: { width: 1280, height: 900 } });
 await a.addInitScript({ path: axePath });

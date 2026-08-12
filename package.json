@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/generate-og-images.mjs && node scripts/build-sitemap-alternates.mjs && node scripts/build-headers.mjs",
+    "build": "astro build && node scripts/generate-og-images.mjs && node scripts/build-sitemap-alternates.mjs && node scripts/build-headers.mjs && node scripts/build-version.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "fonts": "node scripts/fetch-fonts.mjs",

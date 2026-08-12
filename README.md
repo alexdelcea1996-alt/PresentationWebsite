@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 432 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 435 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -359,6 +359,22 @@ Proiectul e deja conectat la repository în Cloudflare, cu setările:
 | Production branch | `claude/portfolio-website-planning-v7mz1y` |
 
 Fiecare push pe branch-ul de producție declanșează un build nou, automat.
+
+### E site-ul live la zi? `/version.txt`
+
+```
+https://presentationwebsite.alexdelcea1996.workers.dev/version.txt
+```
+
+Scrie din ce commit e construit ce vezi în browser. Compari cu `git log -1` și
+știi în două secunde dacă publicarea a ajuns sau nu. Fișierul se scrie la fiecare
+build de `scripts/build-version.mjs`, din variabila pe care o pune platforma
+(`WORKERS_CI_COMMIT_SHA` pe Workers, `CF_PAGES_COMMIT_SHA` pe Pages) sau din git,
+local.
+
+Există fiindcă lipsea: o pagină a fost comitată de două ori, ambele build-uri au
+ieșit verzi, iar adresa continua să servească altceva — și nimic de pe site nu
+spunea asta.
 
 ### `wrangler.jsonc` — fără el, site-ul nu se publică
 
