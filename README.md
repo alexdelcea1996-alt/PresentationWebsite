@@ -13,7 +13,7 @@ Rulat cu Lighthouse pe build-ul de producție:
 | | Performanță | Accesibilitate | Bune practici | SEO |
 |---|---|---|---|---|
 | Desktop | 100 | 100 | 100 | 100 |
-| Mobil | 97–100 | 100 | 100 | 100 |
+| Mobil | 99–100 | 100 | 100 | 100 |
 
 Prima pagină e cea care dă 97 pe mobil, fiindcă e cea mai lungă; subpaginile stau
 la 99–100. Ce o ține acolo e **FCP-ul de 2,0 s**, singura metrică sub punctaj
@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 711 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 840 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -725,6 +725,45 @@ hash in CSP. Exista si un test care verifica asta pe tot site-ul.
 (Scrierile din JavaScript prin `element.style.x = ...` sunt in regula - CSP nu le
 acopera. Doar atributele din markup sunt refuzate.)
 
+## Demo-urile (`/demo/…`)
+
+Patru demo-uri, de două feluri, toate legate între ele printr-un rând de taburi
+și de pe cardul serviciului corespunzător.
+
+**Două se joacă** — aplicația de programări și magazinul. Sunt aplicații reale,
+cu date în `localStorage`.
+
+**Două arată un site întreg** — un landing page și un site de prezentare pe trei
+pagini, pentru două firme inventate, deschise într-o ramă de browser chiar în
+pagină:
+
+| Demo | Rama arată | Firma inventată |
+|---|---|---|
+| `/demo/landing-page/` | `/demo/exemplu/atelier/` | Rindea, atelier de tâmplărie |
+| `/demo/site-de-prezentare/` | `/demo/exemplu/instalatii/` (+ servicii, contact) | Termoflux, instalații |
+
+Câteva decizii care merită știute dacă le atingi:
+
+- **Exemplele nu importă `global.css`.** Au propria foaie de stil, propria paletă
+  și fonturi de sistem. Dacă ar moșteni designul acestui site, ar arăta ca site-ul
+  meu cu alt logo — adică exact lucrul pe care demo-ul ar trebui să-l infirme.
+- **Conținutul lor stă în `src/data/demo-sites.ts`, nu în `src/i18n/`.** Tot ce e
+  în i18n e text despre mine și trebuie să fie adevărat; tot ce e acolo e ficțiune.
+  Amestecul ăsta ar fi primul pas spre o afirmație inventată ajunsă pe o pagină reală.
+- **Sunt `noindex` și în afara sitemap-ului**, printr-un singur segment de adresă
+  (`/exemplu/`, `/example/`) pe care îl filtrează la fel `astro.config.ts`, generatorul
+  de imagini OG și două suite de teste. Nu primesc nici imagine de partajare.
+- **Ca să le pot încadra a trebuit relaxat un header:** `frame-ancestors` a trecut
+  de la `'none'` la `'self'`, iar `X-Frame-Options` de la `DENY` la `SAMEORIGIN`.
+  Încadrarea de către terți — riscul real de clickjacking — rămâne refuzată, iar
+  suita `examples` verifică exact asta.
+- **Formularele funcționează și spun că nu trimit nimic.** Testul verifică textul
+  de confirmare, în ambele limbi.
+
+Ca să schimbi textul unui exemplu: `src/data/demo-sites.ts`, RO și EN. Ca să
+schimbi ce scrie deasupra ramei (ce să urmărească vizitatorul): `landingDemo` și
+`siteDemo` în `src/i18n/ro.ts` și `en.ts`.
+
 ## Demo-urile jucabile (`/demo/`, `/demo/magazin/`)
 
 Site-ul vinde aplicații web, dar până acum demonstra doar un site. Pagina asta
@@ -891,6 +930,33 @@ mai depinde de rularea unui script ca să existe pe ecran.
 
 Suita `transitions` verifică **absența atributelor**, nu doar că textul ajunge vizibil:
 altfel verificarea de mai jos ar trece degeaba în clipa în care cineva le pune la loc.
+
+## Glow-ul care urmărește cursorul
+
+Pe **tema întunecată**, pe **toate paginile**, un halou moale urmărește cursorul.
+Nu e un widget: e o lumină.
+
+Cum e făcut, și de ce așa:
+
+- **Deasupra conținutului, cu `mix-blend-mode: screen`.** Prima variantă stătea
+  în spate, la `z-index: -1`. Arăta bine pe un articol și dispărea complet pe
+  prima pagină, fiindcă acolo cardurile sunt opace și haloul supraviețuia doar
+  prin spațiile dintre ele. Screen adaugă lumină în loc să deseneze peste: pe o
+  pagină întunecată luminează ce e dedesubt și nu atinge nimic altceva.
+- **Nu poate fi apăsat.** `pointer-events: none` — nu se pune niciodată între
+  cursor și un buton. Testul verifică asta explicit.
+- **Se oprește singur.** Nu rulează sub `prefers-reduced-motion`, nu rulează pe
+  pointer grosier (pe telefon nu există cursor), bucla de animație se termină
+  când cursorul se oprește, iar tabul ascuns o oprește de tot.
+- **Doar `transform`.** Niciun cadru nu atinge layout-ul; testul verifică lista
+  proprietăților scrise din JS și cade dacă apare a doua.
+- **Doar noaptea.** Tema luminoasă îl ascunde din CSS, nu din JavaScript, deci
+  comutarea temei cu pagina deschisă nu are nevoie de niciun cod.
+
+Înainte, efectul era doar în hero și se oprea la marginea lui de jos — o cusătură
+care se vedea la prima derulare, și pe care paginile fără hero n-o aveau deloc.
+Parallaxul petelor din hero a rămas unde era; spotlight-ul lui a fost șters, ca să
+existe o singură implementare.
 
 ## Tranziții între pagini
 

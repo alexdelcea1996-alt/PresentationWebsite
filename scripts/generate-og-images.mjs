@@ -179,7 +179,17 @@ async function htmlFiles(dir) {
   return found;
 }
 
-const pages = await htmlFiles(dist);
+/**
+ * The example sites framed by the demos are fiction and carry no share card:
+ * they are not shared, not indexed and not in the sitemap. Same marker segment
+ * as the sitemap filter in `astro.config.ts`, so the two cannot disagree about
+ * which pages are examples.
+ */
+const isExample = (path) => path.includes('/exemplu/') || path.includes('/example/');
+
+const pages = (await htmlFiles(dist)).filter(
+  (file) => !isExample(relative(dist, file).replace(/\\/g, '/').replace(/^/, '/')),
+);
 let written = 0;
 let bytes = 0;
 

@@ -1,0 +1,196 @@
+---
+/**
+ * The shell for the example sites shown inside the demo frames.
+ *
+ * It deliberately does **not** import `global.css`. If the examples inherited
+ * this site's tokens they would look like this site wearing a different logo,
+ * and the thing the demo is meant to prove — that the design follows the job —
+ * would be exactly the thing it failed to show. So each example brings its own
+ * small stylesheet and its own type stack, built from system fonts: no extra
+ * bytes over the network, and instantly, visibly not the same site.
+ *
+ * These pages are `noindex` and excluded from the sitemap. They are fiction,
+ * and an invented plumbing company ranking under my domain helps nobody.
+ */
+import type { Locale } from '../i18n';
+import { localeTags } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  /** Which example this is; picks the palette. */
+  theme: 'workshop' | 'trade';
+}
+
+const { locale, title, theme } = Astro.props;
+---
+
+<!doctype html>
+<html lang={localeTags[locale]} data-example={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    {/* An empty data URL, so the browser stops asking for /favicon.ico and
+        logging a 404. The invented company borrowing my icon would be worse. */}
+    <link rel="icon" href="data:," />
+    <title>{title}</title>
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  /*
+   * Two palettes, one per example. Written by hand rather than generated from
+   * the site's tokens — see the note above; the whole point is that they are
+   * unrelated to it.
+   */
+  :root {
+    --ex-max: 68rem;
+    --ex-radius: 0.5rem;
+  }
+
+  [data-example='workshop'] {
+    --ex-bg: #f6f1e7;
+    --ex-surface: #fffdf8;
+    --ex-line: #e0d5c2;
+    --ex-ink: #23180f;
+    --ex-muted: #5d4f41;
+    --ex-accent: #8a4a1d;
+    --ex-accent-ink: #ffffff;
+    --ex-font: Georgia, 'Times New Roman', serif;
+    --ex-font-ui: ui-sans-serif, system-ui, sans-serif;
+    --ex-radius: 0.25rem;
+  }
+
+  [data-example='trade'] {
+    --ex-bg: #ffffff;
+    --ex-surface: #f4f7fb;
+    --ex-line: #d3dceb;
+    --ex-ink: #10203a;
+    --ex-muted: #4a5a72;
+    --ex-accent: #12508f;
+    --ex-accent-ink: #ffffff;
+    --ex-font: ui-sans-serif, system-ui, 'Segoe UI', Arial, sans-serif;
+    --ex-font-ui: ui-sans-serif, system-ui, 'Segoe UI', Arial, sans-serif;
+    --ex-radius: 0.5rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--ex-bg);
+    color: var(--ex-ink);
+    font-family: var(--ex-font-ui);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--ex-font);
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--ex-accent);
+  }
+
+  /* Focus has to stay visible: these pages are keyboard-tested like the rest. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--ex-accent);
+    outline-offset: 2px;
+  }
+
+  .ex-wrap {
+    max-width: var(--ex-max);
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  .ex-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--ex-radius);
+    background: var(--ex-accent);
+    color: var(--ex-accent-ink);
+    font: inherit;
+    font-weight: 600;
+    padding: 0.85rem 1.6rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .ex-btn:hover {
+    filter: brightness(1.1);
+  }
+
+  .ex-btn-ghost {
+    background: transparent;
+    border-color: var(--ex-line);
+    color: var(--ex-ink);
+  }
+
+  .ex-card {
+    background: var(--ex-surface);
+    border: 1px solid var(--ex-line);
+    border-radius: var(--ex-radius);
+    padding: 1.5rem;
+  }
+
+  .ex-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  .ex-field {
+    width: 100%;
+    border: 1px solid var(--ex-line);
+    border-radius: var(--ex-radius);
+    background: #fff;
+    color: var(--ex-ink);
+    font: inherit;
+    padding: 0.7rem 0.85rem;
+  }
+
+  .ex-muted {
+    color: var(--ex-muted);
+  }
+
+  .ex-eyebrow {
+    font-family: var(--ex-font-ui);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ex-accent);
+  }
+
+  .ex-hidden {
+    display: none;
+  }
+</style>

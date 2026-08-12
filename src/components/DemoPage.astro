@@ -1,10 +1,12 @@
 ---
 /**
- * The shell both playable demos sit in: hero, the app itself, the two
- * explanation cards and the call to action.
+ * The shell every demo sits in: hero, the demo itself, the explanation cards
+ * and the call to action.
  *
- * Shared rather than copied so a second demo cannot drift into looking like a
- * different site — and so the switcher between them exists in exactly one place.
+ * Four demos now, of two kinds. Two are applications you play with; two are
+ * complete example sites shown inside a browser frame. They share this shell so
+ * a demo cannot drift into looking like a different site, and so the switcher
+ * between them exists in exactly one place.
  */
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
@@ -13,19 +15,34 @@ import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import BookingDemo from './BookingDemo.astro';
 import StoreDemo from './StoreDemo.astro';
+import DemoFrame from './DemoFrame.astro';
 import { getContent, sectionIds, locales, type Locale } from '../i18n';
-import { demoPath, storeDemoPath } from '../data/demo';
+import {
+  demoPath,
+  storeDemoPath,
+  landingDemoPath,
+  siteDemoPath,
+  exampleLandingPath,
+  exampleSitePath,
+} from '../data/demo';
 
 interface Props {
   locale: Locale;
-  /** Which of the two apps this page carries. */
-  app: 'bookings' | 'store';
+  /** Which of the four demos this page carries. */
+  app: 'bookings' | 'store' | 'landing' | 'site';
 }
 
 const { locale, app } = Astro.props;
 const t = getContent(locale);
-const d = app === 'store' ? t.storeDemo : t.demo;
-const pathFor = app === 'store' ? storeDemoPath : demoPath;
+
+const framed = app === 'landing' || app === 'site';
+const d = { bookings: t.demo, store: t.storeDemo, landing: t.landingDemo, site: t.siteDemo }[app];
+const pathFor = {
+  bookings: demoPath,
+  store: storeDemoPath,
+  landing: landingDemoPath,
+  site: siteDemoPath,
+}[app];
 
 const alternates = Object.fromEntries(
   locales.map((code) => [code, pathFor(code)]),
@@ -34,9 +51,25 @@ const alternates = Object.fromEntries(
 const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
 
 const tabs = [
-  { id: 'bookings', href: demoPath(locale), label: t.demoNav.bookings },
+  { id: 'landing', href: landingDemoPath(locale), label: t.demoNav.landing },
+  { id: 'site', href: siteDemoPath(locale), label: t.demoNav.site },
   { id: 'store', href: storeDemoPath(locale), label: t.demoNav.store },
+  { id: 'bookings', href: demoPath(locale), label: t.demoNav.bookings },
 ] as const;
+
+// The framed examples: where the iframe points, and what its address bar says.
+// The fake URL is the invented company's, not this site's — showing my own
+// domain in the chrome would undercut the illusion the frame exists to create.
+const frame = {
+  landing: {
+    src: exampleLandingPath(locale),
+    displayUrl: locale === 'en' ? 'rindea.example/workshop' : 'rindea.example/atelier',
+  },
+  site: {
+    src: exampleSitePath(locale),
+    displayUrl: 'termoflux.example',
+  },
+}[app === 'site' ? 'site' : 'landing'];
 ---
 
 <Base
@@ -81,8 +114,41 @@ const tabs = [
         </nav>
 
         <div class="mt-10" data-reveal>
-          {app === 'store' ? <StoreDemo locale={locale} /> : <BookingDemo locale={locale} />}
+          {
+            app === 'store' ? (
+              <StoreDemo locale={locale} />
+            ) : app === 'bookings' ? (
+              <BookingDemo locale={locale} />
+            ) : (
+              <DemoFrame locale={locale} src={frame.src} displayUrl={frame.displayUrl} />
+            )
+          }
         </div>
+
+        {
+          framed && (
+            <div class="mt-10 max-w-3xl" data-reveal>
+              <p class="text-sm leading-relaxed text-fg-subtle" data-demo-disclaimer>
+                {d.disclaimer}
+              </p>
+
+              <h2 class="mt-10 font-display text-lg font-semibold">
+                {'lookForTitle' in d && d.lookForTitle}
+              </h2>
+              <ul class="mt-4 space-y-3">
+                {'lookFor' in d &&
+                  d.lookFor.map((item) => (
+                    <li class="flex items-start gap-3 text-sm leading-relaxed text-fg-muted">
+                      <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-accent/10 text-accent-alt">
+                        <Icon name="check" class="size-3" />
+                      </span>
+                      <span data-demo-lookfor>{item}</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )
+        }
 
         <div class="mt-16 grid max-w-4xl gap-6 sm:grid-cols-2">
           <div class="card" data-reveal>

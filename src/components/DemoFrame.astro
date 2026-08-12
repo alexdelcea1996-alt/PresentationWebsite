@@ -1,0 +1,141 @@
+---
+/**
+ * A browser window with a real page inside it.
+ *
+ * The example sites are framed rather than embedded inline for one reason: they
+ * bring their own stylesheet and their own type stack, and inlining them would
+ * mean either bleeding this site's design into the example or fighting it with
+ * specificity forever. An iframe gives the example a document of its own — which
+ * is also what makes the width switch below honest, since resizing the frame
+ * makes the example's own media queries fire exactly as they would on a phone.
+ *
+ * Framing our own pages needed `frame-ancestors 'self'` instead of `'none'`, and
+ * `X-Frame-Options: SAMEORIGIN` instead of `DENY`. Third-party framing — the
+ * actual clickjacking risk — is still refused; see `scripts/build-headers.mjs`.
+ */
+import Icon from './Icon.astro';
+import { getContent, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Address of the page to frame, and the one the "open full" link uses. */
+  src: string;
+  /** Shown in the fake address bar. Not a link — it is a picture of a URL. */
+  displayUrl: string;
+}
+
+const { locale, src, displayUrl } = Astro.props;
+const t = getContent(locale).demoFrame;
+---
+
+<div class="demo-frame" data-demo-frame data-width="desktop">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-1.5" role="group" aria-label={t.viewLabel}>
+      <button type="button" class="demo-chip" data-frame-width="desktop" aria-pressed="true">
+        {t.desktop}
+      </button>
+      <button type="button" class="demo-chip" data-frame-width="mobile" aria-pressed="false">
+        {t.mobile}
+      </button>
+    </div>
+
+    <a
+      href={src}
+      target="_blank"
+      rel="noopener"
+      class="text-sm text-accent-alt underline underline-offset-4 hover:no-underline"
+      data-frame-open
+    >
+      {t.openFull}
+      <Icon name="arrow-right" class="inline size-3.5 align-[-2px]" />
+    </a>
+  </div>
+
+  <div class="mt-4 flex justify-center">
+    <div class="demo-frame-shell" data-frame-shell>
+      <div class="demo-frame-chrome">
+        <span class="demo-frame-dot" aria-hidden="true"></span>
+        <span class="demo-frame-dot" aria-hidden="true"></span>
+        <span class="demo-frame-dot" aria-hidden="true"></span>
+        <span class="demo-frame-url">{displayUrl}</span>
+      </div>
+
+      <iframe src={src} title={t.frameTitle} loading="lazy" class="demo-frame-view"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Width switch. The iframe keeps its document; only the viewport it believes
+  // it has changes, so the example's own breakpoints do the work.
+  const frame = document.querySelector<HTMLElement>('[data-demo-frame]');
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-frame-width]');
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const width = button.dataset.frameWidth ?? 'desktop';
+      if (frame) frame.dataset.width = width;
+      for (const other of buttons) {
+        other.setAttribute('aria-pressed', String(other === button));
+      }
+    });
+  }
+</script>
+
+<style>
+  /*
+   * The height lives here rather than on a `style` attribute. The CSP has no
+   * `unsafe-inline` for styles, so the browser drops style attributes silently
+   * — the first version of this component set the height that way and the
+   * frame collapsed to the 150px iframe default, with only a console warning
+   * to show for it. A viewport-relative height is better anyway: the example
+   * scrolls inside the frame, which is what a browser window does.
+   */
+  .demo-frame-shell {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid var(--color-border-strong, #2a3550);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+    transition: max-width 0.35s ease;
+  }
+
+  [data-width='mobile'] .demo-frame-shell {
+    max-width: 24rem;
+  }
+
+  .demo-frame-chrome {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--color-surface-hover, #172038);
+    border-bottom: 1px solid var(--color-border, #232d47);
+  }
+
+  .demo-frame-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--color-border-strong, #37425f);
+    flex: none;
+  }
+
+  .demo-frame-url {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-fg-subtle, #8794ad);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .demo-frame-view {
+    display: block;
+    width: 100%;
+    height: min(78vh, 680px);
+    border: 0;
+    background: #fff;
+  }
+</style>

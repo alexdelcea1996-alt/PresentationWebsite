@@ -86,6 +86,31 @@ export interface DemoShell {
   currency: string;
 }
 
+/**
+ * The two demos that frame a complete example site rather than an application.
+ *
+ * They need a different shell from the playable demos: there is no data to
+ * disclaim and no "needs JavaScript" fallback, but there is a list of what to
+ * look at while scrolling the example, which is the difference between showing
+ * somebody a page and showing them an argument.
+ */
+export interface ExampleDemoShell {
+  metaTitle: string;
+  metaDescription: string;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  /** Says plainly that the business in the frame is invented. */
+  disclaimer: string;
+  lookForTitle: string;
+  lookFor: string[];
+  whyTitle: string;
+  whyBody: string;
+  builtTitle: string;
+  builtBody: string;
+  cta: string;
+}
+
 /** One product in the store demo, with its own priced, stocked variants. */
 export interface DemoProduct {
   name: string;
@@ -397,7 +422,19 @@ export interface Content {
    * rather than repeating it.
    */
   /** Links between the demos, shown at the top of each one. */
-  demoNav: { label: string; bookings: string; store: string };
+  demoNav: { label: string; bookings: string; store: string; landing: string; site: string };
+  /** The browser frame the example sites are shown in. */
+  demoFrame: {
+    /** Accessible name of the iframe — a frame with no title is unnavigable. */
+    frameTitle: string;
+    viewLabel: string;
+    desktop: string;
+    mobile: string;
+    openFull: string;
+  };
+  /** The example-site demos: a landing page and a small business website. */
+  landingDemo: ExampleDemoShell;
+  siteDemo: ExampleDemoShell;
   demo: DemoShell & {
     /** Day navigation. */
     prevDay: string;

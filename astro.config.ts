@@ -85,6 +85,10 @@ export default defineConfig({
 
   integrations: [
     sitemap({
+      // The example sites shown inside the demo frames are fiction. They are
+      // `noindex` in their own <head>; this keeps them out of the sitemap too,
+      // so the two never contradict each other. One segment marks them all.
+      filter: (page) => !page.includes('/exemplu/') && !page.includes('/example/'),
       i18n: {
         defaultLocale: 'ro',
         locales: { ro: 'ro-RO', en: 'en-US' },

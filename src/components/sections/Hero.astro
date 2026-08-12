@@ -41,9 +41,6 @@ const t = getContent(locale).hero;
   >
   </div>
 
-  {/* Follows the cursor. Purely decorative, and only ever shown on a fine pointer. */}
-  <div class="hero-spotlight" data-hero-spotlight aria-hidden="true"></div>
-
   {/* Subtle grid, faded out towards the edges */}
   <div
     class="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
@@ -108,7 +105,12 @@ const t = getContent(locale).hero;
 <script>
   /**
    * Pointer parallax in the hero: the two ambient washes drift in opposite
-   * directions and a soft spotlight follows the cursor.
+   * directions as the cursor moves.
+   *
+   * The spotlight that used to live here is now the site-wide cursor glow in
+   * `Base.astro`. Two implementations of the same effect on the same page was
+   * one too many, and the hero's version stopped at the section boundary — a
+   * seam a visitor could see the moment they scrolled past it.
    *
    * Constraints this respects, in order of importance:
    *  - never runs for someone who asked for reduced motion;
@@ -123,7 +125,6 @@ const t = getContent(locale).hero;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   if (hero && finePointer.matches && !reduceMotion.matches) {
-    const spotlight = hero.querySelector<HTMLElement>('[data-hero-spotlight]');
     const glows = [...hero.querySelectorAll<HTMLElement>('[data-hero-glow]')].map((el) => ({
       el,
       depth: Number(el.dataset.depth ?? 0),
@@ -155,9 +156,6 @@ const t = getContent(locale).hero;
         currentY += restY * EASING;
       }
 
-      if (spotlight) {
-        spotlight.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-      }
       for (const { el, depth } of glows) {
         el.style.transform = `translate3d(${currentX * depth}px, ${currentY * depth}px, 0)`;
       }
@@ -185,7 +183,6 @@ const t = getContent(locale).hero;
           // Appear where the cursor entered rather than sliding in from 0,0.
           currentX = targetX;
           currentY = targetY;
-          spotlight?.setAttribute('data-active', '');
         }
         start();
       },
@@ -194,7 +191,6 @@ const t = getContent(locale).hero;
 
     hero.addEventListener('pointerleave', () => {
       inside = false;
-      spotlight?.removeAttribute('data-active');
       // Drift the washes back to centre instead of freezing mid-travel.
       const box = hero.getBoundingClientRect();
       targetX = box.width / 2;
@@ -208,9 +204,7 @@ const t = getContent(locale).hero;
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       inside = false;
-      spotlight?.removeAttribute('data-active');
       for (const { el } of glows) el.style.transform = '';
-      if (spotlight) spotlight.style.transform = '';
     });
   }
 </script>

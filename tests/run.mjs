@@ -29,6 +29,7 @@ const SUITES = [
   'legal',
   'demo',
   'store',
+  'examples',
   'offers',
   'share-images',
   'weight',

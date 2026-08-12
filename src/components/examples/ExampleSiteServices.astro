@@ -1,0 +1,54 @@
+---
+/**
+ * Services page of the business-website example.
+ *
+ * This is the page that does not exist on a landing page and that a business
+ * website lives or dies by: one heading per thing the company sells, each one
+ * findable on its own in search.
+ */
+import type { Locale } from '../../i18n';
+import { exampleSite } from '../../data/demo-sites';
+import { exampleSitePath } from '../../data/demo';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = exampleSite[locale];
+const services = t.services;
+---
+
+<section class="bw-hero">
+  <div class="ex-wrap">
+    <p class="ex-eyebrow">{t.nav.services}</p>
+    <h1 class="bw-h1">{t.nav.services}</h1>
+    <p class="bw-lead">{services.lead}</p>
+  </div>
+</section>
+
+<section class="bw-section">
+  <div class="ex-wrap">
+    <div class="bw-grid bw-grid-2">
+      {
+        services.items.map((service) => (
+          <article class="ex-card">
+            <h2 class="bw-card-title">{service.title}</h2>
+            <p class="bw-card-body">{service.body}</p>
+            <ul class="bw-bullets">
+              {service.bullets.map((bullet) => (
+                <li>{bullet}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="bw-note">{services.note}</p>
+
+    <p class="bw-actions">
+      <a href={exampleSitePath(locale, 'contact')} class="ex-btn">{t.home.ctaPrimary}</a>
+    </p>
+  </div>
+</section>

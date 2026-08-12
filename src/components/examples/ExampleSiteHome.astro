@@ -1,0 +1,93 @@
+---
+/**
+ * Home page of the business-website example. Its job is to answer, above the
+ * fold, the one question a visitor with a broken boiler actually has — how
+ * fast can somebody come — and only then to explain anything else.
+ */
+import type { Locale } from '../../i18n';
+import { exampleSite } from '../../data/demo-sites';
+import { exampleSitePath } from '../../data/demo';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = exampleSite[locale];
+const home = t.home;
+---
+
+<section class="bw-hero">
+  <div class="ex-wrap">
+    <p class="ex-eyebrow">{t.tagline}</p>
+    <h1 class="bw-h1">{home.heroTitle}</h1>
+    <p class="bw-lead">{home.heroLead}</p>
+
+    <div class="bw-actions">
+      <a href={exampleSitePath(locale, 'contact')} class="ex-btn">{home.ctaPrimary}</a>
+      <a href={exampleSitePath(locale, 'services')} class="ex-btn ex-btn-ghost">
+        {home.ctaSecondary}
+      </a>
+    </div>
+
+    <ul class="bw-trust">
+      {
+        home.trust.map((item) => (
+          <li>
+            <p class="bw-trust-value">{item.value}</p>
+            <p class="bw-trust-label">{item.label}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<section class="bw-section bw-alt">
+  <div class="ex-wrap">
+    <h2 class="bw-h2">{home.servicesTitle}</h2>
+    <p class="bw-sub">{home.servicesLead}</p>
+
+    <div class="bw-grid bw-grid-2">
+      {
+        t.services.items.map((service) => (
+          <article class="ex-card">
+            <h3 class="bw-card-title">{service.title}</h3>
+            <p class="bw-card-body">{service.body}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="bw-note">
+      <a href={exampleSitePath(locale, 'services')}>{home.ctaSecondary}</a>
+    </p>
+  </div>
+</section>
+
+<section class="bw-section">
+  <div class="ex-wrap">
+    <h2 class="bw-h2">{home.whyTitle}</h2>
+
+    <div class="bw-grid bw-grid-3">
+      {
+        home.why.map((item) => (
+          <article class="ex-card">
+            <h3 class="bw-card-title">{item.title}</h3>
+            <p class="bw-card-body">{item.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<section class="bw-section bw-alt">
+  <div class="ex-wrap">
+    <h2 class="bw-h2">{home.areaTitle}</h2>
+    <p class="bw-sub">{home.areaBody}</p>
+    <ul class="bw-chips">
+      {home.areas.map((area) => <li class="bw-chip">{area}</li>)}
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,327 @@
+---
+/**
+ * The chrome shared by the three pages of the business-website example: a real
+ * navigation bar, a footer, and the styles for all of it.
+ *
+ * The navigation is the point. A landing page removes it because every entry is
+ * a way to leave; a business website needs it, because the visitor arrives with
+ * a question the home page may not be the answer to. Showing both examples side
+ * by side is the clearest way to make that argument without a paragraph.
+ *
+ * Styles are global rather than scoped because the page bodies live in sibling
+ * components. They only ship on these routes — nothing else imports them.
+ */
+import type { Locale } from '../../i18n';
+import { exampleSite } from '../../data/demo-sites';
+import { exampleSitePath } from '../../data/demo';
+
+interface Props {
+  locale: Locale;
+  page: 'home' | 'services' | 'contact';
+}
+
+const { locale, page } = Astro.props;
+const t = exampleSite[locale];
+
+const links = [
+  { id: 'home', label: t.nav.home, href: exampleSitePath(locale, 'home') },
+  { id: 'services', label: t.nav.services, href: exampleSitePath(locale, 'services') },
+  { id: 'contact', label: t.nav.contact, href: exampleSitePath(locale, 'contact') },
+] as const;
+---
+
+<header class="bw-bar" aria-label={t.brand}>
+  <div class="ex-wrap bw-bar-inner">
+    <a href={exampleSitePath(locale, 'home')} class="bw-brand">
+      <span class="bw-mark" aria-hidden="true"></span>
+      <span>
+        <span class="bw-brand-name">{t.brand}</span>
+        <span class="bw-brand-tag">{t.tagline}</span>
+      </span>
+    </a>
+
+    <nav class="bw-nav" aria-label={t.nav.label}>
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class="bw-nav-link"
+            aria-current={link.id === page ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>
+
+<main aria-label={t.brand}>
+  <slot />
+</main>
+
+<footer class="bw-footer" aria-label={t.brand}>
+  <div class="ex-wrap bw-footer-inner">
+    <span>{t.footer}</span>
+    <a href={exampleSitePath(locale, 'contact')}>{t.nav.contact}</a>
+  </div>
+</footer>
+
+<style is:global>
+  .bw-bar {
+    border-bottom: 1px solid var(--ex-line);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .bw-bar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.9rem;
+  }
+
+  .bw-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .bw-mark {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.4rem;
+    background: var(--ex-accent);
+    flex: none;
+  }
+
+  .bw-brand-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .bw-brand-tag {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ex-muted);
+  }
+
+  .bw-nav {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .bw-nav-link {
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--ex-radius);
+    text-decoration: none;
+    color: var(--ex-muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .bw-nav-link:hover {
+    background: var(--ex-surface);
+    color: var(--ex-ink);
+  }
+
+  .bw-nav-link[aria-current='page'] {
+    background: var(--ex-surface);
+    color: var(--ex-accent);
+  }
+
+  .bw-section {
+    padding-block: 3.5rem;
+  }
+
+  .bw-alt {
+    background: var(--ex-surface);
+    border-block: 1px solid var(--ex-line);
+  }
+
+  .bw-hero {
+    padding-block: 4rem 3rem;
+  }
+
+  .bw-h1 {
+    font-size: clamp(1.9rem, 4.5vw, 3rem);
+    max-width: 18ch;
+  }
+
+  .bw-lead {
+    margin-top: 1.25rem;
+    font-size: 1.1rem;
+    max-width: 54ch;
+    color: var(--ex-muted);
+  }
+
+  .bw-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .bw-trust {
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 40rem) {
+    .bw-trust {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .bw-trust-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ex-accent);
+    line-height: 1.1;
+  }
+
+  .bw-trust-label {
+    font-size: 0.9rem;
+    color: var(--ex-muted);
+  }
+
+  .bw-h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .bw-sub {
+    margin-top: 0.75rem;
+    color: var(--ex-muted);
+    max-width: 56ch;
+  }
+
+  .bw-grid {
+    margin-top: 2rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 44rem) {
+    .bw-grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .bw-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .bw-card-title {
+    font-size: 1.1rem;
+  }
+
+  .bw-card-body {
+    margin-top: 0.6rem;
+    color: var(--ex-muted);
+    font-size: 0.95rem;
+  }
+
+  .bw-bullets {
+    margin: 1rem 0 0;
+    padding-left: 1.15rem;
+    color: var(--ex-muted);
+    font-size: 0.9rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .bw-chips {
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .bw-chip {
+    border: 1px solid var(--ex-line);
+    border-radius: 999px;
+    background: #fff;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .bw-two {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 52rem) {
+    .bw-two {
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: start;
+      gap: 3rem;
+    }
+  }
+
+  .bw-form {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .bw-details {
+    margin: 1.5rem 0 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .bw-details dt {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ex-muted);
+  }
+
+  .bw-details dd {
+    margin: 0.15rem 0 0;
+    font-size: 1rem;
+  }
+
+  .bw-note {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: var(--ex-muted);
+    max-width: 60ch;
+  }
+
+  .bw-done-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .bw-footer {
+    border-top: 1px solid var(--ex-line);
+    background: #fff;
+    padding-block: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ex-muted);
+  }
+
+  .bw-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+</style>

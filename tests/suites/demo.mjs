@@ -328,14 +328,14 @@ for (const [label, home, service, otherServices, demo] of [
     'RO',
     '/',
     '/servicii/aplicatie-web/',
-    ['/servicii/landing-page/', '/servicii/site-de-prezentare/', '/servicii/optimizare-site/'],
+    ['/servicii/optimizare-site/'],
     '/demo/',
   ],
   [
     'EN',
     '/en/',
     '/en/services/web-application/',
-    ['/en/services/landing-page/', '/en/services/business-website/', '/en/services/site-optimisation/'],
+    ['/en/services/site-optimisation/'],
     '/en/demo/',
   ],
 ]) {
@@ -372,9 +372,10 @@ for (const [label, home, service, otherServices, demo] of [
   ck(`${label}: the service page button reaches the demo`, new URL(s.url()).pathname === demo, s.url());
   await s.close();
 
-  // Offering the bookings app under "business website" or "site optimisation"
-  // would promise something it does not show. The store has its own demo, so it
-  // is covered by the `store` suite instead.
+  // Four of the five offers have a demo of their own now, each asserted by its
+  // own suite. Site optimisation has none — there is nothing to show but a
+  // before-and-after measurement — so it must carry no demo button at all.
+  // Offering the bookings app there would promise something it does not show.
   for (const other of otherServices) {
     const o = await b.newPage(VIEWPORT);
     await o.goto(`${BASE}${other}`, { waitUntil: 'domcontentloaded' });

@@ -16,7 +16,16 @@ function htmlFiles(dir) {
   });
 }
 
-const pages = htmlFiles(dist).map((file) => {
+/**
+ * The example sites framed by the demos carry no share card by design: they are
+ * fiction, `noindex`, and out of the sitemap. Same marker segment as the sitemap
+ * filter and the OG generator use, so all three agree on what an example is.
+ */
+const isExample = (path) => path.includes('/exemplu/') || path.includes('/example/');
+
+const pages = htmlFiles(dist)
+  .filter((file) => !isExample(relative(dist, file).replace(/\\/g, '/')))
+  .map((file) => {
   const html = readFileSync(file, 'utf8');
   const meta = (name, attr = 'property') =>
     html.match(new RegExp(`<meta ${attr}="${name}" content="([^"]+)"`))?.[1];
@@ -33,7 +42,7 @@ const pages = htmlFiles(dist).map((file) => {
 
 // Hard-coded on purpose: a glob that quietly stops matching would otherwise
 // shrink every check below to a subset and still report all green.
-ck('every built page was found', pages.length === 31, `${pages.length} pages`);
+ck('every built page was found', pages.length === 35, `${pages.length} pages`);
 ck('every page declares a share image', pages.every((p) => p.image));
 
 // Crawlers do not resolve relative URLs in og:image; a relative one silently

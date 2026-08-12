@@ -253,6 +253,10 @@ const breadcrumbSchema = breadcrumb?.length
   </head>
 
   <body class="min-h-screen antialiased">
+    {/* Follows the cursor on every page. Decorative, dark theme only, and only
+        ever shown to a fine pointer that has not asked for reduced motion. */}
+    <div class="cursor-glow" data-cursor-glow aria-hidden="true"></div>
+
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-surface-hover focus:px-4 focus:py-2 focus:text-fg"
@@ -283,6 +287,108 @@ const breadcrumbSchema = breadcrumb?.length
           { rootMargin: '0px 0px -10% 0px', threshold: 0.1 },
         );
         targets.forEach((el) => observer.observe(el));
+      }
+    </script>
+
+    <script>
+      /**
+       * The glow that follows the cursor, on every page.
+       *
+       * Same constraints as the hero parallax it grew out of, for the same
+       * reasons: never for someone who asked for reduced motion, never on a
+       * coarse pointer where there is no cursor to follow, only ever writing
+       * `transform` so no frame touches layout, and no loop at all once the
+       * cursor has stopped or left the window.
+       *
+       * The light theme hides it in CSS rather than here, so switching themes
+       * with the page open needs no JavaScript at all — and the element being
+       * `display: none` means the transforms below cost nothing while it is.
+       */
+      const glow = document.querySelector<HTMLElement>('[data-cursor-glow]');
+      const finePointer = window.matchMedia('(pointer: fine)');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      if (glow && finePointer.matches && !reduceMotion.matches) {
+        let targetX = 0;
+        let targetY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let moving = false;
+        let frame = 0;
+
+        // The same easing as the hero washes: the glow trails the cursor rather
+        // than being welded to it, which is what stops it reading as a widget.
+        const EASING = 0.12;
+        const SETTLED = 1;
+
+        const render = () => {
+          const restX = targetX - currentX;
+          const restY = targetY - currentY;
+          const settled = Math.abs(restX) < SETTLED && Math.abs(restY) < SETTLED;
+
+          if (settled) {
+            currentX = targetX;
+            currentY = targetY;
+          } else {
+            currentX += restX * EASING;
+            currentY += restY * EASING;
+          }
+
+          glow.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+          frame = settled ? 0 : requestAnimationFrame(render);
+        };
+
+        const start = () => {
+          if (!frame) frame = requestAnimationFrame(render);
+        };
+
+        const stop = () => {
+          if (frame) cancelAnimationFrame(frame);
+          frame = 0;
+          moving = false;
+          glow.removeAttribute('data-active');
+        };
+
+        document.addEventListener(
+          'pointermove',
+          (event) => {
+            // Touch and pen raise pointermove too; neither leaves a cursor
+            // behind for the glow to sit under.
+            if (event.pointerType !== 'mouse') return;
+            targetX = event.clientX;
+            targetY = event.clientY;
+
+            if (!moving) {
+              moving = true;
+              // Appear where the pointer already is, rather than flying in
+              // from the top-left corner of the viewport.
+              currentX = targetX;
+              currentY = targetY;
+              glow.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+              glow.setAttribute('data-active', '');
+            }
+            start();
+          },
+          { passive: true },
+        );
+
+        // `relatedTarget: null` is the cursor leaving the window entirely, as
+        // opposed to crossing between two elements inside it.
+        document.addEventListener('mouseout', (event) => {
+          if ((event as MouseEvent).relatedTarget === null) stop();
+        });
+
+        // A hidden tab must not keep a rAF loop alive.
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) stop();
+        });
+
+        // Someone can turn reduced motion on while the page is open.
+        reduceMotion.addEventListener('change', (event) => {
+          if (!event.matches) return;
+          stop();
+          glow.style.transform = '';
+        });
       }
     </script>
 

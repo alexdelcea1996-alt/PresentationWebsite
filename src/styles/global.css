@@ -47,14 +47,12 @@
   color-scheme: dark;
   /* Ambient gradient washes read as heavy smudges on a light page. */
   --glow-opacity: 1;
-  --spotlight-opacity: 1;
   --grid-line: rgb(255 255 255 / 0.6);
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
   --glow-opacity: 0.45;
-  --spotlight-opacity: 0.4;
   --grid-line: rgb(15 23 42 / 0.5);
 
   --color-surface-deep: #eef2f7;
@@ -482,28 +480,54 @@
     Hidden until the script marks it active, which it only does for a fine
     pointer and when the reader has not asked for reduced motion.
   */
-  .hero-spotlight {
-    position: absolute;
+  /* --- The glow that follows the cursor, on every page --- */
+  /*
+   * Fixed, so `clientX/clientY` can be written straight to a transform with no
+   * scroll arithmetic and no layout read per frame.
+   *
+   * It sits *above* the content and lights it with `mix-blend-mode: screen`
+   * rather than hiding behind it. The first version used `z-index: -1`, which
+   * looked right on an article and disappeared entirely on the landing page —
+   * the cards are opaque, so the glow only survived in the gaps between them.
+   * Screen blending adds light instead of painting over: on a dark page it
+   * brightens whatever is underneath and touches nothing else. It is never
+   * hit-testable, so it cannot come between a cursor and a button.
+   *
+   * The softness is in the gradient, not in a `filter: blur()`. A blurred layer
+   * this size is re-rasterised whenever the compositor decides it needs to be;
+   * a plain gradient is painted once and only ever translated afterwards.
+   */
+  .cursor-glow {
+    position: fixed;
     left: 0;
     top: 0;
-    z-index: -1;
-    width: 34rem;
-    height: 34rem;
-    margin: -17rem 0 0 -17rem;
+    /* Above the sticky header (z-50) so the light does not stop at its edge.
+       A native <dialog> lives in the top layer and is unaffected either way. */
+    z-index: 60;
+    width: 40rem;
+    height: 40rem;
+    margin: -20rem 0 0 -20rem;
     border-radius: 9999px;
     background: radial-gradient(
       circle closest-side,
-      color-mix(in oklab, var(--color-accent-alt) 20%, transparent),
-      transparent 70%
+      color-mix(in oklab, var(--color-accent-alt) 14%, transparent),
+      color-mix(in oklab, var(--color-accent) 8%, transparent) 45%,
+      transparent 72%
     );
-    filter: blur(40px);
+    mix-blend-mode: screen;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.45s var(--ease-out-soft);
+    transition: opacity 0.6s var(--ease-out-soft);
   }
 
-  .hero-spotlight[data-active] {
-    opacity: var(--spotlight-opacity, 1);
+  .cursor-glow[data-active] {
+    opacity: 1;
+  }
+
+  /* Night only. Screen blending on a white page does nothing at all, and the
+     unblended fallback would read as a smudge under the cursor. */
+  :root[data-theme='light'] .cursor-glow {
+    display: none;
   }
 
   /* --- Booking modal --- */

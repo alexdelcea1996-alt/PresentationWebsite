@@ -30,6 +30,19 @@ for (const [label, path] of [
   ['EN demo', '/en/demo/'],
   ['RO store demo', '/demo/magazin/'],
   ['EN store demo', '/en/demo/store/'],
+  ['RO landing demo', '/demo/landing-page/'],
+  ['RO site demo', '/demo/site-de-prezentare/'],
+  ['EN landing demo', '/en/demo/landing-page/'],
+  ['EN site demo', '/en/demo/business-website/'],
+  // The examples are separate documents: axe on the host page cannot see inside
+  // the frame, so each one is checked in its own right. They have their own
+  // palette and their own markup, which is exactly why they need their own runs.
+  ['RO example landing', '/demo/exemplu/atelier/'],
+  ['RO example site', '/demo/exemplu/instalatii/'],
+  ['RO example services', '/demo/exemplu/instalatii/servicii/'],
+  ['RO example contact', '/demo/exemplu/instalatii/contact/'],
+  ['EN example landing', '/en/demo/example/workshop/'],
+  ['EN example site', '/en/demo/example/plumber/'],
 ]) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   // Injected via addInitScript: the site's CSP blocks inline <script> tags, so

@@ -655,7 +655,73 @@ export const en: Content = {
     ],
   },
 
-  demoNav: { label: 'Demos', bookings: 'Bookings', store: 'Store' },
+  demoNav: {
+    label: 'Demos',
+    bookings: 'Bookings',
+    store: 'Store',
+    landing: 'Landing page',
+    site: 'Business website',
+  },
+
+  demoFrame: {
+    frameTitle: 'The example, open in a browser',
+    viewLabel: 'How you see it',
+    desktop: 'Large screen',
+    mobile: 'Phone',
+    openFull: 'Open it full screen',
+  },
+
+  landingDemo: {
+    metaTitle: 'Demo: what a landing page that converts looks like | Alex Delcea',
+    metaDescription:
+      'A complete, working landing page, open in a browser frame. One page, one decision, a form that answers. Try it, then see what changes on a business website.',
+    eyebrow: 'Working example',
+    title: 'A landing page, whole, not a screenshot',
+    lead: 'The page below is real: scroll it, press the button, fill in the form. It is built for an invented woodworking workshop, so the structure shows without the client mattering.',
+    disclaimer:
+      'The business, the price and the date are invented, and the form sends nothing anywhere. The page itself is built exactly like a delivered one: no templates, and no JavaScript the text depends on.',
+    lookForTitle: 'What to look at while you scroll',
+    lookFor: [
+      'There is no menu. Every entry in a menu is a way out of the page you paid to get somebody onto.',
+      'The date, the time, the price and the number of places are visible without scrolling. Those decide the click, not the company story.',
+      'One button, repeated twice, going to the same place.',
+      'The form asks for three things. Every extra field costs you completions.',
+      'The three questions at the end are the real objections, not decoration.',
+    ],
+    whyTitle: 'Why it looks like this',
+    whyBody:
+      'A landing page is not a smaller website. It has one job — converting the people you bring from ads or a list — and everything that does not serve that job comes out of the page, including true and flattering things about the business.',
+    builtTitle: 'How it is built',
+    builtBody:
+      'The same way as the site you are reading: static HTML, no framework, with the text visible even if the JavaScript never runs. It loads in under a second on mobile data, which matters directly when you pay for every click.',
+    cta: 'I want a landing page like this',
+  },
+
+  siteDemo: {
+    metaTitle: 'Demo: what a three-page business website looks like | Alex Delcea',
+    metaDescription:
+      'A complete business website with a working menu and three navigable pages, open in a browser frame. See how it differs from a landing page.',
+    eyebrow: 'Working example',
+    title: 'A business website, with a menu that actually works',
+    lead: 'Three navigable pages for an invented heating and plumbing firm. Walk through the menu: home, services, contact. That is the difference from the landing page next door.',
+    disclaimer:
+      'The company, the phone number and the areas covered are invented, and the form sends nothing anywhere. The structure, though, is the one I deliver.',
+    lookForTitle: 'What to look at while you navigate',
+    lookFor: [
+      'The menu exists and works. Here it belongs: the visitor arrives with a question the home page may not answer.',
+      'Each service has its own heading, so it can be found separately in search. A single page will not rank for several searches.',
+      'The first sentence says when somebody turns up, not how many years the firm has existed. With a broken boiler, that is the question.',
+      'The phone number sits beside the form, not hidden behind it.',
+      'The three figures at the top are things a customer could check, not superlatives.',
+    ],
+    whyTitle: 'Why it looks like this',
+    whyBody:
+      'A business website covers subjects rather than one decision: a page for each thing you sell, each findable on its own. That is why it has a menu, why it has several pages, and why it costs and takes more than a landing page.',
+    builtTitle: 'How it is built',
+    builtBody:
+      'Static, with no CMS to maintain and no plugins to update. Each page is a file served instantly; there is no database to fall over and no admin panel to break into.',
+    cta: 'I want a site like this',
+  },
   demo: {
     metaTitle: 'Demo: what a custom web application looks like | Alex Delcea',
     metaDescription:

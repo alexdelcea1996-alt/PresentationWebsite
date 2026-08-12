@@ -69,13 +69,14 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **97–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **711 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
+- **840 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
   dark + 9 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
   programare (18), tranziții (17), completitudine (116), garanții (16), politica de
   confidențialitate (38), imagini de partajare (14), bugete de greutate (17), studiu de
   caz (19), demo-ul de programări (91), demo-ul de magazin (92), coerența ofertelor (77),
-  audit (4 fără cheie / 30 cu ea), analytics (16 fără token / 29 cu el)
+  audit (4 fără cheie / 30 cu ea), analytics (16 fără token / 29 cu el), demo-urile cu
+  site întreg (102), glow-ul de cursor + parallax (19)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -155,7 +156,9 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
    (viteză, pregătirea proiectului, landing page vs site de prezentare, cât costă un magazin)
 8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
 9. ✅ Pachet performanță & securitate: fonturi subsetate (170 → 57 kB), CSP cu hash-uri SHA-256, header-e de securitate
-10. ✅ Semnătură vizuală interactivă în hero (parallax la cursor + spotlight; oprit pentru reduced-motion și pointer grosier)
+10. ✅ Semnătură vizuală interactivă: parallax la cursor în hero + **glow care
+    urmărește cursorul pe tot site-ul**, doar pe tema întunecată (blend `screen`
+    deasupra conținutului); ambele oprite pentru reduced-motion și pointer grosier
 
 ### C. Pachetul „impresionăm" (propus 2026-08-11)
 
@@ -180,10 +183,14 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 7. ✅ Secțiune de garanții în locul casetelor goale — două coloane, ce garantez
    și ce nu; fiecare rând e preluat din text deja publicat pe site, nicio
    promisiune nouă
-8. ✅ Demo funcțional de aplicație web — **două** aplicații jucabile: programări
-   la `/demo/` și magazin online la `/demo/magazin/`, ambele cu stare în
-   `localStorage`, pe paginile lor ca să nu încarce prima pagină; date
-   inventate, spus explicit în pagină
+8. ✅ Demo pentru fiecare ofertă care poate fi arătată — **patru**, de două feluri.
+   Două aplicații jucabile (programări la `/demo/`, magazin la `/demo/magazin/`,
+   stare în `localStorage`) și două site-uri întregi, pentru firme inventate,
+   deschise într-o ramă de browser: landing page la `/demo/landing-page/` și site
+   de prezentare pe trei pagini la `/demo/site-de-prezentare/`. Exemplele au
+   propria paletă și propria foaie de stil, sunt `noindex` și în afara
+   sitemap-ului. Optimizarea de site nu are demo — nu are ce arăta în afară de o
+   măsurătoare înainte/după. Date inventate, spus explicit în fiecare pagină.
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe cele 14 URL-uri din sitemap care nu-l
    aveau

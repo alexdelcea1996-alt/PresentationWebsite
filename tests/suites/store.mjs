@@ -266,12 +266,15 @@ for (const [label, here, there, current] of [
   const p = await b.newPage(VIEWPORT);
   await p.goto(`${BASE}${here}`, { waitUntil: 'domcontentloaded' });
   const tabs = p.locator('[data-demo-tab]');
-  ck(`${label} ${here}: both demos are offered`, (await tabs.count()) === 2);
+  ck(`${label} ${here}: all four demos are offered`, (await tabs.count()) === 4);
   ck(
     `${label} ${here}: this one is marked as current`,
     (await p.locator(`[data-demo-tab="${current}"]`).getAttribute('aria-current')) === 'page',
   );
-  const other = await p.locator(`[data-demo-tab]:not([aria-current])`).getAttribute('href');
+  // The other three are all one click away; this suite only cares that the
+  // switcher reaches the demo it is paired with.
+  const other = await p.locator(`[data-demo-tab]:not([aria-current])[href$="${there}"]`)
+    .getAttribute('href');
   ck(`${label} ${here}: the other one is one click away`, other === there, String(other));
   await p.close();
 }
@@ -285,13 +288,15 @@ for (const [label, here, there, current] of [
   });
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
   ck('the landing page loads no demo bundle', scripts.length === 0, scripts.join(' '));
+  // Four of the five offers have a demo; site optimisation has none, because a
+  // before-and-after measurement is not something you can play with.
   ck(
-    'both service cards offer their own demo',
-    (await p.locator('[data-demo-cta]').count()) === 2,
+    'four service cards offer their own demo',
+    (await p.locator('[data-demo-cta]').count()) === 4,
     `${await p.locator('[data-demo-cta]').count()}`,
   );
   const targets = await p.$$eval('[data-demo-cta]', (nodes) => nodes.map((n) => n.getAttribute('href')));
-  ck('and they point at different ones', new Set(targets).size === 2, targets.join(' '));
+  ck('and each points at a different one', new Set(targets).size === 4, targets.join(' '));
   await p.close();
 }
 

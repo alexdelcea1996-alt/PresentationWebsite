@@ -1,6 +1,6 @@
 # Teste
 
-711 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+840 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -68,7 +68,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `metrics` | banda care măsoară pagina: cifrele afișate = ce raportează browserul | 24 |
 | `configurator` | wizardul de ofertă, calculul prețului, precompletarea formularului | 17 |
 | `theme` | light/dark, persistență, fără flash la încărcare | 14 |
-| `hero` | parallax la cursor, oprit sub `prefers-reduced-motion` și pe pointer grosier | 12 |
+| `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 19 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 116 |
@@ -78,6 +78,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 89 |
 | `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 92 |
+| `examples` | cele două demo-uri cu site întreg: rama, comutatorul de lățime, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex`, absența din sitemap și headerele de încadrare | 102 |
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 77 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie | 4 / 30 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |

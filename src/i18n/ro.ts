@@ -655,7 +655,73 @@ export const ro: Content = {
     ],
   },
 
-  demoNav: { label: 'Demo-uri', bookings: 'Programări', store: 'Magazin' },
+  demoNav: {
+    label: 'Demo-uri',
+    bookings: 'Programări',
+    store: 'Magazin',
+    landing: 'Landing page',
+    site: 'Site de prezentare',
+  },
+
+  demoFrame: {
+    frameTitle: 'Exemplul, deschis într-un browser',
+    viewLabel: 'Cum îl vezi',
+    desktop: 'Ecran mare',
+    mobile: 'Telefon',
+    openFull: 'Deschide-l pe tot ecranul',
+  },
+
+  landingDemo: {
+    metaTitle: 'Demo: cum arată un landing page care convertește | Alex Delcea',
+    metaDescription:
+      'Un landing page complet, funcțional, deschis într-o ramă de browser. O pagină, o singură decizie, formular care răspunde. Încearcă-l, apoi vezi ce se schimbă la un site de prezentare.',
+    eyebrow: 'Exemplu funcțional',
+    title: 'Un landing page, întreg, nu o captură',
+    lead: 'Pagina de mai jos e reală: derulează, apasă butonul, completează formularul. E făcută pentru un atelier de tâmplărie inventat, ca să se vadă structura fără să conteze cine e clientul.',
+    disclaimer:
+      'Firma, prețul și data sunt inventate, iar formularul nu trimite nimic nicăieri. Pagina e construită exact ca una livrată: fără șabloane, fără JavaScript de care să depindă textul.',
+    lookForTitle: 'La ce să te uiți în timp ce derulezi',
+    lookFor: [
+      'Nu are meniu. Fiecare intrare într-un meniu e un mod de a pleca din pagina pentru care ai plătit ca omul să intre.',
+      'Data, ora, prețul și numărul de locuri se văd fără să derulezi. Astea decid clickul, nu povestea firmei.',
+      'Un singur buton, repetat de două ori, care duce în același loc.',
+      'Formularul cere trei lucruri. Fiecare câmp în plus scade numărul de completări.',
+      'Cele trei întrebări de la final sunt obiecțiile reale, nu întrebări de decor.',
+    ],
+    whyTitle: 'De ce arată așa',
+    whyBody:
+      'Un landing page nu e un site mai mic. Are o singură treabă — să transforme oamenii pe care îi aduci tu din reclame sau dintr-o listă — și tot ce nu ajută treaba aia iese din pagină, inclusiv lucruri adevărate și bune despre firmă.',
+    builtTitle: 'Cum e construit',
+    builtBody:
+      'Aceeași tehnologie ca site-ul pe care îl citești: HTML static, fără framework, cu textul vizibil chiar dacă JavaScript-ul nu pornește. Se încarcă sub o secundă pe internet mobil — ceea ce contează direct când plătești fiecare click.',
+    cta: 'Vreau un landing page ca ăsta',
+  },
+
+  siteDemo: {
+    metaTitle: 'Demo: cum arată un site de prezentare pe trei pagini | Alex Delcea',
+    metaDescription:
+      'Un site de prezentare complet, cu meniu care funcționează și trei pagini navigabile, deschis într-o ramă de browser. Vezi diferența față de un landing page.',
+    eyebrow: 'Exemplu funcțional',
+    title: 'Un site de prezentare, cu meniul care chiar merge',
+    lead: 'Trei pagini navigabile, pentru o firmă de instalații inventată. Umblă prin meniu: acasă, servicii, contact. Asta e diferența față de landing page-ul de alături.',
+    disclaimer:
+      'Firma, numărul de telefon și zonele deservite sunt inventate, iar formularul nu trimite nimic nicăieri. Structura e însă cea pe care o livrez.',
+    lookForTitle: 'La ce să te uiți în timp ce navighezi',
+    lookFor: [
+      'Meniul există și funcționează. Aici e binevenit: omul ajunge cu o întrebare la care prima pagină poate să nu fie răspunsul.',
+      'Fiecare serviciu are titlul lui, ca să poată fi găsit separat în Google. O pagină singură nu se poziționează pe mai multe căutări.',
+      'Prima frază spune când vii, nu de câți ani există firma. Pentru o centrală stricată, asta e întrebarea.',
+      'Numărul de telefon stă lângă formular, nu ascuns după el.',
+      'Cele trei cifre de sus sunt verificabile de client, nu superlative.',
+    ],
+    whyTitle: 'De ce arată așa',
+    whyBody:
+      'Un site de prezentare acoperă subiecte, nu o singură decizie: o pagină pentru fiecare lucru pe care îl vinzi, fiecare găsibilă separat. De aceea are meniu, de aceea are mai multe pagini și de aceea costă și durează mai mult decât un landing page.',
+    builtTitle: 'Cum e construit',
+    builtBody:
+      'Static, fără CMS de întreținut și fără plugin-uri de actualizat. Fiecare pagină e un fișier care se servește instant; nu există bază de date care să cadă și nici panou de administrare care să fie spart.',
+    cta: 'Vreau un site ca ăsta',
+  },
   demo: {
     metaTitle: 'Demo: cum arată o aplicație web făcută la comandă | Alex Delcea',
     metaDescription:

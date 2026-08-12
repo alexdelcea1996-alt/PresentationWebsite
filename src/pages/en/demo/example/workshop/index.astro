@@ -1,0 +1,9 @@
+---
+import DemoSite from '../../../../../layouts/DemoSite.astro';
+import ExampleLanding from '../../../../../components/examples/ExampleLanding.astro';
+import { exampleLanding } from '../../../../../data/demo-sites';
+---
+
+<DemoSite locale="en" theme="workshop" title={`${exampleLanding.en.brand} — ${exampleLanding.en.tagline}`}>
+  <ExampleLanding locale="en" />
+</DemoSite>

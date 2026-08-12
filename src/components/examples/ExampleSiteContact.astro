@@ -1,0 +1,115 @@
+---
+/**
+ * Contact page of the business-website example.
+ *
+ * The details sit beside the form rather than under it, because for this trade
+ * the phone converts better than any form — and a site that hides the number
+ * behind a contact form is optimising for the wrong party.
+ */
+import type { Locale } from '../../i18n';
+import { exampleSite } from '../../data/demo-sites';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = exampleSite[locale];
+const contact = t.contact;
+---
+
+<section class="bw-hero">
+  <div class="ex-wrap">
+    <p class="ex-eyebrow">{t.nav.contact}</p>
+    <h1 class="bw-h1">{t.nav.contact}</h1>
+    <p class="bw-lead">{contact.lead}</p>
+  </div>
+</section>
+
+<section class="bw-section">
+  <div class="ex-wrap bw-two">
+    <div class="ex-card">
+      <h2 class="bw-card-title">{contact.formTitle}</h2>
+
+      <form class="bw-form" data-bw-form novalidate>
+        <div>
+          <label class="ex-label" for="bw-name">{contact.fields.name}</label>
+          <input
+            class="ex-field"
+            id="bw-name"
+            name="name"
+            required
+            placeholder={contact.placeholders.name}
+          />
+        </div>
+        <div>
+          <label class="ex-label" for="bw-phone">{contact.fields.phone}</label>
+          <input
+            class="ex-field"
+            id="bw-phone"
+            name="phone"
+            type="tel"
+            required
+            placeholder={contact.placeholders.phone}
+          />
+        </div>
+        <div>
+          <label class="ex-label" for="bw-message">{contact.fields.message}</label>
+          <textarea
+            class="ex-field"
+            id="bw-message"
+            name="message"
+            rows="4"
+            placeholder={contact.placeholders.message}></textarea>
+        </div>
+        <button class="ex-btn" type="submit">{contact.submit}</button>
+      </form>
+
+      <div class="bw-done ex-hidden" data-bw-done role="status">
+        <p class="bw-done-title">{contact.successTitle}</p>
+        <p class="bw-card-body">{contact.successBody}</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="bw-h2">{contact.detailsTitle}</h2>
+      <dl class="bw-details">
+        <div>
+          <dt>{contact.phoneLabel}</dt>
+          <dd><a href={`tel:${contact.phone.replace(/\s/g, '')}`}>{contact.phone}</a></dd>
+        </div>
+        <div>
+          <dt>{contact.emailLabel}</dt>
+          <dd><a href={`mailto:${contact.email}`}>{contact.email}</a></dd>
+        </div>
+        <div>
+          <dt>{contact.hoursLabel}</dt>
+          <dd>{contact.hours}</dd>
+        </div>
+        <div>
+          <dt>{contact.urgentLabel}</dt>
+          <dd>{contact.urgent}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Same rule as the landing example: it works far enough to be worth trying,
+  // and it says out loud that nothing was sent.
+  const form = document.querySelector<HTMLFormElement>('[data-bw-form]');
+  const done = document.querySelector<HTMLElement>('[data-bw-done]');
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const required = [...form.querySelectorAll<HTMLInputElement>('input[required]')];
+    const missing = required.find((field) => !field.value.trim());
+    if (missing) {
+      missing.focus();
+      return;
+    }
+    form.classList.add('ex-hidden');
+    done?.classList.remove('ex-hidden');
+  });
+</script>

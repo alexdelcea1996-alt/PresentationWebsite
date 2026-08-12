@@ -1,0 +1,12 @@
+---
+import DemoSite from '../../../../../layouts/DemoSite.astro';
+import ExampleSiteShell from '../../../../../components/examples/ExampleSiteShell.astro';
+import ExampleSiteServices from '../../../../../components/examples/ExampleSiteServices.astro';
+import { exampleSite } from '../../../../../data/demo-sites';
+---
+
+<DemoSite locale="ro" theme="trade" title={exampleSite.ro.services.title}>
+  <ExampleSiteShell locale="ro" page="services">
+    <ExampleSiteServices locale="ro" />
+  </ExampleSiteShell>
+</DemoSite>

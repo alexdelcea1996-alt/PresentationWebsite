@@ -1,0 +1,356 @@
+---
+/**
+ * The landing page example: a one-day woodworking workshop.
+ *
+ * Built to demonstrate the argument the service page makes rather than to look
+ * pretty — no navigation, one action repeated, the price and the date visible
+ * without scrolling, and a form short enough that nobody abandons it. Every
+ * section here earns its place against that single decision; anything that
+ * would merely be nice to know about the business is absent on purpose.
+ */
+import type { Locale } from '../../i18n';
+import { exampleLanding } from '../../data/demo-sites';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = exampleLanding[locale];
+---
+
+<header class="lp-bar" aria-label={t.brand}>
+  <div class="ex-wrap lp-bar-inner">
+    <span class="lp-brand">{t.brand}</span>
+    <span class="ex-muted lp-tagline">{t.tagline}</span>
+  </div>
+</header>
+
+<main aria-label={t.brand}>
+  <section class="lp-hero">
+    <div class="ex-wrap">
+      <p class="ex-eyebrow">{t.eyebrow}</p>
+      <h1 class="lp-title">{t.title}</h1>
+      <p class="lp-lead ex-muted">{t.lead}</p>
+      <a href="#rezerva" class="ex-btn lp-cta">{t.cta}</a>
+      <p class="lp-note ex-muted">{t.ctaNote}</p>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <div class="ex-wrap">
+      <h2 class="lp-h2">{t.agendaTitle}</h2>
+      <ol class="lp-agenda">
+        {
+          t.agenda.map((step) => (
+            <li class="lp-step">
+              <span class="lp-time">{step.time}</span>
+              <div>
+                <h3 class="lp-step-title">{step.title}</h3>
+                <p class="ex-muted">{step.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="lp-section lp-alt">
+    <div class="ex-wrap lp-two">
+      <div>
+        <h2 class="lp-h2">{t.takeawayTitle}</h2>
+        <ul class="lp-list">
+          {t.takeaways.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+      <div class="ex-card">
+        <h2 class="lp-h3">{t.hostTitle}</h2>
+        <p class="lp-host-name">{t.hostName}</p>
+        <p class="ex-muted lp-host-body">{t.hostBody}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <div class="ex-wrap lp-two">
+      <div>
+        <h2 class="lp-h2">{t.priceTitle}</h2>
+        <p class="lp-price">{t.price}</p>
+        <p class="ex-muted">{t.priceNote}</p>
+        <ul class="lp-list lp-list-tight">
+          {t.includes.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+
+      <div class="ex-card" id="rezerva">
+        <h2 class="lp-h3">{t.formTitle}</h2>
+        <p class="ex-muted lp-form-body">{t.formBody}</p>
+
+        <form class="lp-form" data-lp-form novalidate>
+          <div>
+            <label class="ex-label" for="lp-name">{t.fields.name}</label>
+            <input class="ex-field" id="lp-name" name="name" required placeholder={t.placeholders.name} />
+          </div>
+          <div>
+            <label class="ex-label" for="lp-phone">{t.fields.phone}</label>
+            <input
+              class="ex-field"
+              id="lp-phone"
+              name="phone"
+              type="tel"
+              required
+              placeholder={t.placeholders.phone}
+            />
+          </div>
+          <div>
+            <label class="ex-label" for="lp-people">{t.fields.people}</label>
+            <select class="ex-field" id="lp-people" name="people">
+              {t.peopleOptions.map((option) => <option>{option}</option>)}
+            </select>
+          </div>
+          <button class="ex-btn lp-submit" type="submit">{t.submit}</button>
+        </form>
+
+        <div class="lp-done ex-hidden" data-lp-done role="status">
+          <p class="lp-done-title">{t.successTitle}</p>
+          <p class="ex-muted">{t.successBody}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section lp-alt">
+    <div class="ex-wrap">
+      <h2 class="lp-h2">{t.faqTitle}</h2>
+      <dl class="lp-faq">
+        {
+          t.faq.map((item) => (
+            <div class="lp-faq-item">
+              <dt class="lp-faq-q">{item.question}</dt>
+              <dd class="ex-muted lp-faq-a">{item.answer}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <a href="#rezerva" class="ex-btn lp-cta-bottom">{t.cta}</a>
+    </div>
+  </section>
+</main>
+
+<footer class="lp-footer" aria-label={t.brand}>
+  <div class="ex-wrap ex-muted">{t.footer}</div>
+</footer>
+
+<script>
+  // The form is real enough to be worth trying and goes nowhere on purpose:
+  // the success panel says so, in the visitor's language, rather than letting
+  // anyone think a booking was taken.
+  const form = document.querySelector<HTMLFormElement>('[data-lp-form]');
+  const done = document.querySelector<HTMLElement>('[data-lp-done]');
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const required = [...form.querySelectorAll<HTMLInputElement>('input[required]')];
+    const missing = required.find((field) => !field.value.trim());
+    if (missing) {
+      missing.focus();
+      return;
+    }
+    form.classList.add('ex-hidden');
+    done?.classList.remove('ex-hidden');
+    done?.focus?.();
+  });
+</script>
+
+<style>
+  .lp-bar {
+    border-bottom: 1px solid var(--ex-line);
+    background: var(--ex-surface);
+  }
+
+  .lp-bar-inner {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-block: 1rem;
+  }
+
+  .lp-brand {
+    font-family: var(--ex-font);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .lp-tagline {
+    font-size: 0.85rem;
+  }
+
+  .lp-hero {
+    padding-block: 4rem 3rem;
+  }
+
+  .lp-title {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    max-width: 20ch;
+  }
+
+  .lp-lead {
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+    max-width: 52ch;
+  }
+
+  .lp-cta {
+    margin-top: 2rem;
+    font-size: 1.05rem;
+  }
+
+  .lp-note {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .lp-section {
+    padding-block: 3.5rem;
+  }
+
+  .lp-alt {
+    background: var(--ex-surface);
+    border-block: 1px solid var(--ex-line);
+  }
+
+  .lp-h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .lp-h3 {
+    font-size: 1.25rem;
+  }
+
+  .lp-agenda {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .lp-step {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .lp-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--ex-accent);
+    padding-top: 0.15rem;
+  }
+
+  .lp-step-title {
+    font-size: 1.05rem;
+  }
+
+  .lp-two {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 48rem) {
+    .lp-two {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      gap: 3rem;
+    }
+  }
+
+  .lp-list {
+    margin: 1.5rem 0 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .lp-list-tight {
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .lp-host-name {
+    margin-top: 1rem;
+    font-weight: 700;
+  }
+
+  .lp-host-body {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .lp-price {
+    margin-top: 1.25rem;
+    font-family: var(--ex-font);
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .lp-form-body {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .lp-form {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .lp-submit {
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+
+  .lp-done {
+    margin-top: 1.5rem;
+  }
+
+  .lp-done-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .lp-faq {
+    margin: 2rem 0 0;
+    display: grid;
+    gap: 1.5rem;
+    max-width: 60ch;
+  }
+
+  .lp-faq-item {
+    border-top: 1px solid var(--ex-line);
+    padding-top: 1.25rem;
+  }
+
+  .lp-faq-q {
+    font-weight: 700;
+  }
+
+  .lp-faq-a {
+    margin: 0.35rem 0 0;
+  }
+
+  .lp-cta-bottom {
+    margin-top: 2.5rem;
+  }
+
+  .lp-footer {
+    padding-block: 2rem;
+    font-size: 0.85rem;
+  }
+</style>
