@@ -147,8 +147,10 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 Analiză pornită de la trei constatări: site-ul nu are **nicio imagine**, dovezile
 lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploatate.
 
-1. Imagini reale + pipeline de imagini (`sharp`, `astro:assets`, secțiune „Despre
-   mine", proiecte reale în portofoliu) — *așteaptă materiale de la Alex*
+1. 🟡 Imagini reale + pipeline de imagini — pipeline-ul e gata (`sharp` declarat,
+   `astro:assets`, AVIF + srcset, `image()` în schemă) și capturile reale ale
+   acestui site sunt pe card și pe studiul de caz, în rame de device.
+   *Mai lipsesc: fotografia lui Alex și proiectele clienților.*
 2. ✅ Bandă care se măsoară singură — LCP, greutate și JS, măsurate în browserul
    vizitatorului, sub afirmația din hero
 3. Auditul gratuit devine instrument real (Google PageSpeed API din browser)

@@ -1,0 +1,75 @@
+---
+/**
+ * Shows a project's screenshots inside browser and phone chrome, drawn in CSS.
+ *
+ * The frames are not decoration: a bare screenshot of a website on a website
+ * reads as part of the page rather than as a picture of something else. The
+ * chrome tells the eye "this is a different screen".
+ *
+ * Both images carry explicit dimensions and are served as AVIF/WebP with a
+ * responsive srcset, so they cost little and shift nothing while they load.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  desktop: ImageMetadata;
+  mobile?: ImageMetadata;
+  alt: string;
+  /** The address shown in the fake browser bar. */
+  url?: string;
+  /** The first screenshot on a page is worth loading eagerly. */
+  eager?: boolean;
+}
+
+const { desktop, mobile, alt, url, eager = false } = Astro.props;
+const host = url ? new URL(url).host : undefined;
+---
+
+<figure class="relative">
+  <div class="overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl shadow-black/40">
+    {/* Browser chrome */}
+    <div class="flex items-center gap-2 border-b border-border bg-surface-raised px-4 py-3">
+      <span class="flex gap-1.5" aria-hidden="true">
+        <span class="size-2.5 rounded-full bg-border-strong"></span>
+        <span class="size-2.5 rounded-full bg-border-strong"></span>
+        <span class="size-2.5 rounded-full bg-border-strong"></span>
+      </span>
+      {
+        host && (
+          <span class="mx-auto truncate rounded-md bg-surface px-3 py-1 text-[11px] text-fg-subtle">
+            {host}
+          </span>
+        )
+      }
+    </div>
+
+    <Image
+      src={desktop}
+      alt={alt}
+      widths={[640, 960, 1440]}
+      sizes="(min-width: 1024px) 900px, 100vw"
+      format="avif"
+      loading={eager ? 'eager' : 'lazy'}
+      class="block w-full"
+    />
+  </div>
+
+  {
+    mobile && (
+      <div class="mx-auto -mt-14 w-32 sm:absolute sm:-bottom-8 sm:-right-4 sm:mt-0 sm:w-40 lg:w-44">
+        <div class="overflow-hidden rounded-[1.6rem] border-4 border-surface-raised bg-surface shadow-2xl shadow-black/50 ring-1 ring-border">
+          <Image
+            src={mobile}
+            alt=""
+            widths={[176, 352]}
+            sizes="176px"
+            format="avif"
+            loading="lazy"
+            class="block w-full"
+          />
+        </div>
+      </div>
+    )
+  }
+</figure>

@@ -25,6 +25,9 @@ result: >-
   Scorurile de mai jos sunt măsurate pe build-ul de producție, nu estimate. Codul e public, deci
   oricine poate verifica afirmațiile — inclusiv un client care vrea a doua opinie de la alt
   dezvoltator.
+coverDesktop: ../images/this-site-desktop.png
+coverMobile: ../images/this-site-mobile.png
+coverAlt: Prima pagină a site-ului pe desktop și pe telefon, în tema întunecată.
 metrics:
   - label: Lighthouse desktop
     value: 100/100

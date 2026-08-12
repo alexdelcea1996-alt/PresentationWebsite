@@ -34,6 +34,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm test` | Rulează cele 275 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
+| `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
 
 `npm test` are nevoie de un build recent — testele verifică ce e în `dist/`, nu
 codul sursă, fiindcă jumătate din ce se poate strica (hash-urile CSP, `_headers`,
@@ -130,6 +131,9 @@ tech: [Astro, Tailwind]
 problem: Ce problemă avea clientul.
 solution: Ce am construit.
 result: Rezultatul concret.
+coverDesktop: ../images/proiect-desktop.png   # opțional, dar recomandat
+coverMobile: ../images/proiect-mobile.png     # opțional
+coverAlt: Ce se vede în capturi, pentru cine nu le poate vedea.
 metrics:                       # opțional, doar valori măsurate
   - label: Scor Lighthouse
     value: 100/100
@@ -148,6 +152,19 @@ cartea ta de vizită.
 
 Notă tehnică: câmpul se numește `urlSlug`, nu `slug`, pentru că Astro rezervă
 `slug` în schemele de colecții și respinge schema în tăcere dacă îl folosești.
+
+**Capturile.** Pune fișierele în `src/content/case-studies/images/`. Le
+optimizează Astro automat: AVIF, mai multe lățimi, `width`/`height` puse în
+markup ca să nu sară pagina la încărcare. Nu le comprima tu înainte — dă-mi
+originalul, la rezoluție mare.
+
+Capturile apar în două locuri: ca miniatură pe cardul din portofoliu și, pe
+pagina studiului de caz, într-o ramă de browser cu telefonul alături. Rama nu e
+decor: o captură a unui site pusă pe un site se citește ca parte din pagină, nu
+ca poza altui ecran.
+
+Pentru site-ul ăsta, capturile se fac singure cu `npm run shots` (după un build).
+Pentru proiectele clienților, îmi trimiți tu URL-ul sau fișierele.
 
 ### Un testimonial
 

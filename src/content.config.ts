@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import type { ImageFunction } from 'astro:content';
 
 /**
  * Case studies live as Markdown, one file per language under a folder named
@@ -10,7 +11,7 @@ import { glob } from 'astro/loaders';
  */
 const caseStudies = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/case-studies' }),
-  schema: z.object({
+  schema: ({ image }: { image: ImageFunction }) => z.object({
     /**
      * Localised URL segment, e.g. `acest-site` / `this-site`.
      * Not named `slug`: Astro reserves that key in collection schemas.
@@ -32,6 +33,15 @@ const caseStudies = defineCollection({
     result: z.string(),
     /** Headline numbers. Only ever measured values — never estimates. */
     metrics: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+    /**
+     * Real screenshots of the finished work — desktop and phone. Optional, so a
+     * case study can be written before the pictures exist, but a project with no
+     * picture is a project nobody looks at.
+     */
+    coverDesktop: image().optional(),
+    coverMobile: image().optional(),
+    /** Describes the screenshots for anyone who cannot see them. */
+    coverAlt: z.string().optional(),
     /** Lower numbers surface first. */
     order: z.number().default(0),
   }),

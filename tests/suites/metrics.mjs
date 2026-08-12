@@ -1,4 +1,4 @@
-import { launch, BASE, axePath } from '../harness.mjs';
+import { launch, BASE, axePath, settleAnimations } from '../harness.mjs';
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 
@@ -121,6 +121,7 @@ ck('band does not appear on sub-pages', (await blog.locator('[data-live-metrics]
 const a = await b.newPage({ viewport: { width: 1440, height: 900 } });
 await a.addInitScript({ path: axePath });
 await a.goto(`${BASE}/`, { waitUntil: 'load' });
+await settleAnimations(a);
 const res = await a.evaluate(async () =>
   // @ts-ignore
   axe.run('[data-live-metrics]', {

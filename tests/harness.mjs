@@ -75,6 +75,31 @@ export async function auditPage(browser, options = {}) {
   return page;
 }
 
+/**
+ * Finish the scroll-reveal animation before measuring anything.
+ *
+ * `[data-reveal]` elements fade in over 0.6s. Run axe while one is at, say,
+ * opacity 0.6 and it samples a blended colour — cyan #22d3ee reads as #198499 —
+ * and reports a contrast failure that does not exist on the finished page.
+ * Worse, whether it happens at all depends on load timing, so the suite passes
+ * until something unrelated shifts by a few milliseconds.
+ */
+export async function settleAnimations(page) {
+  await page.evaluate(() =>
+    document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible')),
+  );
+  await page
+    .waitForFunction(
+      () =>
+        [...document.querySelectorAll('[data-reveal]')].every(
+          (el) => getComputedStyle(el).opacity === '1',
+        ),
+      null,
+      { timeout: 3000 },
+    )
+    .catch(() => {});
+}
+
 /** Run axe over the whole document, or over one selector. */
 export function runAxe(page, selector) {
   return page.evaluate(

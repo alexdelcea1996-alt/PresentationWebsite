@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, checks } from '../harness.mjs';
+import { launch, BASE, axePath, checks, settleAnimations } from '../harness.mjs';
 
 const check = checks();
 const browser = await launch();
@@ -26,6 +26,7 @@ for (const [label, path] of [
   // addScriptTag would fail and — worse — could pass silently in a shell pipe.
   await page.addInitScript({ path: axePath });
   await page.goto(`${BASE}${path}`, { waitUntil: 'networkidle' });
+  await settleAnimations(page);
   const result = await page.evaluate(async () =>
     // @ts-ignore
     axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] }),

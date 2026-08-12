@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, runAxe } from '../harness.mjs';
+import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -53,7 +53,7 @@ const a = await b.newPage({ viewport: { width: 1440, height: 1000 } });
 await a.addInitScript({ path: axePath });
 await a.goto(`${BASE}/`, { waitUntil: 'load' });
 await a.locator('#guarantees').scrollIntoViewIfNeeded();
-await a.waitForTimeout(800);
+await settleAnimations(a);
 const axeResult = await runAxe(a, '#guarantees');
 ck('the section is axe-clean', axeResult.violations.length === 0,
   axeResult.violations.map((v) => v.id).join(', '));

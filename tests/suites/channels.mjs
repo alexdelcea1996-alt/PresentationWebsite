@@ -1,4 +1,4 @@
-import { launch, BASE, axePath } from '../harness.mjs';
+import { launch, BASE, axePath, settleAnimations } from '../harness.mjs';
 const NUMBER = '+40 767 079 882';
 const DIGITS = '40767079882';
 
@@ -169,6 +169,7 @@ for (const scheme of ['dark', 'light']) {
   const a = await b.newPage({ viewport: { width: 1280, height: 900 }, colorScheme: scheme });
   await a.addInitScript({ path: axePath });
   await a.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+  await settleAnimations(a);
   const res = await a.evaluate(async () =>
     // @ts-ignore
     axe.run('#contact', { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] }));

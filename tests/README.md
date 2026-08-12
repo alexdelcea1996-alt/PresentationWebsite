@@ -24,6 +24,13 @@ prost decât e.
 build. Servit static, fără header-e, un script pe care producția îl refuză ar merge
 perfect în teste — iar primul semn ar fi o secțiune goală pe site-ul live.
 
+**Animațiile se termină înainte de măsurare.** Elementele cu `[data-reveal]`
+apar printr-un fade de 0,6 s. axe rulat la mijlocul lui citește o culoare
+amestecată — cyan-ul #22d3ee apare ca #198499 — și raportează o problemă de
+contrast care nu există pe pagina așezată. Mai rău, depinde de sincronizarea
+încărcării, deci suita trece până când altceva se mișcă cu câteva milisecunde.
+De aia există `settleAnimations()` în harness, apelat înaintea fiecărei rulări axe.
+
 **axe-core intră prin `addInitScript`, niciodată prin `addScriptTag`.** Un tag
 `<script>` e refuzat chiar de CSP-ul site-ului, iar o injectare eșuată arată exact
 ca o pagină fără probleme de accesibilitate. Greșeala asta a fost făcută o dată

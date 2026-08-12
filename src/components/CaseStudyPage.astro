@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
+import DeviceShowcase from './DeviceShowcase.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
 import { caseStudyPath, getTranslations, type CaseStudy } from '../data/case-studies';
 
@@ -93,6 +94,20 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
             }
           </div>
         </header>
+
+        {
+          entry.data.coverDesktop && (
+            <div class="mt-14 sm:mb-10">
+              <DeviceShowcase
+                desktop={entry.data.coverDesktop}
+                mobile={entry.data.coverMobile}
+                alt={entry.data.coverAlt ?? entry.data.title}
+                url={entry.data.url}
+                eager
+              />
+            </div>
+          )
+        }
 
         <!-- Facts -->
         <dl class="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">

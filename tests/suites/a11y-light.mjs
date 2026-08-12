@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, checks } from '../harness.mjs';
+import { launch, BASE, axePath, checks, settleAnimations } from '../harness.mjs';
 
 const check = checks();
 const browser = await launch();
@@ -13,8 +13,7 @@ for (const [label, path] of [
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' });
   await page.addInitScript({ path: axePath });
   await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
-  await page.evaluate(() => document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-visible')));
-  await page.waitForTimeout(900);
+  await settleAnimations(page);
   const theme = await page.evaluate(() => document.documentElement.dataset.theme);
   const result = await page.evaluate(async () =>
     // @ts-ignore

@@ -25,6 +25,9 @@ result: >-
   The numbers below are measured on the production build, not estimated. The code is public, so
   anyone can verify the claims — including a client who wants a second opinion from another
   developer.
+coverDesktop: ../images/this-site-desktop.png
+coverMobile: ../images/this-site-mobile.png
+coverAlt: The site's home page on desktop and on a phone, in the dark theme.
 metrics:
   - label: Lighthouse desktop
     value: 100/100

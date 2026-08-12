@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launch, BASE, axePath, runAxe } from '../harness.mjs';
+import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
 
 const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
 const R = [];
@@ -153,7 +153,7 @@ ck('a translated slug pairs across languages',
 const a = await b.newPage({ viewport: { width: 1280, height: 900 } });
 await a.addInitScript({ path: axePath });
 await a.goto(`${BASE}/missing/`, { waitUntil: 'load' });
-await a.waitForTimeout(600);
+await settleAnimations(a);
 const axeResult = await runAxe(a);
 ck('the 404 page is axe-clean', axeResult.violations.length === 0,
   axeResult.violations.map((v) => v.id).join(', '));

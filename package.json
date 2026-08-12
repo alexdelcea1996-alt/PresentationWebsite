@@ -10,7 +10,8 @@
     "check": "astro check",
     "fonts": "node scripts/fetch-fonts.mjs",
     "test": "node tests/run.mjs",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "shots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
