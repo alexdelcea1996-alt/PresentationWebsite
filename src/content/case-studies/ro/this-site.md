@@ -31,8 +31,10 @@ coverAlt: Prima pagină a site-ului pe desktop și pe telefon, în tema întunec
 metrics:
   - label: Lighthouse desktop
     value: 100/100
+    score: 100
   - label: Lighthouse mobil
     value: 98/100
+    score: 98
   - label: Încălcări de accesibilitate
     value: '0'
   - label: JavaScript de framework

@@ -32,7 +32,20 @@ const caseStudies = defineCollection({
     solution: z.string(),
     result: z.string(),
     /** Headline numbers. Only ever measured values — never estimates. */
-    metrics: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+    metrics: z
+      .array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+          /**
+           * Draws the value as a dial, for anything scored out of 100. Kept as
+           * a separate number rather than parsed out of `value`, so the display
+           * string stays free to say whatever reads best.
+           */
+          score: z.number().min(0).max(100).optional(),
+        }),
+      )
+      .default([]),
     /**
      * Real screenshots of the finished work — desktop and phone. Optional, so a
      * case study can be written before the pictures exist, but a project with no

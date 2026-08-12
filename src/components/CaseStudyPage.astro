@@ -6,6 +6,7 @@ import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import DeviceShowcase from './DeviceShowcase.astro';
+import ScoreGauge from './ScoreGauge.astro';
 import { getContent, sectionIds, type Locale } from '../i18n';
 import { caseStudyPath, getTranslations, type CaseStudy } from '../data/case-studies';
 
@@ -32,7 +33,28 @@ const portfolioAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.portfolio}
   '/',
 );
 const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+
+/**
+ * One rule per distinct score on this page, telling its dial how far to sweep.
+ * This has to be a <style> element rather than a style attribute: the CSP sets
+ * `style-src` without `unsafe-inline`, so the browser discards style attributes
+ * outright and the dials would sit permanently empty. Blocks like this are
+ * hashed by `scripts/build-headers.mjs`, so the policy stays strict.
+ */
+const scores = [
+  ...new Set(entry.data.metrics.map((metric) => metric.score).filter((score) => score !== undefined)),
+];
+const gaugeCss = scores
+  .map(
+    (score) =>
+      `.score-gauge[data-score="${score}"].is-visible .gauge-arc,` +
+      `html:not(.js) .score-gauge[data-score="${score}"] .gauge-arc` +
+      `{stroke-dashoffset:${100 - score}}`,
+  )
+  .join('');
 ---
+
+{gaugeCss && <style is:inline set:html={gaugeCss} />}
 
 <Base
   locale={locale}
@@ -156,14 +178,24 @@ const contactAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.re
           entry.data.metrics.length > 0 && (
             <section class="mt-12">
               <h2 class="font-display text-lg font-semibold">{t.caseStudy.metricsTitle}</h2>
-              <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {entry.data.metrics.map((metric) => (
-                  <div class="rounded-xl border border-border bg-surface-raised/70 p-5 text-center">
-                    <dd class="font-display text-2xl font-semibold text-gradient">{metric.value}</dd>
-                    <dt class="mt-2 text-xs text-fg-muted">{metric.label}</dt>
-                  </div>
-                ))}
-              </dl>
+              {/* Anything scored out of 100 gets a dial; the rest stay as figures. */}
+              <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {entry.data.metrics.map((metric, index) =>
+                  metric.score === undefined ? (
+                    <div class="flex flex-col items-center justify-center rounded-xl border border-border bg-surface-raised/70 p-5 text-center" data-reveal data-reveal-delay={index * 90}>
+                      <p class="font-display text-3xl font-semibold text-gradient">{metric.value}</p>
+                      <p class="mt-2 text-sm font-medium text-fg">{metric.label}</p>
+                    </div>
+                  ) : (
+                    <ScoreGauge
+                      score={metric.score}
+                      value={metric.value}
+                      label={metric.label}
+                      delay={index * 90}
+                    />
+                  ),
+                )}
+              </div>
             </section>
           )
         }

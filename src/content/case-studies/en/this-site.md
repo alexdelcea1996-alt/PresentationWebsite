@@ -31,8 +31,10 @@ coverAlt: The site's home page on desktop and on a phone, in the dark theme.
 metrics:
   - label: Lighthouse desktop
     value: 100/100
+    score: 100
   - label: Lighthouse mobile
     value: 98/100
+    score: 98
   - label: Accessibility violations
     value: '0'
   - label: Framework JavaScript

@@ -45,6 +45,24 @@ ck('fonts loaded from own origin',
   (await p.evaluate(() => performance.getEntriesByType('resource')
      .filter((r) => r.name.includes('.woff2')).every((r) => new URL(r.name).origin === location.origin))));
 
+
+// A `style` attribute written into the HTML is refused outright by `style-src`
+// without unsafe-inline, and the page carries on as though the declaration had
+// never been written — no error, no fallback. That is how the score dials first
+// shipped permanently empty.
+//
+// This reads the served markup rather than the live DOM on purpose: the reveal
+// observer sets `transition-delay` through CSSOM, and CSSOM writes from script
+// are not covered by style-src. Those are fine; authored attributes are not.
+const withInlineStyle = [];
+for (const path of ['/', '/en/', '/servicii/site-de-prezentare/', '/blog/', '/studii-de-caz/acest-site/']) {
+  const html = await (await fetch(`${BASE}${path}`)).text();
+  const found = [...html.matchAll(/<[a-z-]+[^>]*\sstyle="([^"]*)"/g)].map((m) => m[1]);
+  if (found.length) withInlineStyle.push(`${path}: ${found.join(' ')}`);
+}
+ck('no markup relies on a style attribute, which this CSP discards',
+  withInlineStyle.length === 0, withInlineStyle.join(' | '));
+
 console.log(R.join('\n'));
 console.log(`\ntotal violations: ${totalViolations}`);
 await b.close();
