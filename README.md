@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 392 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 432 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -190,6 +190,23 @@ garanta locul întâi în Google; o secțiune de garanții care ar sări peste a
 contrazice restul site-ului și ar arăta ca oricare alta.
 
 ### Prețurile
+
+**Aceeași ofertă apare în patru liste scrise de mână**, în fișiere diferite:
+cardurile din secțiunea de servicii, pachetele de preț (`pricing.plans`),
+configuratorul (`src/data/configurator.ts`) și dropdown-ul din formular. Nimic
+nu le ținea sincronizate, și au și divergat: magazinul online avea pagină
+proprie, intrare în configurator și preț publicat de la 2.200 €, dar **niciun
+card de preț** — cine se uita la prețuri trăgea concluzia că nu faci magazine.
+
+Suita `offers` verifică acum invariantul: o ofertă care apare în mai multe
+locuri trebuie să poarte aceeași cifră peste tot și să nu lipsească din
+niciunul. Dacă adaugi un pachet, adaugă-l în toate patru — sau testele îți spun
+care a rămas în urmă, cu cifra cu tot.
+
+Două oferte sunt intenționat asimetrice: **optimizarea** are pagină și card de
+serviciu, dar nu e pachet, fiindcă e audit plus intervenție punctuală, nu
+livrabile fixe; **landing page** are pachet și intrare în configurator, dar nu
+are card de serviciu și nici pagină proprie.
 
 `pricing.plans` în ambele fișiere de limbă. Valorile actuale sunt orientative
 și trebuie confirmate înainte de lansare.

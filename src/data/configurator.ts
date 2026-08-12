@@ -42,12 +42,14 @@ export interface FeatureOption {
   appliesTo: readonly ProjectTypeId[];
 }
 
+// Each base price has to match the "from" figure on the pricing card and on the
+// service page — a visitor can have all three open, and two numbers for one job
+// read as a bait price. The `offers` suite checks it on every run; it was added
+// after the store went a while with a page, a price and no card at all.
 export const projectTypes: readonly ProjectTypeOption[] = [
   { id: 'landing', basePrice: 400, baseWeeks: 1 },
   { id: 'presentation', basePrice: 900, baseWeeks: 3 },
   { id: 'shop', basePrice: 2200, baseWeeks: 5 },
-  // Must match the "from" figure on the pricing card and the service page:
-  // a visitor can see all three, and a mismatch reads as a bait price.
   { id: 'webapp', basePrice: 2500, baseWeeks: 8 },
 ];
 

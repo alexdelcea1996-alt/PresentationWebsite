@@ -15,14 +15,16 @@ const t = getContent(locale).pricing;
   <div class="container-page">
     <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
 
-    <div class="mt-16 grid items-start gap-6 lg:grid-cols-3">
+    <div class="mt-16 grid items-start gap-6 sm:grid-cols-2 xl:grid-cols-4">
       {
         t.plans.map((plan, index) => (
           <article
             class:list={[
               'card flex h-full flex-col',
               plan.featured
-                ? 'border-accent/45 bg-surface-hover shadow-[0_24px_60px_-30px] shadow-accent/60 lg:-mt-4 lg:pb-10'
+                ? // The lift only reads as emphasis when every card is on one row; in the
+                  // two-column layout it just looks like a card that failed to line up.
+                  'border-accent/45 bg-surface-hover shadow-[0_24px_60px_-30px] shadow-accent/60 xl:-mt-4 xl:pb-10'
                 : 'card-hover',
             ]}
             data-reveal

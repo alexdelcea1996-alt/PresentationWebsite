@@ -241,6 +241,23 @@ export const en: Content = {
         featured: true,
       },
       {
+        name: 'Online store',
+        price: 'from €2,200',
+        priceNote: 'delivered in 4–6 weeks',
+        description:
+          'Your own store, with payments, invoicing and couriers wired together. The customer relationship stays with you, not with a marketplace.',
+        features: [
+          'Catalogue with variants, prices and stock',
+          'Short checkout, card payment or cash on delivery',
+          'Automatic invoicing (SmartBill, Oblio, FGO)',
+          'Courier labels generated automatically',
+          'No commission on your sales from me',
+          'Terms, returns and consumer-protection — structure prepared',
+        ],
+        cta: 'Get a quote',
+        featured: false,
+      },
+      {
         name: 'Web application',
         price: 'from €2,500',
         priceNote: 'timeline agreed together',

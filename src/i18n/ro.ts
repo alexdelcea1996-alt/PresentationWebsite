@@ -241,6 +241,23 @@ export const ro: Content = {
         featured: true,
       },
       {
+        name: 'Magazin online',
+        price: 'de la 2.200 €',
+        priceNote: 'livrare în 4–6 săptămâni',
+        description:
+          'Magazin propriu, cu plăți, facturare și curieri legate între ele. Relația cu clientul rămâne a ta, nu a unui marketplace.',
+        features: [
+          'Catalog cu variante, prețuri și stocuri',
+          'Checkout scurt, cu plată online sau ramburs',
+          'Facturare automată (SmartBill, Oblio, FGO)',
+          'AWB generat automat la curier',
+          'Fără comision pe vânzare din partea mea',
+          'Termeni, retur și ANPC — structura pregătită',
+        ],
+        cta: 'Cere ofertă',
+        featured: false,
+      },
+      {
         name: 'Aplicație web',
         price: 'de la 2.500 €',
         priceNote: 'termen stabilit împreună',
