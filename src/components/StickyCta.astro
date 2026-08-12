@@ -1,0 +1,94 @@
+---
+/**
+ * The sticky bottom dock on phones.
+ *
+ * Below the `sm` breakpoint the header's quote button is hidden, and thirteen
+ * sections stand between the hero and the form — a mobile visitor who scrolled
+ * past the hero had no persistent way to act. This is the fix from PLAN 8.A.10.
+ *
+ * Behaviour rules, each there for a reason:
+ *  - invisible until the visitor has actually scrolled — it answers intent,
+ *    it does not greet;
+ *  - steps aside while the contact section or the footer is on screen, so it
+ *    never covers the very form it points to, nor the footer's last links
+ *    (the realistic axe target — a fixed bar over tappable content);
+ *  - `visibility` guards it too: an off-screen dock must not catch keyboard
+ *    focus, and without JavaScript it simply never appears.
+ */
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icon from './Icon.astro';
+import { getContent, sectionIds, type Locale } from '../i18n';
+import { site, whatsappHref } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale);
+
+const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+const whatsapp = whatsappHref(t.contact.whatsappMessage);
+---
+
+<nav class="sticky-cta" data-sticky-cta aria-label={t.nav.ariaQuick}>
+  <a href={contactHref} class="btn btn-primary min-h-11 flex-1 text-sm">
+    {t.nav.cta}
+    <Icon name="arrow-right" class="size-4" />
+  </a>
+  {
+    whatsapp && (
+      <a
+        href={whatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-ghost min-h-11 px-4 text-sm"
+        aria-label={t.contact.whatsappAction}
+      >
+        <Icon name="whatsapp" class="size-5" />
+      </a>
+    )
+  }
+</nav>
+
+<script>
+  const dock = document.querySelector<HTMLElement>('[data-sticky-cta]');
+
+  if (dock) {
+    // The dock shows only between "has scrolled with intent" and "can already
+    // see a way to act" — the contact section (on the landing page) and the
+    // footer (everywhere) both count as the latter.
+    const ends = ['#contact', 'footer']
+      .map((selector) => document.querySelector(selector))
+      .filter((el): el is Element => el !== null);
+    const visibleEnds = new Set<Element>();
+    let scrolled = false;
+
+    const apply = () => {
+      dock.toggleAttribute('data-shown', scrolled && visibleEnds.size === 0);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visibleEnds.add(entry.target);
+          else visibleEnds.delete(entry.target);
+        }
+        apply();
+      },
+      // No margin: the dock yields the moment the footer's first pixel enters,
+      // which is early enough — its links sit deeper inside. A looser margin
+      // kept the dock permanently hidden on short pages like the blog index,
+      // where mid-scroll already "sees" the footer within the margin.
+      { rootMargin: '0px' },
+    );
+    ends.forEach((el) => observer.observe(el));
+
+    const onScroll = () => {
+      scrolled = window.scrollY > window.innerHeight * 0.7;
+      apply();
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>

@@ -480,6 +480,54 @@
     Hidden until the script marks it active, which it only does for a fine
     pointer and when the reader has not asked for reduced motion.
   */
+  /* --- The sticky bottom dock on phones --- */
+  /*
+   * Hidden three ways, each for its own reason: `display` above `sm` (it is a
+   * phone affordance), `visibility` until shown (an off-screen fixed bar must
+   * not catch keyboard focus, and with no JavaScript it must never appear),
+   * and `transform` for the slide, which is the only property animated.
+   */
+  .sticky-cta {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in oklab, var(--color-surface) 90%, transparent);
+    backdrop-filter: blur(14px);
+    visibility: hidden;
+    transform: translateY(102%);
+    /* Visibility cannot tween — it flips. Delaying the flip until the slide
+       has finished is what makes "hidden" mean hidden to focus AND to tests,
+       instead of "still sliding, technically visible off-screen". */
+    transition:
+      transform 0.3s var(--ease-out-soft),
+      visibility 0s 0.35s;
+  }
+
+  .sticky-cta[data-shown] {
+    visibility: visible;
+    transform: translateY(0);
+    transition:
+      transform 0.3s var(--ease-out-soft),
+      visibility 0s;
+  }
+
+  @media (min-width: 40rem) {
+    .sticky-cta {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-cta {
+      transition: none;
+    }
+  }
+
   /* --- The glow that follows the cursor, on every page --- */
   /*
    * Fixed, so `clientX/clientY` can be written straight to a transform with no

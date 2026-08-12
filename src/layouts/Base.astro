@@ -2,6 +2,7 @@
 import { Font } from 'astro:assets';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import '../styles/global.css';
+import StickyCta from '../components/StickyCta.astro';
 import { getContent, localeTags, locales, type Locale } from '../i18n';
 import { site, telHref } from '../data/site';
 import { projectTypes } from '../data/configurator';
@@ -265,6 +266,10 @@ const breadcrumbSchema = breadcrumb?.length
     </a>
 
     <slot />
+
+    {/* Phones only. The header's quote button is hidden below `sm`, and no page
+        should leave a scrolled visitor without a way to act. */}
+    <StickyCta locale={locale} />
 
     <script>
       // Reveal-on-scroll. One observer for the whole page, unobserving as it goes.
