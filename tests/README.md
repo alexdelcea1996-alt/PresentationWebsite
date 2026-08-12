@@ -1,6 +1,6 @@
 # Teste
 
-275 de verificări care rulează un browser real peste site-ul construit.
+295 de verificări care rulează un browser real peste site-ul construit.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -74,6 +74,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap | 53 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `share-images` | fiecare pagină are propria imagine OG, la dimensiunea declarată, și există | 14 |
+| `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 
 ## Ce nu e aici
 

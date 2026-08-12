@@ -31,7 +31,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 275 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 295 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -464,6 +464,23 @@ Ca s-o scoți, ștergi `<LiveMetrics />` din `src/components/Home.astro`. Textel
 
 **De reținut:** pe o conexiune proastă va afișa un timp mai mare. Asta e ideea —
 cifra e reală. Dacă preferi să apară doar sub un prag, se poate.
+
+## Cadranele de scor din studiul de caz
+
+Metricile cu un câmp `score` (0-100) se desenează ca inele in stil Lighthouse, in
+loc de text. Arcul se umple cand ajunge pe ecran, **fara JavaScript**: observatorul
+de reveal pune `.is-visible`, iar CSS-ul face tranzitia. Fara scripting, arcul e
+desenat plin din start.
+
+Un lucru care merita stiut daca atingi componenta: **un atribut `style` nu
+functioneaza pe acest site.** CSP-ul are `style-src` fara `unsafe-inline`, deci
+browserul arunca atributele `style` din markup in intregime - tacut, pagina merge
+mai departe ca si cum nu ai fi scris nimic. Asa au aparut cadranele goale prima
+data. Valoarea vine acum printr-un bloc `<style>` generat de pagina, care primeste
+hash in CSP. Exista si un test care verifica asta pe tot site-ul.
+
+(Scrierile din JavaScript prin `element.style.x = ...` sunt in regula - CSP nu le
+acopera. Doar atributele din markup sunt refuzate.)
 
 ## Imaginile de partajare (Open Graph)
 
