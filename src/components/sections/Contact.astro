@@ -159,6 +159,12 @@ const labelClass = 'block text-sm font-medium text-fg';
           <span class="hidden" data-submit-busy>{t.form.sending}</span>
         </button>
 
+        {/* The published reply promise, restated at the exact moment of decision. */}
+        <p class="flex items-start justify-center gap-2 text-xs text-fg-subtle" data-submit-note>
+          <Icon name="check" class="mt-0.5 size-3.5 shrink-0 text-accent-alt" />
+          {t.form.submitNote}
+        </p>
+
         <p
           class="hidden rounded-xl border border-accent-alt/40 bg-accent-alt/10 px-4 py-3 text-sm text-fg"
           role="status"
@@ -166,6 +172,42 @@ const labelClass = 'block text-sm font-medium text-fg';
         >
           {t.form.success}
         </p>
+
+        {/*
+          The honest ending of the mailto fallback. This branch opens the
+          visitor's mail client and has no way of knowing whether one exists, so
+          it must never claim the message arrived — the old version did, and on
+          a machine with no mail client the lead died believing it had written.
+        */}
+        <div
+          class="hidden rounded-xl border border-border bg-surface-raised/70 px-4 py-4"
+          role="status"
+          data-form-fallback
+        >
+          <p class="font-display text-sm font-semibold text-fg">{t.form.fallbackTitle}</p>
+          <p class="mt-2 text-sm leading-relaxed text-fg-muted">{t.form.fallbackBody}</p>
+          <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+            {
+              site.whatsapp && (
+                <a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-primary flex-1 text-sm"
+                  data-fallback-wa
+                  data-wa-digits={site.whatsapp.replace(/\D/g, '')}
+                >
+                  <Icon name="whatsapp" class="size-4" />
+                  {t.form.fallbackWhatsapp}
+                </a>
+              )
+            }
+            <button type="button" class="btn btn-ghost flex-1 text-sm" data-fallback-copy>
+              <span data-copy-idle>{t.form.fallbackCopy}</span>
+              <span class="hidden" data-copy-done>{t.form.fallbackCopied}</span>
+            </button>
+          </div>
+        </div>
         <p
           class="hidden rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-fg"
           role="alert"
@@ -255,6 +297,7 @@ const labelClass = 'block text-sm font-medium text-fg';
     const busy = form.querySelector<HTMLElement>('[data-submit-busy]')!;
     const successBox = form.querySelector<HTMLElement>('[data-form-success]')!;
     const errorBox = form.querySelector<HTMLElement>('[data-form-error]')!;
+    const fallbackBox = form.querySelector<HTMLElement>('[data-form-fallback]')!;
 
     const setBusy = (state: boolean) => {
       submit.disabled = state;
@@ -266,6 +309,7 @@ const labelClass = 'block text-sm font-medium text-fg';
       event.preventDefault();
       successBox.classList.add('hidden');
       errorBox.classList.add('hidden');
+      fallbackBox.classList.add('hidden');
 
       if (!form.reportValidity()) return;
 
@@ -274,6 +318,11 @@ const labelClass = 'block text-sm font-medium text-fg';
 
       // No form service configured yet: hand the message over to the visitor's
       // mail client instead of silently dropping it.
+      //
+      // Crucially, do NOT claim success. This branch cannot know whether a mail
+      // client even exists on the machine — on many desktops nothing opens at
+      // all. So it says what it did and offers two exits that work regardless:
+      // WhatsApp with the same message, or the message on the clipboard.
       if (!accessKey) {
         const website = String(data.get('website') ?? '').trim();
         const lines = [
@@ -284,10 +333,31 @@ const labelClass = 'block text-sm font-medium text-fg';
           String(data.get('message') ?? ''),
         ];
         const to = form.dataset.mailto ?? '';
+        const text = lines.join('\n');
         const subject = encodeURIComponent(`Website enquiry — ${data.get('name')}`);
-        const body = encodeURIComponent(lines.join('\n'));
-        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-        successBox.classList.remove('hidden');
+
+        // Arm both rescue exits with the composed message before navigating.
+        const wa = fallbackBox.querySelector<HTMLAnchorElement>('[data-fallback-wa]');
+        if (wa) {
+          wa.href = `https://wa.me/${wa.dataset.waDigits}?text=${encodeURIComponent(text)}`;
+        }
+        const copy = fallbackBox.querySelector<HTMLButtonElement>('[data-fallback-copy]');
+        if (copy && !copy.dataset.armed) {
+          copy.dataset.armed = '1';
+          copy.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(`${to}\n\n${text}`);
+              copy.querySelector('[data-copy-idle]')?.classList.add('hidden');
+              copy.querySelector('[data-copy-done]')?.classList.remove('hidden');
+            } catch {
+              // Clipboard blocked: leave the label as it is; the mailto and
+              // WhatsApp routes still stand.
+            }
+          });
+        }
+
+        fallbackBox.classList.remove('hidden');
+        window.location.href = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(text)}`;
         return;
       }
 

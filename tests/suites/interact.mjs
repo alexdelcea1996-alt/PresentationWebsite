@@ -22,6 +22,53 @@ await mobile.waitForTimeout(300);
 check('mobile menu closes after navigating', await menu.isHidden());
 await mobile.keyboard.press('Escape');
 
+// --- Sticky mobile CTA dock ---
+// Below `sm` the header's quote button is hidden, so this dock is the only
+// persistent way to act on a phone. It must answer scrolling, not greet, and
+// it must step aside wherever a way to act is already on screen.
+{
+  const dockPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await dockPage.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const dock = dockPage.locator('[data-sticky-cta]');
+
+  check('dock stays out of the way at the top', !(await dock.isVisible()));
+
+  await dockPage.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
+  await dockPage.waitForTimeout(600);
+  check('dock appears once the visitor scrolls', await dock.isVisible());
+
+  const primary = await dock.locator('a').first().boundingBox();
+  check('its primary action is thumb-sized', (primary?.height ?? 0) >= 44,
+    `${Math.round(primary?.height ?? 0)}px`);
+  check('the WhatsApp exit rides along',
+    (await dock.locator('a[href*="wa.me"]').count()) === 1);
+
+  // The page scrolls smoothly (scroll-behavior: smooth), so the jump itself
+  // takes ~half a second before the observer can even notice the arrival.
+  await dockPage.evaluate(() => document.querySelector('#contact')?.scrollIntoView());
+  await dockPage.waitForTimeout(1400);
+  check('dock steps aside at the form', !(await dock.isVisible()));
+
+  // On a page without a contact section, the footer is the step-aside trigger.
+  await dockPage.goto(`${BASE}/blog/`, { waitUntil: 'networkidle' });
+  await dockPage.evaluate(() => window.scrollTo(0, window.innerHeight * 1.5));
+  await dockPage.waitForTimeout(600);
+  const midVisible = await dock.isVisible();
+  await dockPage.evaluate(() => document.querySelector('footer')?.scrollIntoView());
+  await dockPage.waitForTimeout(1400);
+  check('on sub-pages it shows mid-scroll and yields to the footer',
+    midVisible && !(await dockPage.locator('[data-sticky-cta]').isVisible()));
+  await dockPage.close();
+
+  // Desktop never sees it: the header carries the same action there.
+  const wide = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await wide.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  await wide.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
+  await wide.waitForTimeout(500);
+  check('desktop never sees the dock', !(await wide.locator('[data-sticky-cta]').isVisible()));
+  await wide.close();
+}
+
 // --- Language switcher carries the hash ---
 const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await desktop.goto(`${BASE}/#pricing`, { waitUntil: 'networkidle' });
@@ -44,9 +91,19 @@ const pricingTop = await desktop.evaluate(
 check('anchor clears the sticky header', pricingTop >= 0 && pricingTop < 140, `top=${Math.round(pricingTop)}px`);
 
 // --- Contact form: mailto fallback when no form service is configured ---
+// This branch opens the visitor's mail client and cannot know whether one
+// exists. It used to claim "message received" anyway — a false success that
+// silently lost every lead on a machine with no mail client. The honest ending
+// is a rescue panel; the false claim must never come back.
 await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
 const accessKey = await desktop.locator('[data-contact-form]').getAttribute('data-access-key');
 check('no form key configured yet (mailto fallback path)', accessKey === '', `key="${accessKey}"`);
+
+check(
+  'the reply promise sits at the button, not seven scrolls away',
+  await desktop.locator('[data-submit-note]').isVisible() &&
+    /24/.test(await desktop.locator('[data-submit-note]').innerText()),
+);
 
 await desktop.locator('#field-name').fill('Test SRL');
 await desktop.locator('#field-email').fill('test@example.com');
@@ -54,9 +111,37 @@ await desktop.locator('#field-message').fill('Vreau un site de prezentare.');
 await desktop.locator('[data-submit]').click();
 await desktop.waitForTimeout(500);
 check(
-  'mailto fallback confirms to the visitor',
-  await desktop.locator('[data-form-success]').isVisible(),
+  'mailto fallback does NOT claim the message was received',
+  await desktop.locator('[data-form-success]').isHidden(),
 );
+// Checked first, and the interactions below only run when it holds — otherwise
+// a regression here would time out clicking a hidden button and crash the
+// suite instead of failing it legibly.
+const rescueShown = await desktop.locator('[data-form-fallback]').isVisible();
+check('it shows the honest rescue panel instead', rescueShown);
+
+if (rescueShown) {
+  const waHref = await desktop.locator('[data-fallback-wa]').getAttribute('href');
+  check(
+    'the WhatsApp exit carries the composed message',
+    (waHref ?? '').startsWith('https://wa.me/40767079882?text=') &&
+      decodeURIComponent(waHref ?? '').includes('Test SRL') &&
+      decodeURIComponent(waHref ?? '').includes('Vreau un site de prezentare.'),
+    (waHref ?? '').slice(0, 60),
+  );
+
+  // The clipboard exit. Chromium grants clipboard permissions per context.
+  await desktop.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await desktop.locator('[data-fallback-copy]').click();
+  await desktop.waitForTimeout(200);
+  const copied = await desktop.evaluate(() => navigator.clipboard.readText());
+  check(
+    'copy puts the address and the message on the clipboard',
+    copied.includes('@') && copied.includes('Test SRL') && copied.includes('Vreau un site'),
+    copied.slice(0, 60).replace(/\n/g, ' '),
+  );
+  check('and says it did', await desktop.locator('[data-copy-done]').isVisible());
+}
 
 // --- Contact form: the real Web3Forms path, once a key is configured ---
 await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });

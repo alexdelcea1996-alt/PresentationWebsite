@@ -24,6 +24,7 @@ export const en: Content = {
     skipToContent: 'Skip to content',
     ariaPrimary: 'Main navigation',
     ariaMobile: 'Mobile menu',
+    ariaQuick: 'Quick contact',
   },
 
   theme: {
@@ -478,8 +479,15 @@ export const en: Content = {
         'What kind of business you run, what you want from the site, and whether you have a deadline.',
       submit: 'Send message',
       sending: 'Sending…',
+      submitNote: 'I reply within 24 hours — usually the same working day.',
       success: 'Thank you! I have received your message and will reply within 24 hours.',
       error: 'The message could not be sent. Email me directly and we will sort it out.',
+      fallbackTitle: 'Your message is ready in your email app',
+      fallbackBody:
+        'Your email client should have opened with the whole message filled in — all that is left is pressing "send" there. Nothing opened? Take one of the shortcuts below; the message travels just as well on either.',
+      fallbackWhatsapp: 'Send the message on WhatsApp',
+      fallbackCopy: 'Copy the message and the address',
+      fallbackCopied: 'Copied — paste it wherever suits you',
       required: 'required',
       privacy: 'Your details land in my inbox and are used only to reply to you. They go on no list.',
     },

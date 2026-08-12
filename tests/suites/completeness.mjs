@@ -257,6 +257,20 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   await a.close();
 }
 
+// --- One reply promise, everywhere ----------------------------------------------
+// The site promises an answer within 24 hours, usually the same working day.
+// The 48-hour figure belongs to one thing only — the written audit — and must
+// never leak into the contact section, where it would read as a slower promise
+// sitting right next to the faster one.
+for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+  const r = await b.newPage();
+  await r.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+  const contactText = await r.locator('#contact').innerText();
+  ck(`${label} contact: the promise sits at the button`, /24/.test(contactText));
+  ck(`${label} contact: no 48-hour figure contradicts it`, !/48/.test(contactText));
+  await r.close();
+}
+
 // --- One business, seen many times ---------------------------------------------
 // The entity used to be emitted with `url: canonical.href` and no `@id`, which
 // described twenty-odd separate businesses that shared a name. Nothing asserted

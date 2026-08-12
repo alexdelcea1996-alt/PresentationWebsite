@@ -24,6 +24,7 @@ export const ro: Content = {
     skipToContent: 'Sari la conținut',
     ariaPrimary: 'Navigare principală',
     ariaMobile: 'Meniu mobil',
+    ariaQuick: 'Contact rapid',
   },
 
   theme: {
@@ -478,8 +479,15 @@ export const ro: Content = {
         'Ce fel de afacere ai, ce vrei să obții de la site și dacă ai un termen limită.',
       submit: 'Trimite mesajul',
       sending: 'Se trimite…',
+      submitNote: 'Răspund în cel mult 24 de ore — de obicei în aceeași zi lucrătoare.',
       success: 'Mulțumesc! Am primit mesajul și îți răspund în cel mult 24 de ore.',
       error: 'Mesajul nu a putut fi trimis. Scrie-mi direct pe e-mail și rezolvăm.',
+      fallbackTitle: 'Mesajul e pregătit în aplicația ta de e-mail',
+      fallbackBody:
+        'Ți s-a deschis clientul de e-mail cu tot mesajul completat — mai ai doar de apăsat „trimite" acolo. Nu s-a deschis nimic? Ia una din scurtăturile de mai jos, mesajul pleacă la fel de bine pe oricare.',
+      fallbackWhatsapp: 'Trimite mesajul pe WhatsApp',
+      fallbackCopy: 'Copiază mesajul și adresa',
+      fallbackCopied: 'Copiat — lipește-l unde îți e ușor',
       required: 'obligatoriu',
       privacy: 'Datele tale ajung în inboxul meu și le folosesc exclusiv ca să îți răspund. Nu le adaug pe nicio listă.',
     },

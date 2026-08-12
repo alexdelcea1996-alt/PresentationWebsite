@@ -142,6 +142,8 @@ export interface Content {
     /** Distinct accessible names, so the three <nav> landmarks stay distinguishable. */
     ariaPrimary: string;
     ariaMobile: string;
+    /** Label of the sticky bottom dock on phones. */
+    ariaQuick: string;
   };
   theme: {
     switchToLight: string;
@@ -317,8 +319,21 @@ export interface Content {
       messagePlaceholder: string;
       submit: string;
       sending: string;
+      /** One line under the submit button — the published reply promise, at the
+       *  exact moment of decision. Never a new promise. */
+      submitNote: string;
       success: string;
       error: string;
+      /**
+       * The honest ending of the mailto fallback. It opens the visitor's mail
+       * client and cannot know whether one exists — so it must never claim the
+       * message was received. It says what just happened and offers real exits.
+       */
+      fallbackTitle: string;
+      fallbackBody: string;
+      fallbackWhatsapp: string;
+      fallbackCopy: string;
+      fallbackCopied: string;
       required: string;
       privacy: string;
     };
