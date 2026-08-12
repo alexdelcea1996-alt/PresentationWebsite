@@ -8,6 +8,7 @@ for (const [label, path] of [
   ['service', '/servicii/site-de-prezentare/'],
   ['blog index', '/blog/'],
   ['post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
+  ['post with a table', '/blog/landing-page-sau-site-de-prezentare/'],
   ['case study', '/studii-de-caz/acest-site/'],
   ['privacy', '/confidentialitate/'],
   ['demo', '/demo/'],

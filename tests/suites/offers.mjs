@@ -157,6 +157,64 @@ for (const [label, home, priceLabel, services] of [
   await p.close();
 }
 
+// --- A fifth surface: the articles ---------------------------------------------
+// Blog posts quote prices in prose, which is the easiest place for a number to
+// go stale — nothing renders it from the configurator, somebody typed it. The
+// rule is not "these exact figures" but the invariant: every euro amount in an
+// article has to be a price the site actually offers.
+{
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  const published = new Set(
+    (await p.$$eval('#pricing article', (nodes) =>
+      nodes.map((card) => card.querySelector('h3 + p').textContent.trim()),
+    ))
+      .map(amount)
+      .filter(Boolean),
+  );
+  await p.close();
+
+  ck('the published starting prices were found', published.size >= 3,
+    [...published].join(', '));
+
+  for (const [label, path] of [
+    ['RO landing vs website', '/blog/landing-page-sau-site-de-prezentare/'],
+    ['EN landing vs website', '/en/blog/landing-page-or-business-website/'],
+    ['RO store costs', '/blog/cat-costa-un-magazin-online/'],
+    ['EN store costs', '/en/blog/how-much-does-an-online-store-cost/'],
+  ]) {
+    const a = await b.newPage(VIEWPORT);
+    const res = await a.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    ck(`${label} is published`, res?.status() === 200, `${res?.status()}`);
+
+    const body = await a.locator('main').innerText();
+    // "de la 2.200 €" and "from €2,200" — the currency sits on either side.
+    const quoted = [...body.matchAll(/(?:€\s?([\d.,]+))|(?:([\d.,]+)\s?€)/g)]
+      .map(([, before, after]) => amount(before ?? after))
+      .filter(Boolean);
+
+    ck(`${label} quotes at least one price`, quoted.length > 0, `${quoted.length} figure(s)`);
+    ck(`${label} quotes no price the site does not offer`,
+      quoted.every((value) => published.has(value)),
+      quoted.filter((value) => !published.has(value)).join(', ') || 'all match');
+
+    // Both articles send the reader somewhere; a dead link in a published
+    // article is worse than no link, and markdown gives no compile-time check.
+    const links = await a.$$eval('article a[href^="/"]', (nodes) =>
+      [...new Set(nodes.map((n) => n.getAttribute('href')))],
+    );
+    ck(`${label} links onward`, links.length >= 2, links.join(' '));
+    for (const href of links) {
+      const target = await b.newPage();
+      const hit = await target.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
+      ck(`${label}: ${href} is served`, hit?.status() === 200, `${hit?.status()}`);
+      await target.close();
+    }
+
+    await a.close();
+  }
+}
+
 console.log(R.join('\n'));
 await b.close();
 if (R.some((line) => line.startsWith('FAIL'))) process.exitCode = 1;

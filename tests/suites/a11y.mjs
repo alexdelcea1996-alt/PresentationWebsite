@@ -22,6 +22,8 @@ for (const [label, path] of [
   ['EN blog index', '/en/blog/'],
   ['RO post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
   ['EN post', '/en/blog/why-your-site-is-slow/'],
+  ['RO post with a table', '/blog/landing-page-sau-site-de-prezentare/'],
+  ['EN post with a table', '/en/blog/landing-page-or-business-website/'],
   ['RO privacy', '/confidentialitate/'],
   ['EN privacy', '/en/privacy/'],
   ['RO demo', '/demo/'],

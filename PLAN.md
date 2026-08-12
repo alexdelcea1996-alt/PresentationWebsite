@@ -69,13 +69,13 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **97–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **623 de verificări** rulate cu `npm test`, din repo: accesibilitate (24 de pagini
-  dark + 8 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
+- **711 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
+  dark + 9 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
-  programare (18), tranziții (15), completitudine (98), garanții (16), imagini de
-  partajare (14), studiu de caz (19), demo-ul de programări (89), demo-ul de magazin (92),
-  coerența ofertelor (44), audit (4 fără
-  cheie / 30 cu ea)
+  programare (18), tranziții (17), completitudine (116), garanții (16), politica de
+  confidențialitate (38), imagini de partajare (14), bugete de greutate (17), studiu de
+  caz (19), demo-ul de programări (91), demo-ul de magazin (92), coerența ofertelor (77),
+  audit (4 fără cheie / 30 cu ea), analytics (16 fără token / 29 cu el)
 
 ## 6. Ce mai e de făcut înainte de lansare
 
@@ -133,7 +133,7 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 4. ✅ WhatsApp și telefon ca și canale de contact — în cardul de contact și în
    footer (deci pe toate paginile). WhatsApp cu mesaj pre-scris, RO/EN;
    telefonul și ca `telephone` în datele structurate
-5. Secțiune FAQ pe prima pagină (cea de pe paginile de serviciu e deja emisă ca `FAQPage`)
+5. ✅ Secțiune FAQ pe prima pagină — șase întrebări, plus schema `FAQPage` emisă separat
 6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
 7. ~~Pagină de politică de confidențialitate (GDPR)~~ — ✅ făcut, la `/confidentialitate/`
    și `/en/privacy/`, plus repararea afirmației false de sub formular
@@ -151,7 +151,8 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
 4. ✅ Studii de caz ca pagini dedicate (content collections; primul: acest site, cu cifre reale)
 5. ✅ Secțiune-comparator: „șablon DIY vs site făcut la comandă" — tratează obiecția principală
 6. ✅ Audit gratuit de site ca lead magnet (flux dedicat în formular)
-7. ✅ Blog bilingv pe content collections, cu RSS — primele 2 articole scrise
+7. ✅ Blog bilingv pe content collections, cu RSS — 4 articole scrise, RO+EN fiecare
+   (viteză, pregătirea proiectului, landing page vs site de prezentare, cât costă un magazin)
 8. ✅ Comutator temă light/dark cu persistență, fără flash la încărcare
 9. ✅ Pachet performanță & securitate: fonturi subsetate (170 → 57 kB), CSP cu hash-uri SHA-256, header-e de securitate
 10. ✅ Semnătură vizuală interactivă în hero (parallax la cursor + spotlight; oprit pentru reduced-motion și pointer grosier)

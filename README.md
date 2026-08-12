@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 674 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 711 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -337,6 +337,16 @@ respectivă, fără să strice nimic. Iar `draft: true` îl ține ascuns până 
 un articol spune același lucru ca pagina de serviciu, cele două se concurează
 în Google în loc să se ajute. Cele mai utile sunt ghidurile practice la care
 răspunzi oricum la telefon.
+
+**Prețurile din articole sunt verificate de teste.** Suita `offers` extrage fiecare
+sumă în euro din fiecare articol și cade dacă apare una care nu e pe cardurile de
+preț. Dacă schimbi un preț pe site, articolul care îl citează pică până îl aliniezi
+— exact ca să nu rămână o cifră veche într-un text pe care nu ți-l mai amintești.
+Aceeași suită deschide fiecare link intern din articole și verifică să răspundă cu
+200, fiindcă Markdown nu are cum să prindă o adresă greșită la build.
+
+**Tabelele funcționează** în articole (sintaxa obișnuită cu `|`). Sunt stilate în
+`BlogPost.astro` și se strâng singure pe telefon, fără derulare orizontală.
 
 ### Politica de confidențialitate
 

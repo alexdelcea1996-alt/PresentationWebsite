@@ -1,6 +1,6 @@
 # Teste
 
-623 de verificări care rulează un browser real peste site-ul construit.
+711 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -60,8 +60,8 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 
 | Suită | Ce verifică | Verificări |
 |---|---|---|
-| `a11y` | axe-core (WCAG 2.1 AA) pe 24 de pagini, temă întunecată, plus greutatea paginii | 24 |
-| `a11y-light` | aceleași reguli pe 8 pagini în tema luminoasă | 16 |
+| `a11y` | axe-core (WCAG 2.1 AA) pe 26 de pagini, temă întunecată, plus greutatea paginii | 26 |
+| `a11y-light` | aceleași reguli pe 9 pagini în tema luminoasă | 18 |
 | `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 10 |
 | `interact` | meniu mobil, comutator de limbă, ancore, ambele căi ale formularului | 15 |
 | `channels` | e-mail, telefon și WhatsApp în card, footer și date structurate | 39 |
@@ -74,11 +74,11 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 116 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 38 |
-| `share-images` | fiecare pagină are propria imagine OG, la dimensiunea declarată, și există | 14 |
+| `share-images` | fiecare dintre cele 31 de pagini are propria imagine OG, la dimensiunea declarată | 14 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 89 |
 | `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 92 |
-| `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator și în formular | 44 |
+| `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 77 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie | 4 / 30 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
 | `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 17 |
