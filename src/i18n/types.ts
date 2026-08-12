@@ -380,6 +380,23 @@ export interface Content {
     updatedLabel: string;
     privacyLink: string;
   };
+  /**
+   * The page a real submission lands on. Only reachable after Web3Forms has
+   * confirmed delivery — the mailto path has its own honest ending instead.
+   */
+  thankYou: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    lead: string;
+    stepsTitle: string;
+    /** Only promises already published elsewhere. Nothing new may appear here. */
+    steps: string[];
+    bookTitle: string;
+    bookBody: string;
+    back: string;
+  };
   footer: {
     tagline: string;
     rights: string;

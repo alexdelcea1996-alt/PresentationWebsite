@@ -85,10 +85,16 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      // The example sites shown inside the demo frames are fiction. They are
-      // `noindex` in their own <head>; this keeps them out of the sitemap too,
-      // so the two never contradict each other. One segment marks them all.
-      filter: (page) => !page.includes('/exemplu/') && !page.includes('/example/'),
+      // Two kinds of page stay out. The example sites shown inside the demo
+      // frames are fiction; the thank-you pages are the end of a private
+      // conversation, reachable only after a confirmed send. Both declare
+      // `noindex` in their own <head>, and this keeps the sitemap from saying
+      // otherwise.
+      filter: (page) =>
+        !page.includes('/exemplu/') &&
+        !page.includes('/example/') &&
+        !page.includes('/multumesc/') &&
+        !page.includes('/thank-you/'),
       i18n: {
         defaultLocale: 'ro',
         locales: { ro: 'ro-RO', en: 'en-US' },

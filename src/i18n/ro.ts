@@ -534,6 +534,24 @@ export const ro: Content = {
     privacyLink: 'Politica de confidențialitate',
   },
 
+  thankYou: {
+    metaTitle: 'Mesaj trimis — îți răspund în cel mult 24 de ore | Alex Delcea',
+    metaDescription: 'Mesajul a ajuns la mine. Iată ce urmează și cum poți sări peste așteptare.',
+    eyebrow: 'Mesaj trimis',
+    title: 'Am primit mesajul',
+    lead: 'A ajuns în inboxul meu. Nu îl adaug pe nicio listă și nu îl trimite nimeni mai departe — îl folosesc doar ca să îți răspund.',
+    stepsTitle: 'Ce urmează',
+    steps: [
+      'Îți răspund în cel mult 24 de ore, de obicei în aceeași zi lucrătoare. Personal, nu automat.',
+      'Îți pun câteva întrebări concrete despre afacere și, dacă e cazul, îți dau o estimare de preț.',
+      'Dacă mergem mai departe, primești în scris ce conține proiectul, prețul final și termenul.',
+    ],
+    bookTitle: 'Sari peste așteptare',
+    bookBody:
+      'Dacă vrei să vorbim mai repede, rezervă direct cele 30 de minute. Gratuit și fără obligații — aceeași discuție, doar mai devreme.',
+    back: 'Înapoi pe prima pagină',
+  },
+
   footer: {
     tagline: 'Site-uri și aplicații web pentru afaceri care vor să fie găsite.',
     rights: 'Toate drepturile rezervate.',

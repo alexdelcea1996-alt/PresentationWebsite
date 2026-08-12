@@ -534,6 +534,24 @@ export const en: Content = {
     privacyLink: 'Privacy policy',
   },
 
+  thankYou: {
+    metaTitle: 'Message sent — I reply within 24 hours | Alex Delcea',
+    metaDescription: 'Your message reached me. Here is what happens next, and how to skip the wait.',
+    eyebrow: 'Message sent',
+    title: 'I have your message',
+    lead: 'It landed in my inbox. It goes on no list and to nobody else — I use it only to reply to you.',
+    stepsTitle: 'What happens next',
+    steps: [
+      'I reply within 24 hours, usually the same working day. Personally, not automatically.',
+      'I ask a few concrete questions about the business and, where it makes sense, give you a price estimate.',
+      'If we go ahead, you get the scope, the final price and the deadline in writing.',
+    ],
+    bookTitle: 'Skip the wait',
+    bookBody:
+      'If you would rather talk sooner, book the 30 minutes directly. Free and with no obligation — the same conversation, just earlier.',
+    back: 'Back to the home page',
+  },
+
   footer: {
     tagline: 'Websites and web apps for businesses that want to be found.',
     rights: 'All rights reserved.',

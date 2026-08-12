@@ -4,6 +4,7 @@ import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { site, telHref, whatsappHref } from '../../data/site';
 import { getLegalPage, legalPath } from '../../data/legal';
+import { thankYouPath } from '../../data/demo';
 import BookingCard from '../BookingCard.astro';
 
 interface Props {
@@ -46,6 +47,7 @@ const labelClass = 'block text-sm font-medium text-fg';
         data-contact-form
         data-access-key={site.web3formsKey}
         data-mailto={site.email}
+        data-thanks={thankYouPath(locale)}
         novalidate
         data-reveal
       >
@@ -429,6 +431,13 @@ const labelClass = 'block text-sm font-medium text-fg';
 
         successBox.classList.remove('hidden');
         form.reset();
+
+        // Only here — after the service confirmed delivery. The mailto branch
+        // has no such confirmation to offer and keeps its rescue panel, because
+        // a thank-you page a failed send can reach is the false success this
+        // form was just fixed to stop showing.
+        const thanks = form.dataset.thanks;
+        if (thanks) window.location.assign(thanks);
       } catch {
         errorBox.classList.remove('hidden');
       } finally {

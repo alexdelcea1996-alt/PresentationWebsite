@@ -58,6 +58,13 @@ export const contactPath = (locale: Locale, from?: string, via?: string) => {
   return `${home}${query ? `?${query}` : ''}#contact`;
 };
 
+/**
+ * Where a confirmed submission lands. Marked `noindex` and kept out of the
+ * sitemap — it is the end of a private conversation, not a page to be found.
+ */
+export const thankYouPath = (locale: Locale) =>
+  withBase(locale === 'en' ? 'en/thank-you/' : 'multumesc/');
+
 /** Which demo, if any, a service card links to. Keyed by the service `key`. */
 export const demoForService = (locale: Locale, key: string | undefined) => {
   if (key === 'webapp') return demoPath(locale);

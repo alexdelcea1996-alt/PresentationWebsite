@@ -257,6 +257,40 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   await a.close();
 }
 
+// --- The thank-you pages are private, and only reachable honestly ----------------
+// They exist for the second conversion: somebody who has just written is the
+// most willing they will ever be to also book the call. But a thank-you page a
+// failed send can reach is exactly the false success this form was fixed to
+// stop showing, so only the confirmed path may lead here.
+{
+  const sitemap = await (await fetch(`${BASE}/sitemap-0.xml`)).text();
+  for (const [label, path] of [['RO', '/multumesc/'], ['EN', '/en/thank-you/']]) {
+    const p = await b.newPage();
+    const res = await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    ck(`${label} thanks: the page is served`, res?.status() === 200, `${res?.status()}`);
+    ck(`${label} thanks: it refuses indexing`,
+      /noindex/.test((await p.locator('meta[name="robots"]').getAttribute('content')) ?? ''));
+    ck(`${label} thanks: and stays out of the sitemap`, !sitemap.includes(path));
+
+    // Only promises already published elsewhere on the site.
+    const steps = await p.$$eval('[data-thanks-step]', (n) => n.map((el) => el.innerText));
+    ck(`${label} thanks: it says what happens next`, steps.length === 3, `${steps.length}`);
+    ck(`${label} thanks: with the same 24-hour promise`, /24/.test(steps.join(' ')));
+
+    // The reason the page exists.
+    ck(`${label} thanks: it offers the call as a second step`,
+      (await p.locator('[data-thanks-booking]').count()) === 1);
+    await p.close();
+  }
+
+  // The form must carry the address, and only the confirmed branch may use it.
+  const f = await b.newPage();
+  await f.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  ck('the form knows where to send a confirmed submission',
+    (await f.locator('[data-contact-form]').getAttribute('data-thanks')) === '/multumesc/');
+  await f.close();
+}
+
 // --- One reply promise, everywhere ----------------------------------------------
 // The site promises an answer within 24 hours, usually the same working day.
 // The 48-hour figure belongs to one thing only — the written audit — and must

@@ -42,7 +42,7 @@ const pages = htmlFiles(dist)
 
 // Hard-coded on purpose: a glob that quietly stops matching would otherwise
 // shrink every check below to a subset and still report all green.
-ck('every built page was found', pages.length === 35, `${pages.length} pages`);
+ck('every built page was found', pages.length === 37, `${pages.length} pages`);
 ck('every page declares a share image', pages.every((p) => p.image));
 
 // Crawlers do not resolve relative URLs in og:image; a relative one silently

@@ -210,8 +210,18 @@ check('form posts to Web3Forms when a key is set', posted !== null);
 for (const field of ['test-key-123', 'Test SRL', 'test@example.com', 'Site de prezentare']) {
   check(`  payload carries "${field}"`, (posted ?? '').includes(field));
 }
-check('success message shown', await desktop.locator('[data-form-success]').isVisible());
-check('form cleared after a successful send', (await desktop.locator('#field-name').inputValue()) === '');
+// A confirmed send — and only a confirmed send — lands on the thank-you page,
+// where the second conversion waits.
+await desktop.waitForURL('**/multumesc/', { timeout: 4000 }).catch(() => {});
+check(
+  'a confirmed send lands on the thank-you page',
+  new URL(desktop.url()).pathname === '/multumesc/',
+  desktop.url(),
+);
+check(
+  'which offers the call as the next step',
+  (await desktop.locator('[data-thanks-booking]').count()) === 1,
+);
 
 // --- Required-field validation blocks an empty submit ---
 await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
