@@ -299,8 +299,10 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
 for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   const r = await b.newPage();
   await r.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
-  const contactText = await r.locator('#contact').innerText();
-  ck(`${label} contact: the promise sits at the button`, /24/.test(contactText));
+  // textContent, not innerText: the stepped form keeps the note on the last
+  // step, so it is in the document but off screen until the visitor gets there.
+  const contactText = await r.locator('#contact').evaluate((el) => el.textContent ?? '');
+  ck(`${label} contact: the promise is at the button`, /24/.test(contactText));
   ck(`${label} contact: no 48-hour figure contradicts it`, !/48/.test(contactText));
   await r.close();
 }

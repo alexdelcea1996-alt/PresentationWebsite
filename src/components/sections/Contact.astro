@@ -48,10 +48,29 @@ const labelClass = 'block text-sm font-medium text-fg';
         data-access-key={site.web3formsKey}
         data-mailto={site.email}
         data-thanks={thankYouPath(locale)}
+        data-step-progress-text={t.form.steps.progress}
+        data-step-titles={JSON.stringify(t.form.steps.titles)}
         novalidate
         data-reveal
       >
-        <div class="grid gap-5 sm:grid-cols-2">
+        {/*
+          The progress line for the stepped version. Empty and hidden in the
+          markup: without JavaScript there are no steps to count, and a form
+          that announces "step 1 of 3" while showing all three would be lying
+          about itself.
+        */}
+        <div class="hidden" data-step-progress>
+          <p class="text-xs font-medium uppercase tracking-[0.14em] text-accent-alt" role="status">
+            <span data-step-counter></span>
+          </p>
+          <p class="mt-1.5 font-display text-lg font-semibold text-fg" data-step-title></p>
+          <div class="mt-3 h-1 overflow-hidden rounded-full bg-border">
+            <div class="h-full rounded-full bg-linear-110 from-accent to-accent-alt" data-step-bar>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2" data-step="2">
           <div>
             <label class={labelClass} for="field-name">
               {t.form.name}
@@ -87,7 +106,7 @@ const labelClass = 'block text-sm font-medium text-fg';
           </div>
         </div>
 
-        <div class="grid gap-5 sm:grid-cols-2">
+        <div class="grid gap-5 sm:grid-cols-2" data-step="1">
           <div>
             <label class={labelClass} for="field-type">{t.form.projectType}</label>
             {/* value stays human-readable for the email; data-id is the stable
@@ -117,7 +136,7 @@ const labelClass = 'block text-sm font-medium text-fg';
           </div>
         </div>
 
-        <div>
+        <div data-step="2">
           <label class={labelClass} for="field-website">{t.form.website}</label>
           <input
             class={`mt-2 ${fieldClass}`}
@@ -131,7 +150,7 @@ const labelClass = 'block text-sm font-medium text-fg';
           <p class="mt-2 text-xs text-fg-subtle">{t.form.websiteHint}</p>
         </div>
 
-        <div>
+        <div data-step="3">
           <label class={labelClass} for="field-message">
             {t.form.message}
             <span class="text-accent-alt" aria-hidden="true">*</span>
@@ -153,6 +172,7 @@ const labelClass = 'block text-sm font-medium text-fg';
         */}
         <p
           class="hidden rounded-xl border border-accent/25 bg-accent/5 px-4 py-3 text-xs leading-relaxed text-fg-muted"
+          data-step="1"
           data-prefill-note
           data-template={t.form.prefillNote}
         >
@@ -168,13 +188,27 @@ const labelClass = 'block text-sm font-medium text-fg';
           aria-hidden="true"
         />
 
-        <button type="submit" class="btn btn-primary w-full" data-submit>
+        {/* Only rendered as navigation when the stepped version is running. */}
+        <div class="hidden gap-3" data-step-nav>
+          <button type="button" class="btn btn-ghost flex-1 text-sm" data-step-back>
+            {t.form.steps.back}
+          </button>
+          <button type="button" class="btn btn-primary flex-1 text-sm" data-step-next>
+            {t.form.steps.next}
+          </button>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full" data-submit data-step="3">
           <span data-submit-idle>{t.form.submit}</span>
           <span class="hidden" data-submit-busy>{t.form.sending}</span>
         </button>
 
         {/* The published reply promise, restated at the exact moment of decision. */}
-        <p class="flex items-start justify-center gap-2 text-xs text-fg-subtle" data-submit-note>
+        <p
+          class="flex items-start justify-center gap-2 text-xs text-fg-subtle"
+          data-step="3"
+          data-submit-note
+        >
           <Icon name="check" class="mt-0.5 size-3.5 shrink-0 text-accent-alt" />
           {t.form.submitNote}
         </p>
@@ -347,6 +381,105 @@ const labelClass = 'block text-sm font-medium text-fg';
         stamp.value = via;
         form.append(stamp);
       }
+    }
+
+    /**
+     * The stepped version, built on top of the form that is already there.
+     *
+     * Nothing is duplicated: the same inputs, the same names, the same ids the
+     * configurator and the audit band preselect by, and the same submit
+     * handler below. All this does is decide which group is on screen. With no
+     * JavaScript the classic form stands untouched — which is also why the
+     * progress line ships empty and hidden rather than announcing "step 1 of
+     * 3" over a form that is showing all three.
+     *
+     * Visibility is a `data-step-hidden` attribute rather than the `hidden`
+     * class, so it composes with elements that manage their own `hidden` —
+     * the prefill note is in step 1 and must stay hidden unless a prefill
+     * actually happened.
+     */
+    const stepGroups = [...form.querySelectorAll<HTMLElement>('[data-step]')];
+    const progress = form.querySelector<HTMLElement>('[data-step-progress]');
+    const nav = form.querySelector<HTMLElement>('[data-step-nav]');
+
+    if (stepGroups.length > 0 && progress && nav) {
+      const TOTAL = 3;
+      const titles = JSON.parse(form.dataset.stepTitles ?? '[]') as string[];
+      const counterText = form.dataset.stepProgressText ?? '';
+      const counter = form.querySelector<HTMLElement>('[data-step-counter]')!;
+      const title = form.querySelector<HTMLElement>('[data-step-title]')!;
+      const bar = form.querySelector<HTMLElement>('[data-step-bar]')!;
+      const back = form.querySelector<HTMLButtonElement>('[data-step-back]')!;
+      const next = form.querySelector<HTMLButtonElement>('[data-step-next]')!;
+
+      let current = 1;
+
+      const show = (step: number, focus = true) => {
+        current = Math.min(Math.max(step, 1), TOTAL);
+
+        for (const group of stepGroups) {
+          group.toggleAttribute('data-step-hidden', Number(group.dataset.step) !== current);
+        }
+
+        counter.textContent = counterText
+          .replace('{current}', String(current))
+          .replace('{total}', String(TOTAL));
+        title.textContent = titles[current - 1] ?? '';
+        // CSSOM, not a style attribute: the CSP drops those silently.
+        bar.style.width = `${(current / TOTAL) * 100}%`;
+
+        back.classList.toggle('hidden', current === 1);
+        next.classList.toggle('hidden', current === TOTAL);
+
+        if (!focus) return;
+        const first = form.querySelector<HTMLElement>(
+          `[data-step="${current}"] input, [data-step="${current}"] select, [data-step="${current}"] textarea`,
+        );
+        first?.focus();
+      };
+
+      next.addEventListener('click', () => {
+        // Validate only what is on screen. Reporting on a hidden field would
+        // ask the browser to focus something nobody can see.
+        const fields = [
+          ...form.querySelectorAll<HTMLInputElement>(`[data-step="${current}"] :is(input, textarea)`),
+        ];
+        const invalid = fields.find((field) => !field.checkValidity());
+        if (invalid) {
+          invalid.reportValidity();
+          return;
+        }
+        show(current + 1);
+      });
+
+      back.addEventListener('click', () => show(current - 1));
+
+      // A submit from anywhere must be able to reveal the step that is holding
+      // an invalid field, otherwise `reportValidity` below fails silently on
+      // something off screen.
+      form.addEventListener('invalid', (event) => {
+        const field = event.target as HTMLElement;
+        const group = field.closest<HTMLElement>('[data-step]');
+        if (group && Number(group.dataset.step) !== current) show(Number(group.dataset.step), false);
+      }, true);
+
+      /**
+       * Anything that fills the form from elsewhere — the configurator handing
+       * over an estimate, the audit band handing over an address — announces
+       * itself here, and the visitor is taken to the step that field lives on.
+       * Without this they would land on step 1 and have to click through to
+       * find the message that was just written for them.
+       */
+      form.addEventListener('contact:filled', (event) => {
+        const step = Number((event as CustomEvent<{ step?: number }>).detail?.step ?? TOTAL);
+        show(step, false);
+      });
+
+      progress.classList.remove('hidden');
+      nav.classList.remove('hidden');
+      nav.classList.add('flex');
+      form.dataset.stepped = '';
+      show(1, false);
     }
 
     const setBusy = (state: boolean) => {

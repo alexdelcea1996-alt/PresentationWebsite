@@ -72,6 +72,21 @@
   --color-accent-alt: #0e7490;
 }
 
+/*
+ * The stepped contact form hides the groups it is not showing.
+ *
+ * Unlayered on purpose, and it took two tries to get here. A separate attribute
+ * from the `hidden` class, because elements inside a step can own their own
+ * visibility (the prefill note does) and one flag must not overwrite the other.
+ * But two of the step groups carry Tailwind's `grid` utility, which is also a
+ * display declaration — and inside `@layer base` this rule lost to it no matter
+ * how much specificity it was given, because layer order outranks specificity.
+ * Unlayered styles outrank every layer, which is what this needs.
+ */
+[data-step-hidden] {
+  display: none;
+}
+
 /* --------------------------------------------------------------------------- */
 @layer base {
   html {

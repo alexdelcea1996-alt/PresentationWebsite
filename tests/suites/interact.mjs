@@ -8,6 +8,21 @@ const results = [];
 const check = (name, pass, detail = '') =>
   results.push(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
 
+/**
+ * Walk the stepped form the way a visitor does, filling as it goes.
+ *
+ * The submission tests below are about what happens on submit, not about
+ * stepping — but they must still reach the fields the way a real person can,
+ * or they would pass on a form nobody can get through.
+ */
+async function fillContact(page, { name, email, message }) {
+  await page.locator('[data-step-next]').click();
+  await page.locator('#field-name').fill(name);
+  await page.locator('#field-email').fill(email);
+  await page.locator('[data-step-next]').click();
+  await page.locator('#field-message').fill(message);
+}
+
 // --- Mobile menu ---
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
 await mobile.goto(`${BASE}/`, { waitUntil: 'networkidle' });
@@ -99,15 +114,20 @@ await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
 const accessKey = await desktop.locator('[data-contact-form]').getAttribute('data-access-key');
 check('no form key configured yet (mailto fallback path)', accessKey === '', `key="${accessKey}"`);
 
+await fillContact(desktop, {
+  name: 'Test SRL',
+  email: 'test@example.com',
+  message: 'Vreau un site de prezentare.',
+});
+
+// The promise belongs at the moment of decision, which is the last step —
+// the same place the submit button lives, not seven scrolls away in the aside.
 check(
   'the reply promise sits at the button, not seven scrolls away',
-  await desktop.locator('[data-submit-note]').isVisible() &&
+  (await desktop.locator('[data-submit-note]').isVisible()) &&
     /24/.test(await desktop.locator('[data-submit-note]').innerText()),
 );
 
-await desktop.locator('#field-name').fill('Test SRL');
-await desktop.locator('#field-email').fill('test@example.com');
-await desktop.locator('#field-message').fill('Vreau un site de prezentare.');
 await desktop.locator('[data-submit]').click();
 await desktop.waitForTimeout(500);
 check(
@@ -143,6 +163,64 @@ if (rescueShown) {
   check('and says it did', await desktop.locator('[data-copy-done]').isVisible());
 }
 
+// --- The form asks one thing at a time ---
+// Progressive enhancement over the very same inputs: same ids, same names,
+// same submit handler. What follows checks that stepping actually hides the
+// other steps (a display collision made it look like it worked while every
+// field stayed on screen), that validation blocks forward motion, and that
+// none of the machinery leaks into the no-JavaScript page.
+{
+  const stepped = await browser.newPage({ viewport: { width: 900, height: 1000 } });
+  await stepped.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+  await stepped.waitForTimeout(400);
+
+  const shown = (selector) => stepped.locator(selector).isVisible();
+
+  check('the form announces which step it is on', /1/.test(
+    (await stepped.locator('[data-step-counter]').innerText())));
+  check('step 1 shows the offer questions and nothing else',
+    (await shown('#field-type')) && !(await shown('#field-name')) && !(await shown('#field-message')));
+
+  await stepped.locator('[data-step-next]').click();
+  await stepped.waitForTimeout(250);
+  check('step 2 asks who they are',
+    (await shown('#field-name')) && !(await shown('#field-type')) && !(await shown('#field-message')));
+
+  // Required fields gate the step: an empty name must not get past here.
+  await stepped.locator('[data-step-next]').click();
+  await stepped.waitForTimeout(250);
+  check('an empty required field blocks the next step',
+    /2/.test(await stepped.locator('[data-step-counter]').innerText()));
+
+  await stepped.locator('#field-name').fill('Ana Pop');
+  await stepped.locator('#field-email').fill('ana@example.ro');
+  await stepped.locator('[data-step-next]').click();
+  await stepped.waitForTimeout(250);
+  check('step 3 asks for the message',
+    (await shown('#field-message')) && !(await shown('#field-name')));
+  check('and the submit button appears only there', await shown('[data-submit]'));
+
+  await stepped.locator('[data-step-back]').click();
+  await stepped.waitForTimeout(250);
+  check('back returns without losing what was typed',
+    (await stepped.locator('#field-name').inputValue()) === 'Ana Pop' && (await shown('#field-name')));
+  await stepped.close();
+
+  // Without JavaScript there are no steps to count, so the form must be the
+  // plain one — every field at once, no progress line claiming otherwise.
+  const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 900, height: 1000 } });
+  const plain = await noJs.newPage();
+  await plain.goto(`${BASE}/#contact`, { waitUntil: 'domcontentloaded' });
+  check('no JavaScript: every field is on screen at once',
+    (await plain.locator('#field-type').isVisible()) &&
+      (await plain.locator('#field-name').isVisible()) &&
+      (await plain.locator('#field-message').isVisible()));
+  check('no JavaScript: nothing claims there are steps',
+    !(await plain.locator('[data-step-progress]').isVisible()) &&
+      !(await plain.locator('[data-step-nav]').isVisible()));
+  await noJs.close();
+}
+
 // --- The origin pipeline: sub-pages hand their context to the form ---
 // A visitor arriving from a service page or a demo has already said what they
 // want; making them restate it at the commitment moment is friction, and the
@@ -173,9 +251,11 @@ if (rescueShown) {
   await desktop.evaluate(() => {
     document.querySelector('[data-contact-form]').dataset.accessKey = 'test-key-123';
   });
-  await desktop.locator('#field-name').fill('Test SRL');
-  await desktop.locator('#field-email').fill('test@example.com');
-  await desktop.locator('#field-message').fill('Vreau un magazin.');
+  await fillContact(desktop, {
+    name: 'Test SRL',
+    email: 'test@example.com',
+    message: 'Vreau un magazin.',
+  });
   await desktop.locator('[data-submit]').click();
   await desktop.waitForTimeout(700);
   check('the payload carries the origin stamp', (stampedPost ?? '').includes('demo-store'));
@@ -200,9 +280,11 @@ await desktop.route('https://api.web3forms.com/submit', async (route) => {
 await desktop.evaluate(() => {
   document.querySelector('[data-contact-form]').dataset.accessKey = 'test-key-123';
 });
-await desktop.locator('#field-name').fill('Test SRL');
-await desktop.locator('#field-email').fill('test@example.com');
-await desktop.locator('#field-message').fill('Vreau un site de prezentare.');
+await fillContact(desktop, {
+  name: 'Test SRL',
+  email: 'test@example.com',
+  message: 'Vreau un site de prezentare.',
+});
 await desktop.locator('[data-submit]').click();
 await desktop.waitForTimeout(700);
 
@@ -223,12 +305,16 @@ check(
   (await desktop.locator('[data-thanks-booking]').count()) === 1,
 );
 
-// --- Required-field validation blocks an empty submit ---
+// --- An empty form cannot even reach the submit button ---
+// Stepping moved this guard earlier: validation now stops the visitor at the
+// step that is missing something, so submit is never on screen to be pressed.
 await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
-await desktop.locator('[data-submit]').click();
 await desktop.waitForTimeout(300);
-const emptyStillHidden = await desktop.locator('[data-form-success]').isHidden();
-check('empty form does not report success', emptyStillHidden);
+await desktop.locator('[data-step-next]').click();
+await desktop.locator('[data-step-next]').click();
+await desktop.waitForTimeout(300);
+check('an empty form never reaches submit', await desktop.locator('[data-submit]').isHidden());
+check('and reports no success', await desktop.locator('[data-form-success]').isHidden());
 
 console.log(results.join('\n'));
 await browser.close();

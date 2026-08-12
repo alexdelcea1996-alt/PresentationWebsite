@@ -489,6 +489,12 @@ export const en: Content = {
       fallbackCopy: 'Copy the message and the address',
       fallbackCopied: 'Copied — paste it wherever suits you',
       prefillNote: 'Preselected from the page you came from: {label}. Change it if it does not fit.',
+      steps: {
+        progress: 'Step {current} of {total}',
+        titles: ['What you need', 'Who you are', 'What you want to achieve'],
+        next: 'Continue',
+        back: 'Back',
+      },
       required: 'required',
       privacy: 'Your details land in my inbox and are used only to reply to you. They go on no list.',
     },

@@ -178,6 +178,12 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
     const website = document.querySelector<HTMLInputElement>('#field-website');
     if (website && url) website.value = url;
 
+    // Step 2 is where the address and the contact details live; that is where
+    // the visitor should arrive, not on the offer question they just answered.
+    typeSelect
+      ?.closest('form')
+      ?.dispatchEvent(new CustomEvent('contact:filled', { detail: { step: url ? 2 : 1 } }));
+
     window.setTimeout(() => {
       // Focus the first thing still empty, not always the same box.
       const target = url

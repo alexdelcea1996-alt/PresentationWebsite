@@ -85,6 +85,16 @@ check(
   messageValue.slice(0, 60).replace(/\n/g, ' '),
 );
 
+// The form is stepped now, so a prefill that lands on a step the visitor
+// cannot see is a prefill they will never find. The handover says which step
+// it filled, and the form goes there.
+check(
+  'the form jumps to the message it was just handed',
+  (await page.locator('#field-message').isVisible()) &&
+    /3/.test(await page.locator('[data-step-counter]').innerText()),
+  await page.locator('[data-step-counter]').innerText(),
+);
+
 // --- Changing type clears now-invalid add-ons ---
 await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 await cfg.locator('input[data-type-input][value="presentation"]').check({ force: true });

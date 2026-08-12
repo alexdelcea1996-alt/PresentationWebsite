@@ -489,6 +489,12 @@ export const ro: Content = {
       fallbackCopy: 'Copiază mesajul și adresa',
       fallbackCopied: 'Copiat — lipește-l unde îți e ușor',
       prefillNote: 'Preselectat după pagina din care vii: {label}. Schimbă-l dacă nu se potrivește.',
+      steps: {
+        progress: 'Pasul {current} din {total}',
+        titles: ['Ce ai nevoie', 'Cine ești', 'Ce vrei să obții'],
+        next: 'Continuă',
+        back: 'Înapoi',
+      },
       required: 'obligatoriu',
       privacy: 'Datele tale ajung în inboxul meu și le folosesc exclusiv ca să îți răspund. Nu le adaug pe nicio listă.',
     },

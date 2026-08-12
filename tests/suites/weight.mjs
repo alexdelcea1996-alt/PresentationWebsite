@@ -136,10 +136,12 @@ async function inlineJs(page) {
   return total;
 }
 
-// Today: 14.6 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
-// a framed one, 0.3 kB inside an example site.
+// Today: 18.1 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
+// a framed one, 0.3 kB inside an example site. The landing figure rose from
+// 14.6 kB when the contact form became stepped and the cursor glow arrived —
+// raised deliberately, both times, in the commit that spent the bytes.
 const homeJs = await inlineJs('index.html');
-ck('inline JS on the landing page is under budget', homeJs <= 17 * KB, `${kb(homeJs)} raw`);
+ck('inline JS on the landing page is under budget', homeJs <= 21 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));
 ck('inline JS on a demo page is under budget', demoJs <= 5 * KB, `${kb(demoJs)} raw`);
 const exampleJs = await inlineJs(join('demo', 'exemplu', 'atelier', 'index.html'));

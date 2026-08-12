@@ -436,6 +436,12 @@ const optionCardClass =
         ].join('\n');
         message.value = data.strings.messageTemplate.replace('{details}', details);
       }
+
+      // The stepped form listens for this and jumps to the message it was just
+      // handed, instead of leaving the visitor on step 1 to hunt for it.
+      message
+        ?.closest('form')
+        ?.dispatchEvent(new CustomEvent('contact:filled', { detail: { step: 3 } }));
     });
 
     syncFeatureVisibility();

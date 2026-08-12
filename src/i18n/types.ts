@@ -337,6 +337,17 @@ export interface Content {
       /** Shown when a ?from= link preselected the project type; {label} is the
        *  chosen option. Transparency: the form never changes silently. */
       prefillNote: string;
+      /**
+       * The stepped version of the same form, built on top of the plain one by
+       * JavaScript. Without it the classic form stands, untouched.
+       */
+      steps: {
+        /** "Step {current} of {total}" — both numbers are substituted. */
+        progress: string;
+        titles: [string, string, string];
+        next: string;
+        back: string;
+      };
       required: string;
       privacy: string;
     };
