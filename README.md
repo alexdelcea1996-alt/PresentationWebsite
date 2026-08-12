@@ -13,10 +13,16 @@ Rulat cu Lighthouse pe build-ul de producție:
 | | Performanță | Accesibilitate | Bune practici | SEO |
 |---|---|---|---|---|
 | Desktop | 100 | 100 | 100 | 100 |
-| Mobil | 98–100 | 100 | 100 | 100 |
+| Mobil | 97–100 | 100 | 100 | 100 |
+
+Prima pagină e cea care dă 97 pe mobil, fiindcă e cea mai lungă; subpaginile stau
+la 99–100. A scăzut de la 98 când a intrat al cincilea card de serviciu — nu din
+greutate (pagina a crescut cu 227 de octeți prin brotli), ci fiindcă FCP-ul stă
+la 2,0 s, exact pe porțiunea abruptă a curbei de punctaj Lighthouse, unde câteva
+zecimi mută un punct întreg. Las cifra măsurată, nu pe cea care sună mai bine.
 
 Măsurat pe un server care comprimă ca Cloudflare (brotli): prima pagină trece
-prin rețea în **18,6 kB**, nu în 115. Fără compresie, măsurătoarea locală arăta
+prin rețea în **18,4 kB**, nu în 126. Fără compresie, măsurătoarea locală arăta
 un scor mobil mai mic decât realitatea de pe site-ul live.
 
 Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
@@ -31,7 +37,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 529 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 541 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -203,10 +209,13 @@ locuri trebuie să poarte aceeași cifră peste tot și să nu lipsească din
 niciunul. Dacă adaugi un pachet, adaugă-l în toate patru — sau testele îți spun
 care a rămas în urmă, cu cifra cu tot.
 
-Două oferte sunt intenționat asimetrice: **optimizarea** are pagină și card de
-serviciu, dar nu e pachet, fiindcă e audit plus intervenție punctuală, nu
-livrabile fixe; **landing page** are pachet și intrare în configurator, dar nu
-are card de serviciu și nici pagină proprie.
+O singură ofertă rămâne intenționat asimetrică: **optimizarea** are pagină și
+card de serviciu, dar nu e pachet, fiindcă e audit plus intervenție punctuală,
+nu livrabile fixe. Restul apar în toate cele patru liste.
+
+Grila de servicii are acum cinci carduri. La număr impar, ultimul se întinde pe
+toată lățimea în loc să rămână singur într-un rând pe jumătate gol — se
+calculează în `Services.astro`, nu e scris de mână.
 
 `pricing.plans` în ambele fișiere de limbă. Valorile actuale sunt orientative
 și trebuie confirmate înainte de lansare.

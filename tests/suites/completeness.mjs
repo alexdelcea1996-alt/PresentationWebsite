@@ -97,6 +97,7 @@ await icons.close();
 const servicePaths = [
   '/servicii/site-de-prezentare/', '/servicii/magazin-online/',
   '/servicii/aplicatie-web/', '/servicii/optimizare-site/',
+  '/servicii/landing-page/', '/en/services/landing-page/',
   '/en/services/business-website/', '/en/services/online-store/',
   '/en/services/web-application/', '/en/services/site-optimisation/',
 ];
@@ -122,7 +123,7 @@ for (const path of servicePaths) {
   faqTotal += questions.length;
   await page.close();
 }
-ck('56 questions published across the 8 service pages', faqTotal === 56, String(faqTotal));
+ck('70 questions published across the 10 service pages', faqTotal === 70, String(faqTotal));
 
 // --- Sitemap hreflang --------------------------------------------------------
 const urls = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(([, inner]) => ({

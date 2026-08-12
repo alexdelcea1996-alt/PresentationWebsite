@@ -328,14 +328,14 @@ for (const [label, home, service, otherServices, demo] of [
     'RO',
     '/',
     '/servicii/aplicatie-web/',
-    ['/servicii/site-de-prezentare/', '/servicii/optimizare-site/'],
+    ['/servicii/landing-page/', '/servicii/site-de-prezentare/', '/servicii/optimizare-site/'],
     '/demo/',
   ],
   [
     'EN',
     '/en/',
     '/en/services/web-application/',
-    ['/en/services/business-website/', '/en/services/site-optimisation/'],
+    ['/en/services/landing-page/', '/en/services/business-website/', '/en/services/site-optimisation/'],
     '/en/demo/',
   ],
 ]) {

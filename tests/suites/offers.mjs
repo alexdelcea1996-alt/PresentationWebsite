@@ -33,6 +33,7 @@ for (const [label, home, priceLabel, services] of [
     '/',
     'preț',
     [
+      ['landing page', '/servicii/landing-page/'],
       ['site de prezentare', '/servicii/site-de-prezentare/'],
       ['magazin online', '/servicii/magazin-online/'],
       ['aplicație web', '/servicii/aplicatie-web/'],
@@ -44,6 +45,7 @@ for (const [label, home, priceLabel, services] of [
     '/en/',
     'price',
     [
+      ['landing page', '/en/services/landing-page/'],
       ['business website', '/en/services/business-website/'],
       ['online store', '/en/services/online-store/'],
       ['web application', '/en/services/web-application/'],

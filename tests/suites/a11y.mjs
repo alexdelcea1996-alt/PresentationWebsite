@@ -8,6 +8,8 @@ for (const [label, path] of [
   ['EN', '/en/'],
   ['RO case study', '/studii-de-caz/acest-site/'],
   ['EN case study', '/en/case-studies/this-site/'],
+  ['RO svc landing', '/servicii/landing-page/'],
+  ['EN svc landing', '/en/services/landing-page/'],
   ['RO svc business', '/servicii/site-de-prezentare/'],
   ['RO svc shop', '/servicii/magazin-online/'],
   ['RO svc webapp', '/servicii/aplicatie-web/'],

@@ -69,7 +69,7 @@ const services = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/services' }),
   schema: z.object({
     /** Matches `key` on the matching card in the services section. */
-    key: z.enum(['presentation', 'shop', 'webapp', 'optimization']),
+    key: z.enum(['landing', 'presentation', 'shop', 'webapp', 'optimization']),
     /** Localised URL segment. Not `slug` — Astro reserves that key. */
     urlSlug: z.string(),
     metaTitle: z.string(),

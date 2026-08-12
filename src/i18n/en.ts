@@ -72,6 +72,19 @@ export const en: Content = {
     backToOverview: 'Back to services',
     items: [
       {
+        icon: 'target',
+        key: 'landing',
+        title: 'Landing page',
+        description:
+          'One page built around a single decision, for a campaign, a product or an event. No menu to walk people out of the page you just paid to get them onto.',
+        features: [
+          'A structure built for one action',
+          'Copy written for this page, not lifted from a brochure',
+          'Loads in under a second on mobile data',
+          'Measurement, so you know whether it worked',
+        ],
+      },
+      {
         icon: 'browser',
         key: 'presentation',
         title: 'Business website',

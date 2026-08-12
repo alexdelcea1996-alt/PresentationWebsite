@@ -15,6 +15,11 @@ const t = getContent(locale).services;
 // A card links through only when a landing page exists for that service yet.
 const pages = await getServicePages(locale);
 const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale, page.data.urlSlug)]));
+
+// An odd number of cards would leave the last one stranded in a half-empty row.
+// It spans instead — which happens to suit the one that is there, since
+// maintenance is the option for people who already have a site.
+const spanLast = t.items.length % 2 === 1;
 ---
 
 <section id={sectionIds.services} class="py-20 sm:py-28">
@@ -31,7 +36,10 @@ const pathByKey = new Map(pages.map((page) => [page.data.key, servicePath(locale
 
           return (
           <article
-            class="card card-hover flex flex-col"
+            class:list={[
+              'card card-hover flex flex-col',
+              spanLast && index === t.items.length - 1 && 'sm:col-span-2',
+            ]}
             data-reveal
             data-reveal-delay={index * 80}
           >

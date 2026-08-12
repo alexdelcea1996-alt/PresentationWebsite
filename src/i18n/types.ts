@@ -12,9 +12,9 @@ export interface Stat {
 
 export interface Service {
   /** Key into the icon map in `src/components/Icon.astro`. */
-  icon: 'browser' | 'cart' | 'app' | 'gauge';
+  icon: 'browser' | 'cart' | 'app' | 'gauge' | 'target';
   /** Links the card to its landing page in the `services` collection, when one exists. */
-  key?: 'presentation' | 'shop' | 'webapp' | 'optimization';
+  key?: 'landing' | 'presentation' | 'shop' | 'webapp' | 'optimization';
   title: string;
   description: string;
   features: string[];

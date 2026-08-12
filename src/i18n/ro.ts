@@ -72,6 +72,19 @@ export const ro: Content = {
     backToOverview: 'Înapoi la servicii',
     items: [
       {
+        icon: 'target',
+        key: 'landing',
+        title: 'Landing page',
+        description:
+          'O pagină construită în jurul unei singure decizii, pentru o campanie, un produs sau un eveniment. Fără meniu care să scoată omul din pagina pe care ai plătit ca el să intre.',
+        features: [
+          'O structură făcută pentru o singură acțiune',
+          'Text scris pentru pagina asta, nu luat din broșură',
+          'Se încarcă sub o secundă pe internet mobil',
+          'Măsurare, ca să știi dacă a mers',
+        ],
+      },
+      {
         icon: 'browser',
         key: 'presentation',
         title: 'Site de prezentare',

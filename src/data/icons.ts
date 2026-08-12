@@ -20,6 +20,7 @@ export type IconName =
   | 'cart'
   | 'app'
   | 'gauge'
+  | 'target'
   | 'check'
   | 'minus'
   | 'arrow-right'
@@ -41,6 +42,9 @@ export const iconPaths: Record<IconName, string> = {
   cart: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h2.5l2.4 12.2a2 2 0 0 0 2 1.6h8.3a2 2 0 0 0 2-1.6L21 7H5.5"/>',
   app: '<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>',
   gauge: '<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="m14.1 9.9 3.6-3.6"/><path d="M3.5 19a9 9 0 1 1 17 0"/>',
+  // One page, one objective.
+  target:
+    '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.25"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/>',
   check,
   minus,
   'arrow-right': arrowRight,
