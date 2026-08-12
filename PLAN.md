@@ -194,7 +194,54 @@ lipsesc exact unde se fac afirmațiile, iar momentele de „wow" sunt neexploata
 9. ✅ Pachet de completitudine: 404, set de iconuri, `manifest.json`, schema `FAQPage`
    (56 de întrebări), `hreflang` reparat pe cele 14 URL-uri din sitemap care nu-l
    aveau
-10. ✅ Suita de teste publicată în repo, cu `npm test` — 623 de verificări
+10. ✅ Suita de teste publicată în repo, cu `npm test` — 1088 de verificări azi
+
+### D. Pachetul „lead-uri prin aspect și funcționalitate" (livrat 2026-08-12)
+
+Reanaliză pornită de la o singură întrebare: unde se pierd cererile de ofertă.
+Constatarea gravă a fost un bug de onestitate activ în producție — fără cheia
+Web3Forms fiecare trimitere lua ramura `mailto:`, care afișa necondiționat „am
+primit mesajul"; pe un desktop fără client de e-mail nu se întâmpla nimic,
+vizitatorul credea că a scris, iar lead-ul murea la ultimul pas. Testul de atunci
+era verde pe minciună. A fost primul lucru reparat.
+
+1. ✅ **P1 — Onestitate la formular.** Panou de salvare pe ramura mailto
+   (WhatsApp cu mesajul compus, copiere în clipboard, telefon), fără niciun
+   „am primit mesajul". Promisiunea de 24 h ecou sub buton, aceeași peste tot.
+2. ✅ **P2 — CTA persistent pe mobil.** Dock lipit jos sub `sm`, se retrage când
+   formularul sau footerul intră în ecran, cu spațiu la finalul paginii ca să nu
+   acopere ultimele linkuri.
+3. ✅ **P3 — Contextul curge spre formular.** CTA-urile din subpagini poartă
+   `?from=`, formularul preselectează tipul și arată de unde vii, iar câmpul
+   ascuns `origin` intră în ambele căi de trimitere. Ecranele de confirmare din
+   demo-uri cer contactul în momentul de vârf.
+4. ✅ **P4 — Pagină de mulțumire** (`/multumesc/`, `/en/thank-you/`), `noindex`,
+   cu a doua conversie: programează discuția acum. Redirect doar pe succes real.
+5. ✅ **P5 — Formular conversațional.** Trei pași peste aceleași câmpuri, progres,
+   validare pe pas; fără JavaScript rămâne formularul clasic, neatins.
+6. ✅ **P6 — Configurator partajabil.** Estimarea pleacă pe WhatsApp și se copiază
+   ca link cu starea în hash, care reface selecția la deschidere.
+7. ✅ **P7 — „Fă-l al tău".** Numele firmei și culoarea vizitatorului intră în
+   site-urile-exemplu prin `postMessage`, verificat pe origine; eticheta de
+   ficțiune rămâne vizibilă, bara de adresă falsă nu se schimbă. Ramă și pe prima
+   pagină, plus panglică de ieșire pe exemplele deschise întregi.
+8. ✅ **P8 — Cifrele pe limba patronului.** Calculator al costului unui site lent
+   (interval rotunjit, sursă citată, ce nu poate ști) și rând-verdict în banda de
+   măsurare: „de ~N ori mai ușoară decât mediana web".
+9. ✅ **P9 — Semnătura vizuală.** Paletă proprie iris→jad, derivată în OKLCH și
+   re-derivată separat pentru tema luminoasă; marca ștanțată ca mască pe eticheta
+   fiecărei secțiuni; fascicul pe cardul planului ales de cei mai mulți; coloana
+   procesului se desenează la scroll, fără JavaScript.
+10. ✅ **P10 — Transparența ca diferențiator.** Colofon (`/colofon/`) cu commit-ul,
+    numărul de verificări **în suită** — niciodată „trecute", fiindcă build-ul
+    rulează înaintea testelor — bugetele și ce NU poate ști pagina; listă de
+    lansare imprimabilă unde fiecare rând citează suita care îl ține; linie de
+    proveniență în footer. Auditul primește comutator telefon/desktop și
+    „măsoară și site-ul ăsta", adormite până la cheie.
+
+**Ucise de verificarea adversă, ca să rămână scrise:** bento flagship (premisă
+falsă), hero care se măsoară singur (dublează banda existentă), command palette
+(audiență greșită), headline numărător (imposibil pe date reale ca „95+" și „2-4").
 
 ## 9. Idei pentru v2
 

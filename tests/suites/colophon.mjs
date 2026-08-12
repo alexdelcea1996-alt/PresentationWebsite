@@ -227,8 +227,18 @@ ck('the two languages cite the same suites', cited.size >= 6, [...cited].sort().
 
   ck('printing drops the navigation', printed.header && printed.footer,
     `header hidden ${printed.header}, footer hidden ${printed.footer}`);
-  ck('and prints black on white rather than a dark page',
-    printed.background === 'rgb(255, 255, 255)' && printed.text === 'rgb(0, 0, 0)',
+
+  // Compared as brightness, not as exact strings. Chromium's print emulation
+  // tone-maps by a point or two between runs — one run reported white as
+  // rgb(254, 254, 254) — and an exact match turns that into a failing suite
+  // that has nothing to do with the stylesheet. The property being defended is
+  // "a light page with dark text on it", and that is what is measured.
+  const brightness = (colour) => {
+    const [r, g, bl] = colour.match(/\d+/g).slice(0, 3).map(Number);
+    return (r + g + bl) / 3;
+  };
+  ck('and prints dark on light rather than a dark page',
+    brightness(printed.background) > 240 && brightness(printed.text) < 40,
     `${printed.background} / ${printed.text}`);
   ck('nothing is left invisible by the scroll reveal', printed.revealed);
   ck('and every line still prints', printed.items >= 15, `${printed.items}`);
