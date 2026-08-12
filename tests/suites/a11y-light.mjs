@@ -10,6 +10,8 @@ for (const [label, path] of [
   ['post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],
   ['post with a table', '/blog/landing-page-sau-site-de-prezentare/'],
   ['thanks', '/multumesc/'],
+  ['colophon', '/colofon/'],
+  ['checklist', '/ghid/lista-de-lansare/'],
   ['landing demo', '/demo/landing-page/'],
   ['site demo', '/demo/site-de-prezentare/'],
   ['case study', '/studii-de-caz/acest-site/'],

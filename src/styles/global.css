@@ -950,3 +950,98 @@
     }
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Print.
+
+   Unlayered and last, so it beats every utility without a specificity contest —
+   printing is the one context where the page's own styling is simply wrong and
+   has to be overridden wholesale rather than negotiated with.
+
+   The checklist is the page this exists for: it is meant to be taken to a
+   meeting on paper. But nothing here is checklist-specific, because any page
+   somebody prints deserves the same treatment — no dark background eating a
+   toner cartridge, no fixed dock over the text, no navigation that cannot be
+   clicked.
+--------------------------------------------------------------------------- */
+@media print {
+  :root,
+  :root[data-theme='light'] {
+    color-scheme: light;
+    --color-surface: #fff;
+    --color-surface-deep: #fff;
+    --color-surface-raised: #fff;
+    --color-surface-hover: #fff;
+    --color-fg: #000;
+    --color-fg-muted: #1a1a1a;
+    --color-fg-subtle: #444;
+    --color-border: #bbb;
+    --color-border-strong: #888;
+    /* Accents keep their hue but go dark enough to survive a mono printer. */
+    --color-accent: #2d1e6b;
+    --color-accent-bright: #2d1e6b;
+    --color-accent-alt: #14453a;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Chrome and friends drop backgrounds by default; these need to keep theirs. */
+  [data-checklist] code {
+    background: #f1f1f1 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Furniture: no use on paper, and the fixed ones would print over the text. */
+  [data-header],
+  footer,
+  .sticky-cta,
+  .cursor-glow,
+  .glow,
+  .beam::before,
+  .btn-primary::after,
+  .rule-mark {
+    display: none !important;
+  }
+
+  /* The reveal animation never runs without a viewport to scroll; without this
+     every section below the fold prints blank. That is the classic way a print
+     stylesheet ships broken — it looks perfect on screen. */
+  .js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+  }
+
+  [data-checklist] {
+    max-width: none;
+  }
+
+  /* A checklist split across a page break loses its heading. */
+  [data-checklist-group] {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  /* On paper a URL cannot be clicked, so the ones worth keeping are spelled out. */
+  [data-checklist] a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+
+  @page {
+    margin: 16mm;
+  }
+}

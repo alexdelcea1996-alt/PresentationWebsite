@@ -134,8 +134,10 @@ if (!live) {
   // Google is not reachable from a test run, and hammering it would be rude
   // anyway. Serve a response shaped like theirs.
   let asked = null;
+  const requests = [];
   await p.context().route('https://www.googleapis.com/**', (route) => {
     asked = route.request().url();
+    requests.push(asked);
     route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -179,6 +181,11 @@ if (!live) {
   });
 
   await p.goto(`${BASE}/#audit`, { waitUntil: 'load' });
+  // The result scrolls itself into view, and with `scroll-behavior: smooth` that
+  // animation fights Playwright's own scroll-into-view: it lands, the page keeps
+  // gliding, and the click times out on a moving target. A CSSOM write turns it
+  // off for the run (a <style> tag would be refused by the CSP).
+  await p.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; });
   const form = p.locator('[data-audit-form]');
   ck('the tool renders when a key is configured', await form.isVisible());
   ck('results are hidden until asked for', await p.locator('[data-audit-result]').isHidden());
@@ -243,6 +250,52 @@ if (!live) {
   ck('the audited host is named back to the visitor',
     (await p.locator('[data-audit-target]').innerText()).includes('exemplu.ro'));
 
+  // --- The device the score belongs to ---------------------------------------
+  // Google returns very different numbers for phone and desktop. A score shown
+  // without saying which one it is is half a fact, and the missing half is the
+  // one that explains a low number.
+  const stamp = await p.locator('[data-audit-stamp]').innerText();
+  ck('the result says which device it was measured on',
+    /telefon/i.test(stamp), stamp);
+  ck('and when', /\d{1,2}[:.]\d{2}/.test(stamp), stamp);
+  ck('no template placeholder survives in the stamp',
+    !stamp.includes('{device}') && !stamp.includes('{time}'), stamp);
+
+  // A second run of the SAME address on the SAME device must not spend another
+  // call on somebody's quota — and must say that it did not.
+  // The result scrolls itself into view smoothly, so the button is still moving
+  // for a moment after it appears; clicking into a moving target times out.
+  await p.waitForTimeout(900);
+  const callsBefore = requests.length;
+  await p.locator('[data-audit-submit]').click();
+  await p.waitForTimeout(600);
+  ck('asking again for the same thing does not re-measure',
+    requests.length === callsBefore, `${requests.length - callsBefore} extra call(s)`);
+  ck('and the page says the answer was remembered',
+    await p.locator('[data-audit-cached]').isVisible());
+
+  // Switching device is a different measurement, so it must go out again.
+  // The radio itself is `sr-only` (the label carries the visible chip), so a
+  // visitor clicks the label — and so does this.
+  await p.locator('[data-audit-strategy] label:has(input[value="desktop"])').click();
+  ck('choosing a device actually selects it',
+    await p.locator('[data-audit-strategy] input[value="desktop"]').isChecked());
+  await p.waitForTimeout(300);
+  await p.locator('[data-audit-submit]').click();
+  await p.waitForSelector('[data-audit-result]:not(.hidden)', { timeout: 5000 });
+  await p.waitForTimeout(400);
+  ck('switching to desktop measures again', requests.length > callsBefore,
+    `${requests.length - callsBefore} call(s)`);
+  ck('and asks Google for the desktop result',
+    new URL(requests.at(-1)).searchParams.get('strategy') === 'desktop',
+    new URL(requests.at(-1)).searchParams.get('strategy'));
+  ck('and the stamp follows the device',
+    /desktop/i.test(await p.locator('[data-audit-stamp]').innerText()),
+    await p.locator('[data-audit-stamp]').innerText());
+  ck('a fresh measurement is not labelled as remembered',
+    await p.locator('[data-audit-cached]').isHidden());
+
+
   // --- Straight into the form, with the address already filled ---------------
   await p.locator('[data-audit-result] [data-audit-cta]').click();
   await p.waitForTimeout(900);
@@ -252,6 +305,22 @@ if (!live) {
   const selected = await p.locator('#field-type').evaluate(
     (el) => el.options[el.selectedIndex].dataset.id);
   ck('and selects the audit option', selected === 'audit', String(selected));
+
+  // --- "Measure this site too" -------------------------------------------------
+  // The comparison a visitor actually wants: their number is meaningless until
+  // something sits beside it.
+  await p.waitForTimeout(900);
+  await p.locator('[data-audit-self]').click();
+  await p.waitForTimeout(900);
+  const self = new URL(requests.at(-1)).searchParams.get('url');
+  ck('the self-test measures this site',
+    self === 'https://presentationwebsite.alexdelcea1996.workers.dev/', self);
+  // The canonical, not location.href — a visit carrying ?from= or a hash must
+  // not measure a different address than the one that is indexed.
+  ck('and asks for the canonical address, not the current one',
+    !self.includes('#') && !self.includes('?'), self);
+
+  // Measuring this site must not have disturbed what the CTA already carried.
 
   ck('no CSP violations during the audit', (await p.evaluate(() => window.__csp)).length === 0,
     (await p.evaluate(() => window.__csp)).join(' | '));

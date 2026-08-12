@@ -344,6 +344,24 @@ export interface Content {
       errorUrl: string;
       errorFailed: string;
       errorBusy: string;
+      /**
+       * Which device the measurement is taken on. Google returns very different
+       * numbers for the two and the tool used to ask only for mobile without
+       * saying so — a score presented without its device is half a fact.
+       */
+      strategyLabel: string;
+      strategyMobile: string;
+      strategyDesktop: string;
+      /** Measured on <device>, at <time> — stamped onto the result. */
+      measuredOn: string;
+      /**
+       * "Measure this site too" — the comparison the visitor is really after.
+       * The result is kept for the session because the API key has a real
+       * quota and re-running it on every click spends somebody's allowance.
+       */
+      selfTest: string;
+      selfTestNote: string;
+      cachedNote: string;
     };
   };
   contact: {
@@ -459,7 +477,73 @@ export interface Content {
     tagline: string;
     rights: string;
     builtWith: string;
+    /** Provenance: "built from commit abc1234", linking to the colophon. */
+    builtFrom: string;
+    colophonLink: string;
     nav: string;
+  };
+
+  /**
+   * The colophon: how the site holds itself to what it says.
+   *
+   * One rule governs every string here, and it is the reason the page exists:
+   * nothing may claim a result the build cannot know. The build runs BEFORE
+   * the test suite, so the page may say how many checks the suite contains and
+   * may not say how many passed. `checksNote` is where that distinction is
+   * spelled out for the reader rather than hidden behind careful phrasing.
+   */
+  colophon: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    lead: string;
+    /** Each section: a heading, a paragraph, and the facts underneath it. */
+    commitTitle: string;
+    commitBody: string;
+    commitLabel: string;
+    commitUnknown: string;
+    versionLink: string;
+    repoLink: string;
+    checksTitle: string;
+    checksBody: string;
+    /** "N checks in the suite" — the count, never a pass rate. */
+    checksLabel: string;
+    checksNote: string;
+    budgetsTitle: string;
+    budgetsBody: string;
+    budgetRows: { label: string; value: string }[];
+    cspTitle: string;
+    cspBody: string;
+    limitsTitle: string;
+    limitsBody: string;
+    limits: string[];
+    ctaTitle: string;
+    ctaBody: string;
+    ctaButton: string;
+  };
+
+  /**
+   * The launch checklist — the one page here meant to be printed and used
+   * against somebody else's site. Every item names the suite on this site that
+   * enforces it, so the list is a description of practice rather than advice.
+   */
+  checklist: {
+    metaTitle: string;
+    metaDescription: string;
+    eyebrow: string;
+    title: string;
+    lead: string;
+    printHint: string;
+    /** How to read the "enforced by" column. */
+    suiteNote: string;
+    groups: {
+      title: string;
+      items: { text: string; suite: string }[];
+    }[];
+    ctaTitle: string;
+    ctaBody: string;
+    ctaButton: string;
   };
   /**
    * The questions people ask before writing, gathered on the landing page.

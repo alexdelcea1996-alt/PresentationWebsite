@@ -467,6 +467,14 @@ export const en: Content = {
       errorUrl: 'That does not look like a valid address. Try something like example.com.',
       errorFailed: 'I could not analyse that address. Check the site is public and try again.',
       errorBusy: 'Too many checks right now. Try again in a minute.',
+      strategyLabel: 'Measure on',
+      strategyMobile: 'Phone',
+      strategyDesktop: 'Desktop',
+      measuredOn: 'Measured on {device}, at {time}.',
+      selfTest: 'Measure this site too',
+      selfTestNote:
+        'The same tool, the same settings, on the page you are reading now. So you have something to compare against.',
+      cachedNote: 'Kept from earlier in this session — it does not re-measure on every click.',
     },
   },
 
@@ -589,7 +597,141 @@ export const en: Content = {
     tagline: 'Websites and web apps for businesses that want to be found.',
     rights: 'All rights reserved.',
     builtWith: 'Built with Astro. No purchased templates.',
+    builtFrom: 'Built from commit',
+    colophonLink: 'How it keeps itself honest',
     nav: 'Navigation',
+  },
+
+  colophon: {
+    metaTitle: 'Colophon — how this site keeps itself honest | Alex Delcea',
+    metaDescription:
+      'Which commit it was built from, how many checks are in the suite, which byte budgets are asserted, and what this page cannot know about itself.',
+    eyebrow: 'Colophon',
+    title: 'How this site keeps itself honest',
+    lead: 'I sell you a website that tells the truth about your business. It would be odd not to show you what holds mine to account — including the things this page has no way of knowing about itself.',
+
+    commitTitle: 'What it was built from',
+    commitBody:
+      'You cannot look at a page and tell whether it is the current one. So the commit this build came from is written here and in /version.txt — open both and compare them with the repository.',
+    commitLabel: 'Commit',
+    commitUnknown: 'unknown — built outside a git checkout',
+    versionLink: 'See /version.txt',
+    repoLink: 'The whole codebase',
+
+    checksTitle: 'The checks',
+    checksBody:
+      'The suite runs against the BUILT site, not the source: CSP hashes, headers, hreflang alternates and share images only exist after a build. Most of the checks open a real browser and behave like a visitor.',
+    checksLabel: 'checks in the suite',
+    checksNote:
+      'It says "in the suite", not "passing", and the difference matters: the build that produced this page ran BEFORE the tests did. A page announcing its own tests as green would be asserting exactly the kind of thing the rest of this site argues against. If you want the result, run the suite — it is in the repository, with instructions.',
+
+    budgetsTitle: 'The budgets',
+    budgetsBody:
+      'Measuring on its own defends nothing: a slow creep upward passes green forever. The thresholds below are asserted, so going over fails the build. When something is exceeded on purpose, the threshold is raised in the same commit, with the reason written beside it.',
+    budgetRows: [
+      { label: 'Inline JavaScript on the landing page', value: 'at most 15 kB' },
+      { label: 'The stylesheet, brotli-compressed', value: 'at most 10.5 kB' },
+      { label: 'All four font files together', value: 'at most 64 kB' },
+      { label: 'The landing page, compressed HTML', value: 'at most 25 kB' },
+    ],
+
+    cspTitle: 'The security policy',
+    cspBody:
+      'The site runs with a policy that has no "unsafe-inline": every inline script carries a SHA-256 hash, regenerated on every build. The practical consequence is that a script I did not put there does not run — not even if it somehow reaches the page.',
+
+    limitsTitle: 'What this page cannot know',
+    limitsBody:
+      'The list below matters as much as the one above. A colophon that only lists what works is still an advertisement.',
+    limits: [
+      'Whether the tests passed. The build runs before them; the number above is how many checks exist, not how many passed.',
+      'Whether the version you are reading is the newest one. It gives you its commit — comparing that with the repository is your move.',
+      'How the site behaves on your connection and your phone. The band on the landing page measures this visit, in your browser, and nothing else.',
+      'Whether any of this suits you. It is what I do, verified on my own site — not a promise about yours.',
+    ],
+
+    ctaTitle: 'Want the same rigour on your site?',
+    ctaBody: 'In the first conversation I will tell you what can be measured and what cannot, before we work together.',
+    ctaButton: 'Write to me',
+  },
+
+  checklist: {
+    metaTitle: 'Pre-launch checklist | Alex Delcea',
+    metaDescription:
+      'What I check before putting a site online, point by point, with the suite that holds each line on this site. Made to be printed.',
+    eyebrow: 'Guide',
+    title: 'The list I go through before launch',
+    lead: 'This is not a list of general advice. It is what I check, and beside every line is the suite in the repository that holds exactly that thing on this site. If the line breaks here, the build fails.',
+    printHint: 'The page is made to be printed: Ctrl/Cmd + P gives you a clean copy, no menu and no background.',
+    suiteNote:
+      'The right-hand column is the file in tests/suites/ that holds the line. Run one suite on its own with npm test <name>.',
+
+    groups: [
+      {
+        title: 'What a search engine sees',
+        items: [
+          { text: 'Every page has its own title and description, and they differ from each other.', suite: 'completeness' },
+          { text: 'Every page declares which address is its canonical one.', suite: 'completeness' },
+          { text: 'The language versions point at each other with hreflang, with x-default, and every target is itself in the sitemap.', suite: 'completeness' },
+          { text: 'The sitemap and robots.txt are both served and do not contradict each other.', suite: 'completeness' },
+          { text: 'The 404 is a whole page with navigation, marked noindex and kept out of the sitemap.', suite: 'completeness' },
+        ],
+      },
+      {
+        title: 'What shows up when someone shares a link',
+        items: [
+          { text: 'Every page has its own share image, not one generic card for the whole site.', suite: 'share-images' },
+          { text: 'The image actually downloads and decodes at 1200×630, as a PNG.', suite: 'share-images' },
+        ],
+      },
+      {
+        title: 'What it weighs',
+        items: [
+          { text: 'Fonts are subsetted, not the whole families.', suite: 'weight' },
+          { text: 'Every page has its weight asserted as a threshold, not merely reported.', suite: 'weight' },
+          { text: 'No JavaScript bundle that nobody decided to ship.', suite: 'weight' },
+        ],
+      },
+      {
+        title: 'Accessibility',
+        items: [
+          { text: 'Zero axe findings on every page, at WCAG 2.1 AA.', suite: 'a11y' },
+          { text: 'The same checks run on the light theme, not only the default one.', suite: 'a11y-light' },
+          { text: 'The focus ring is distinguishable from the background in both themes.', suite: 'signature' },
+          { text: 'A keyboard reaches every way of getting in touch on its own.', suite: 'channels' },
+        ],
+      },
+      {
+        title: 'Security and headers',
+        items: [
+          { text: 'A security policy with no "unsafe-inline", carrying a hash for every inline script.', suite: 'csp' },
+          { text: 'HSTS set, security.txt served and not yet expired, cache rules on every kind of file.', suite: 'completeness' },
+        ],
+      },
+      {
+        title: 'The form',
+        items: [
+          { text: 'The form reports success only when the send was actually confirmed.', suite: 'interact' },
+          { text: 'Both send paths carry the whole message, including where the visitor came from.', suite: 'interact' },
+        ],
+      },
+      {
+        title: 'Legal obligations (Romania)',
+        items: [
+          { text: 'The privacy policy is served, dated, and linked from the form.', suite: 'legal' },
+          { text: 'Every outside service that touches a visitor’s data is named on the page.', suite: 'legal' },
+        ],
+      },
+      {
+        title: 'After launch',
+        items: [
+          { text: '/version.txt says which commit the live site was built from, and is never cached.', suite: 'completeness' },
+        ],
+      },
+    ],
+
+    ctaTitle: 'Want the list run against your site?',
+    ctaBody: 'I will tell you what is already fine and what is not, without selling you anything before we have spoken.',
+    ctaButton: 'Ask for an audit',
   },
 
   homeFaq: {

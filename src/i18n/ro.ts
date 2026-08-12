@@ -467,6 +467,14 @@ export const ro: Content = {
       errorUrl: 'Nu pare o adresă validă. Încearcă ceva de forma exemplu.ro.',
       errorFailed: 'Nu am putut analiza adresa asta. Verifică dacă site-ul e public și încearcă din nou.',
       errorBusy: 'Prea multe verificări în acest moment. Încearcă peste un minut.',
+      strategyLabel: 'Măsoară pe',
+      strategyMobile: 'Telefon',
+      strategyDesktop: 'Desktop',
+      measuredOn: 'Măsurat pe {device}, la {time}.',
+      selfTest: 'Măsoară și site-ul ăsta',
+      selfTestNote:
+        'Aceeași unealtă, aceleași setări, pe pagina pe care o citești acum. Ca să ai cu ce compara.',
+      cachedNote: 'Rezultat ținut minte din sesiunea asta — nu se remăsoară la fiecare click.',
     },
   },
 
@@ -589,7 +597,141 @@ export const ro: Content = {
     tagline: 'Site-uri și aplicații web pentru afaceri care vor să fie găsite.',
     rights: 'Toate drepturile rezervate.',
     builtWith: 'Construit cu Astro. Fără șabloane cumpărate.',
+    builtFrom: 'Construit din commit-ul',
+    colophonLink: 'Cum se ține singur onest',
     nav: 'Navigare',
+  },
+
+  colophon: {
+    metaTitle: 'Colofon — cum se ține singur onest acest site | Alex Delcea',
+    metaDescription:
+      'Din ce commit e construit, câte verificări are suita, ce bugete de octeți sunt asertate și ce nu poate ști pagina asta despre ea însăși.',
+    eyebrow: 'Colofon',
+    title: 'Cum se ține singur onest site-ul ăsta',
+    lead: 'Îți vând un site care spune adevărul despre afacerea ta. Ar fi ciudat să nu-ți arăt și ce ține site-ul meu în frâu — inclusiv lucrurile pe care pagina asta nu are cum să le știe despre ea însăși.',
+
+    commitTitle: 'Din ce e construit',
+    commitBody:
+      'Nu poți să te uiți la o pagină și să-ți dai seama dacă e cea mai nouă. De asta commit-ul din care a ieșit build-ul ăsta e scris aici și în /version.txt — deschizi amândouă și compari cu ce e în depozit.',
+    commitLabel: 'Commit',
+    commitUnknown: 'necunoscut — build în afara unui checkout git',
+    versionLink: 'Vezi /version.txt',
+    repoLink: 'Codul, în întregime',
+
+    checksTitle: 'Verificările',
+    checksBody:
+      'Suita rulează peste site-ul CONSTRUIT, nu peste cod: hash-urile CSP, header-ele, alternativele hreflang și imaginile de share există abia după build. Majoritatea verificărilor deschid un browser adevărat și se poartă ca un vizitator.',
+    checksLabel: 'verificări în suită',
+    checksNote:
+      'Scrie „în suită”, nu „trecute”, și diferența contează: build-ul care a produs pagina asta a rulat ÎNAINTE de teste. O pagină care și-ar anunța propriile teste ca fiind verzi ar afirma exact genul de lucru pe care restul site-ului îl combate. Dacă vrei rezultatul, rulează suita — e în depozit, cu tot cu instrucțiuni.',
+
+    budgetsTitle: 'Bugetele',
+    budgetsBody:
+      'Măsurarea singură nu apără nimic: o creștere lentă trece verde la nesfârșit. Pragurile de mai jos sunt asertate, deci o depășire pică build-ul. Când e depășit ceva intenționat, pragul se ridică în același commit cu explicația de ce.',
+    budgetRows: [
+      { label: 'JavaScript inline pe prima pagină', value: 'cel mult 15 kB' },
+      { label: 'Foaia de stil, comprimată brotli', value: 'cel mult 10,5 kB' },
+      { label: 'Fonturile, toate patru la un loc', value: 'cel mult 64 kB' },
+      { label: 'Prima pagină, HTML comprimat', value: 'cel mult 25 kB' },
+    ],
+
+    cspTitle: 'Politica de securitate',
+    cspBody:
+      'Site-ul rulează cu o politică fără „unsafe-inline”: fiecare script inline are un hash SHA-256, regenerat la fiecare build. Consecința practică e că un script pe care nu l-am pus eu acolo nu rulează — nici măcar dacă ajunge cumva în pagină.',
+
+    limitsTitle: 'Ce NU poate ști pagina asta',
+    limitsBody:
+      'Lista de mai jos e la fel de importantă ca cea de sus. Un colofon care înșiră doar ce merge bine e tot o reclamă.',
+    limits: [
+      'Dacă testele au trecut. Build-ul rulează înaintea lor; numărul de mai sus e câte verificări există, nu câte au trecut.',
+      'Dacă versiunea pe care o citești e cea mai nouă. Îți dă commit-ul ei — comparația cu depozitul o faci tu.',
+      'Cum se comportă site-ul pe conexiunea și pe telefonul tău. Banda de sus măsoară vizita asta, în browserul tău, și atât.',
+      'Dacă sfaturile de aici ți se potrivesc. Sunt ce fac eu, verificat pe site-ul meu — nu o promisiune despre al tău.',
+    ],
+
+    ctaTitle: 'Vrei același nivel de rigoare pe site-ul tău?',
+    ctaBody: 'Îți spun în prima discuție ce se poate măsura și ce nu, înainte să lucrăm împreună.',
+    ctaButton: 'Scrie-mi',
+  },
+
+  checklist: {
+    metaTitle: 'Listă de verificare înainte de lansare | Alex Delcea',
+    metaDescription:
+      'Ce verific înainte să pun un site online, punct cu punct, cu suita care ține fiecare rând pe site-ul ăsta. Se poate tipări.',
+    eyebrow: 'Ghid',
+    title: 'Lista pe care o parcurg înainte de lansare',
+    lead: 'Nu e o listă cu sfaturi generale. E ce verific eu, iar în dreptul fiecărui rând scrie ce suită din depozit ține exact acel lucru pe site-ul ăsta. Dacă rândul se strică aici, build-ul pică.',
+    printHint: 'Pagina e făcută să se tipărească: Ctrl/Cmd + P și iese curat, fără meniu și fără fundal.',
+    suiteNote:
+      'Coloana din dreapta e numele fișierului din tests/suites/ care ține rândul. Rulezi o singură suită cu npm test <nume>.',
+
+    groups: [
+      {
+        title: 'Ce vede motorul de căutare',
+        items: [
+          { text: 'Fiecare pagină are titlu și descriere proprii, diferite între ele.', suite: 'completeness' },
+          { text: 'Fiecare pagină spune care e adresa ei canonică.', suite: 'completeness' },
+          { text: 'Versiunile de limbă se arată reciproc prin hreflang, cu x-default, iar fiecare țintă e ea însăși în sitemap.', suite: 'completeness' },
+          { text: 'Sitemap-ul și robots.txt sunt servite și nu se contrazic.', suite: 'completeness' },
+          { text: 'Pagina de 404 e o pagină întreagă, cu navigație, marcată noindex și scoasă din sitemap.', suite: 'completeness' },
+        ],
+      },
+      {
+        title: 'Ce se vede când cineva dă link',
+        items: [
+          { text: 'Fiecare pagină are propria imagine de share, nu una generică pentru tot site-ul.', suite: 'share-images' },
+          { text: 'Imaginea chiar se descarcă și se decodează la 1200×630, ca PNG.', suite: 'share-images' },
+        ],
+      },
+      {
+        title: 'Cât cântărește',
+        items: [
+          { text: 'Fonturile sunt subsetate, nu familiile întregi.', suite: 'weight' },
+          { text: 'Greutatea fiecărei pagini e asertată ca prag, nu doar raportată.', suite: 'weight' },
+          { text: 'Niciun pachet de JavaScript pe care nu l-a decis cineva anume.', suite: 'weight' },
+        ],
+      },
+      {
+        title: 'Accesibilitate',
+        items: [
+          { text: 'Zero probleme axe pe fiecare pagină, la nivel WCAG 2.1 AA.', suite: 'a11y' },
+          { text: 'Aceleași verificări rulate și pe tema luminoasă, nu doar pe cea implicită.', suite: 'a11y-light' },
+          { text: 'Inelul de focus se distinge de fundal în ambele teme.', suite: 'signature' },
+          { text: 'Tastatura ajunge singură la fiecare mod de contact.', suite: 'channels' },
+        ],
+      },
+      {
+        title: 'Securitate și header-e',
+        items: [
+          { text: 'Politică de securitate fără „unsafe-inline”, cu hash pentru fiecare script inline.', suite: 'csp' },
+          { text: 'HSTS setat, security.txt servit și încă valabil, reguli de cache pe fiecare tip de fișier.', suite: 'completeness' },
+        ],
+      },
+      {
+        title: 'Formularul',
+        items: [
+          { text: 'Formularul anunță succes doar când trimiterea chiar a fost confirmată.', suite: 'interact' },
+          { text: 'Ambele căi de trimitere duc mesajul întreg, cu tot cu de unde a venit vizitatorul.', suite: 'interact' },
+        ],
+      },
+      {
+        title: 'Obligații legale (România)',
+        items: [
+          { text: 'Politica de confidențialitate e servită, datată și legată din formular.', suite: 'legal' },
+          { text: 'Fiecare serviciu extern care atinge datele vizitatorului e numit pe pagină.', suite: 'legal' },
+        ],
+      },
+      {
+        title: 'După lansare',
+        items: [
+          { text: '/version.txt spune din ce commit e construit ce e live, și nu se cachează niciodată.', suite: 'completeness' },
+        ],
+      },
+    ],
+
+    ctaTitle: 'Vrei lista parcursă pe site-ul tău?',
+    ctaBody: 'Îți spun ce e deja în regulă și ce nu, fără să-ți vând ceva înainte să ne fi vorbit.',
+    ctaButton: 'Cere un audit',
   },
 
   homeFaq: {

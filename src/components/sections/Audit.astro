@@ -35,6 +35,8 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
         errorUrl: tool.errorUrl,
         errorFailed: tool.errorFailed,
         errorBusy: tool.errorBusy,
+        strategyMobile: tool.strategyMobile,
+        strategyDesktop: tool.strategyDesktop,
       })
     : undefined}
 >
@@ -84,11 +86,53 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
                   placeholder={tool.placeholder}
                   class="mt-2 w-full rounded-xl border border-border bg-surface/70 px-4 py-3 text-sm text-fg placeholder:text-fg-subtle transition-colors focus:border-accent focus:outline-none"
                 />
+                {/*
+                  Which device. Google returns two very different sets of
+                  numbers and the tool used to ask for mobile silently — a
+                  score shown without saying what it was measured on is half a
+                  fact, and the half missing is the one that explains why it is
+                  low. Radios rather than a select: two options, both worth
+                  seeing at once, and the chosen one is stamped on the result.
+                */}
+                <fieldset class="mt-4">
+                  <legend class="text-xs uppercase tracking-wider text-fg-subtle">
+                    {tool.strategyLabel}
+                  </legend>
+                  <div class="mt-2 flex gap-2" data-audit-strategy>
+                    {
+                      [
+                        ['mobile', tool.strategyMobile],
+                        ['desktop', tool.strategyDesktop],
+                      ].map(([value, label], index) => (
+                        <label class="shop-pay grow">
+                          <input
+                            type="radio"
+                            name="strategy"
+                            value={value}
+                            checked={index === 0}
+                            class="sr-only"
+                          />
+                          <span>{label}</span>
+                        </label>
+                      ))
+                    }
+                  </div>
+                </fieldset>
+
                 <button type="submit" class="btn btn-primary mt-3 w-full" data-audit-submit>
                   <span data-audit-idle>{tool.submit}</span>
                   <span class="hidden" data-audit-busy>{tool.running}</span>
                   <Icon name="arrow-right" class="size-4" />
                 </button>
+
+                {/*
+                  The comparison the visitor actually wants. Their own score is
+                  a number without a scale until there is something beside it.
+                */}
+                <button type="button" class="btn btn-ghost mt-2 w-full text-sm" data-audit-self>
+                  {tool.selfTest}
+                </button>
+                <p class="mt-2 text-xs leading-relaxed text-fg-subtle">{tool.selfTestNote}</p>
                 <p
                   class="mt-3 hidden text-xs leading-relaxed text-red-300"
                   role="alert"
@@ -121,6 +165,14 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
                 <style> block, since the scores are not known until runtime. */}
             <p class="font-display text-lg font-semibold text-fg" data-audit-heading />
             <p class="mt-1 truncate text-sm text-fg-subtle" data-audit-target />
+            {/* Which device, and when. A score with neither is not a measurement. */}
+            <p
+              class="mt-1 text-xs text-fg-subtle"
+              data-audit-stamp
+              data-template={tool.measuredOn}
+              data-cached={tool.cachedNote}
+            />
+            <p class="mt-1 hidden text-xs text-fg-subtle" data-audit-cached>{tool.cachedNote}</p>
 
             <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4" data-audit-scores />
 
@@ -311,6 +363,8 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
       errorUrl: string;
       errorFailed: string;
       errorBusy: string;
+      strategyMobile: string;
+      strategyDesktop: string;
     };
 
     const input = form.querySelector<HTMLInputElement>('#audit-url')!;
@@ -327,6 +381,41 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
     const issues = result.querySelector<HTMLElement>('[data-audit-issues]')!;
     const resultCta = result.querySelector<HTMLAnchorElement>('[data-audit-cta]')!;
     const gaugeTemplate = section.querySelector<HTMLTemplateElement>('[data-audit-gauge]')!;
+    const stamp = result.querySelector<HTMLElement>('[data-audit-stamp]')!;
+    const cachedNote = result.querySelector<HTMLElement>('[data-audit-cached]')!;
+    const selfButton = form.querySelector<HTMLButtonElement>('[data-audit-self]')!;
+
+    const chosenStrategy = () =>
+      form.querySelector<HTMLInputElement>('input[name="strategy"]:checked')?.value ?? 'mobile';
+
+    /**
+     * Answers kept for the session, keyed by url + device.
+     *
+     * The key has a real quota, and "measure this site too" is a button people
+     * press more than once — out of curiosity the second time, not because
+     * anything changed. Re-running a Lighthouse pass on the same page thirty
+     * seconds later spends somebody's allowance to produce the same numbers,
+     * so it is remembered and the result says plainly that it was.
+     *
+     * sessionStorage, not localStorage: a measurement stops being current, and
+     * one carried across days would be a stale number presented as a fresh one.
+     */
+    const cacheKey = (href: string, strategy: string) => `psi:${strategy}:${href}`;
+    const remember = (href: string, strategy: string, data: unknown) => {
+      try {
+        sessionStorage.setItem(cacheKey(href, strategy), JSON.stringify({ at: Date.now(), data }));
+      } catch {
+        // A full or blocked store is not a reason to fail the measurement.
+      }
+    };
+    const recall = (href: string, strategy: string) => {
+      try {
+        const raw = sessionStorage.getItem(cacheKey(href, strategy));
+        return raw ? (JSON.parse(raw) as { at: number; data: any }) : null;
+      } catch {
+        return null;
+      }
+    };
 
     /** People type "example.com"; the API wants a URL. */
     const normalise = (raw: string) => {
@@ -368,33 +457,16 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
       return node;
     };
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      errorBox.classList.add('hidden');
-
-      const url = normalise(input.value);
-      if (!url) return fail(copy.errorUrl);
-
-      setBusy(true);
-      result.classList.add('hidden');
-
-      const endpoint = new URL(section.dataset.psiEndpoint!);
-      endpoint.searchParams.set('url', url.href);
-      endpoint.searchParams.set('strategy', 'mobile');
-      endpoint.searchParams.set('locale', section.dataset.psiLocale!.split('-')[0]!);
-      endpoint.searchParams.set('key', section.dataset.psiKey!);
-      for (const category of ['performance', 'accessibility', 'best-practices', 'seo']) {
-        endpoint.searchParams.append('category', category);
-      }
-
-      try {
-        const response = await fetch(endpoint);
-        if (response.status === 429) throw new Error('busy');
-        if (!response.ok) throw new Error('failed');
-
-        const data = await response.json();
-        const lighthouse = data.lighthouseResult;
-        if (!lighthouse) throw new Error('failed');
+    /** Paint a result — from the API or from the session store, identically. */
+    const render = (
+      data: any,
+      url: URL,
+      strategy: string,
+      measuredAt: number,
+      fromCache: boolean,
+    ) => {
+      const lighthouse = data?.lighthouseResult;
+      if (!lighthouse) throw new Error('failed');
 
         const categories: [string, string][] = [
           ['performance', copy.categories.performance],
@@ -433,18 +505,82 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
           issues.append(item);
         }
 
-        issuesWrap.classList.toggle('hidden', opportunities.length === 0);
-        heading.textContent = opportunities.length === 0 ? copy.noIssues : copy.heading;
-        target.textContent = url.hostname;
-        resultCta.dataset.url = url.href;
+      issuesWrap.classList.toggle('hidden', opportunities.length === 0);
+      heading.textContent = opportunities.length === 0 ? copy.noIssues : copy.heading;
+      target.textContent = url.hostname;
+      resultCta.dataset.url = url.href;
 
-        result.classList.remove('hidden');
-        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // A score without its device and its moment is not a measurement.
+      stamp.textContent = (stamp.dataset.template ?? '')
+        .replace('{device}', strategy === 'desktop' ? copy.strategyDesktop : copy.strategyMobile)
+        .replace('{time}', new Intl.DateTimeFormat(document.documentElement.lang, {
+          hour: '2-digit',
+          minute: '2-digit',
+        }).format(new Date(measuredAt)));
+      cachedNote.classList.toggle('hidden', !fromCache);
+
+      result.classList.remove('hidden');
+      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    const measure = async (url: URL) => {
+      errorBox.classList.add('hidden');
+      const strategy = chosenStrategy();
+
+      const cached = recall(url.href, strategy);
+      if (cached) {
+        try {
+          render(cached.data, url, strategy, cached.at, true);
+          return;
+        } catch {
+          // A stored answer that no longer parses is worth nothing; measure again.
+        }
+      }
+
+      setBusy(true);
+      result.classList.add('hidden');
+
+      const endpoint = new URL(section.dataset.psiEndpoint!);
+      endpoint.searchParams.set('url', url.href);
+      endpoint.searchParams.set('strategy', strategy);
+      endpoint.searchParams.set('locale', section.dataset.psiLocale!.split('-')[0]!);
+      endpoint.searchParams.set('key', section.dataset.psiKey!);
+      for (const category of ['performance', 'accessibility', 'best-practices', 'seo']) {
+        endpoint.searchParams.append('category', category);
+      }
+
+      try {
+        const response = await fetch(endpoint);
+        if (response.status === 429) throw new Error('busy');
+        if (!response.ok) throw new Error('failed');
+
+        const data = await response.json();
+        const at = Date.now();
+        render(data, url, strategy, at, false);
+        remember(url.href, strategy, data);
       } catch (error) {
         fail((error as Error).message === 'busy' ? copy.errorBusy : copy.errorFailed);
       } finally {
         setBusy(false);
       }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const url = normalise(input.value);
+      if (!url) return fail(copy.errorUrl);
+      void measure(url);
+    });
+
+    // The comparison: the same tool, the same settings, on this page. The
+    // canonical URL rather than location.href, so a visit carrying ?from= or a
+    // hash does not measure a different address than the one that is indexed.
+    selfButton.addEventListener('click', () => {
+      const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href;
+      const url = normalise(canonical ?? window.location.origin);
+      if (!url) return;
+      input.value = url.hostname;
+      void measure(url);
     });
   }
 </script>

@@ -1,0 +1,118 @@
+---
+/**
+ * The pre-launch checklist, made to be printed and used on somebody else's site.
+ *
+ * What separates it from the thousand other launch checklists on the web is the
+ * right-hand column: every line names the suite in this repository that holds
+ * that same line here. It is a description of practice rather than advice, and
+ * the reader can go and read the enforcement.
+ *
+ * That is also why `checklist.mjs` verifies every cited suite actually exists.
+ * A checklist that cites a suite nobody wrote would be worse than one that
+ * cited nothing — it would be borrowing credibility it had not earned.
+ */
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Icon from './Icon.astro';
+import { getContent, locales, type Locale } from '../i18n';
+import { checklistPath, contactPath } from '../data/demo';
+import { build } from '../data/build';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).checklist;
+
+const alternates = Object.fromEntries(
+  locales.map((code) => [code, checklistPath(code)]),
+) as Partial<Record<Locale, string>>;
+
+const total = t.groups.reduce((sum, group) => sum + group.items.length, 0);
+---
+
+<Base locale={locale} title={t.metaTitle} description={t.metaDescription} alternates={alternates}>
+  <Header locale={locale} />
+
+  <main id="main" class="relative overflow-clip">
+    <div
+      class="glow left-1/2 top-[-8rem] size-[34rem] -translate-x-1/2 bg-accent-alt/12"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="container-page py-32 sm:py-40">
+      <article class="mx-auto max-w-3xl" data-checklist>
+        <p class="eyebrow">{t.eyebrow}</p>
+        <h1 class="mt-4 text-3xl font-semibold sm:text-4xl md:text-5xl md:leading-[1.1]">
+          {t.title}
+        </h1>
+        <p class="mt-6 text-lg leading-relaxed text-fg-muted">{t.lead}</p>
+
+        <p class="mt-6 text-sm text-fg-subtle print:hidden">{t.printHint}</p>
+        <p class="mt-2 text-sm text-fg-subtle">{t.suiteNote}</p>
+
+        {
+          t.groups.map((group) => (
+            <section class="mt-12" data-checklist-group>
+              <h2 class="font-display text-lg font-semibold">{group.title}</h2>
+
+              <ul class="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                {group.items.map((item) => (
+                  <li class="flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-4 sm:flex-nowrap">
+                    {/*
+                      A real box to tick with a pen. Not an <input>: this list is
+                      not a form, nothing is submitted, and a checkbox nobody
+                      reads the state of is a control that lies about itself.
+                    */}
+                    <span
+                      class="mt-0.5 size-4 shrink-0 rounded border border-border-strong"
+                      aria-hidden="true"
+                    />
+                    <span class="min-w-0 grow text-sm leading-relaxed text-fg-muted">
+                      {item.text}
+                    </span>
+                    <code
+                      class="shrink-0 rounded bg-surface-hover px-2 py-0.5 font-mono text-xs text-accent-alt"
+                      data-checklist-suite
+                    >
+                      {item.suite}
+                    </code>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+
+        <p class="mt-10 text-xs text-fg-subtle">
+          {total} · <a
+            href={build.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline underline-offset-4 hover:text-accent-alt">tests/suites/</a
+          >
+        </p>
+
+        <div class="rule-mark mt-14 print:hidden" aria-hidden="true"><span></span></div>
+
+        <aside
+          class="mt-10 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 print:hidden sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h2 class="font-display text-xl font-semibold">{t.ctaTitle}</h2>
+            <p class="mt-2 max-w-md text-sm text-fg-muted">{t.ctaBody}</p>
+          </div>
+          <a href={contactPath(locale, 'checklist', 'audit')} class="btn btn-primary shrink-0 text-sm">
+            {t.ctaButton}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+        </aside>
+      </article>
+    </div>
+  </main>
+
+  <Footer locale={locale} />
+</Base>

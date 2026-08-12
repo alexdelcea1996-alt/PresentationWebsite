@@ -65,6 +65,20 @@ export const contactPath = (locale: Locale, from?: string, via?: string) => {
 export const thankYouPath = (locale: Locale) =>
   withBase(locale === 'en' ? 'en/thank-you/' : 'multumesc/');
 
+/**
+ * How the site keeps itself honest, written down where anyone can read it.
+ * Indexed and in the sitemap: the whole point is that it can be found.
+ */
+export const colophonPath = (locale: Locale) =>
+  withBase(locale === 'en' ? 'en/colophon/' : 'colofon/');
+
+/**
+ * The launch checklist. Under a `ghid`/`guide` segment because it is the first
+ * of a kind, not a one-off — the next one lands beside it without a new rule.
+ */
+export const checklistPath = (locale: Locale) =>
+  withBase(locale === 'en' ? 'en/guide/launch-checklist/' : 'ghid/lista-de-lansare/');
+
 /** Which demo, if any, a service card links to. Keyed by the service `key`. */
 export const demoForService = (locale: Locale, key: string | undefined) => {
   if (key === 'webapp') return demoPath(locale);

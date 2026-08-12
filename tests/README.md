@@ -1,6 +1,6 @@
 # Teste
 
-988 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1088 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -26,7 +26,7 @@ perfect în teste — iar primul semn ar fi o secțiune goală pe site-ul live.
 
 **Animațiile se termină înainte de măsurare.** Elementele cu `[data-reveal]`
 apar printr-un fade de 0,6 s. axe rulat la mijlocul lui citește o culoare
-amestecată — cyan-ul #22d3ee apare ca #198499 — și raportează o problemă de
+amestecată — jadul #56deb2 apare stins și rece — și raportează o problemă de
 contrast care nu există pe pagina așezată. Mai rău, depinde de sincronizarea
 încărcării, deci suita trece până când altceva se mișcă cu câteva milisecunde.
 De aia există `settleAnimations()` în harness, apelat înaintea fiecărei rulări axe.
@@ -60,33 +60,35 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 
 | Suită | Ce verifică | Verificări |
 |---|---|---|
-| `a11y` | axe-core (WCAG 2.1 AA) pe 26 de pagini, temă întunecată, plus greutatea paginii | 26 |
-| `a11y-light` | aceleași reguli pe 9 pagini în tema luminoasă | 18 |
-| `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 10 |
-| `interact` | meniu mobil, comutator de limbă, ancore, ambele căi ale formularului | 15 |
+| `a11y` | axe-core (WCAG 2.1 AA) pe 30 de pagini, temă întunecată, plus greutatea paginii | 42 |
+| `a11y-light` | aceleași reguli pe 11 pagini în tema luminoasă | 28 |
+| `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 11 |
+| `interact` | meniu mobil, comutator de limbă, ancore, formularul în pași, ambele căi de trimitere | 42 |
 | `channels` | e-mail, telefon și WhatsApp în card, footer și date structurate | 39 |
-| `metrics` | banda care măsoară pagina: cifrele afișate = ce raportează browserul | 24 |
-| `configurator` | wizardul de ofertă, calculul prețului, precompletarea formularului | 17 |
+| `metrics` | banda care măsoară pagina: cifrele afișate = ce raportează browserul, plus rândul-verdict și sursa lui | 29 |
+| `configurator` | wizardul de ofertă, calculul prețului, precompletarea formularului, estimarea partajabilă | 25 |
 | `theme` | light/dark, persistență, fără flash la încărcare | 14 |
-| `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 19 |
+| `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
-| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 116 |
+| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 133 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 38 |
-| `share-images` | fiecare dintre cele 31 de pagini are propria imagine OG, la dimensiunea declarată | 14 |
+| `share-images` | fiecare dintre cele 41 de pagini are propria imagine OG, la dimensiunea declarată, în culorile din foaia de stil | 17 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
-| `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 89 |
-| `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 92 |
-| `examples` | cele două demo-uri cu site întreg: rama, comutatorul de lățime, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex`, absența din sitemap și headerele de încadrare | 102 |
+| `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 91 |
+| `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 94 |
+| `examples` | cele două demo-uri cu site întreg: rama, personalizarea prin `postMessage`, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex` și headerele de încadrare | 166 |
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 77 |
-| `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie | 4 / 30 |
+| `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
-| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 17 |
+| `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește, coloana procesului se desenează la scroll — și supraviețuiește minificării | 35 |
+| `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 54 |
+| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 29 |
 
 **Suitele urmăresc starea build-ului.** `audit` detectează dacă e configurată o
-cheie PageSpeed și verifică varianta care chiar e livrată: 4 verificări fără
-cheie, 30 cu ea. `analytics` face la fel cu tokenul Cloudflare: 16 verificări fără
+cheie PageSpeed și verifică varianta care chiar e livrată: 18 verificări fără
+cheie, 44 cu ea. `analytics` face la fel cu tokenul Cloudflare: 16 verificări fără
 el (niciun script, nicio cerere, CSP nelărgit), 29 cu el. Nu trebuie editat nimic
 când se schimbă starea.
 
