@@ -104,7 +104,7 @@ const csp = [
 // and since the last matching rule in a _headers file wins, the share images
 // quietly picked up the icon cache lifetime. Caught by the test, not by eye.
 const staticAssets = (await readdir(dist, { withFileTypes: true }))
-  .filter((entry) => entry.isFile() && /\.(png|svg|webmanifest)$/.test(entry.name))
+  .filter((entry) => entry.isFile() && /\.(png|svg|ico|webmanifest)$/.test(entry.name))
   .map((entry) => entry.name)
   .sort();
 

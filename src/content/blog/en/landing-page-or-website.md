@@ -1,7 +1,7 @@
 ---
 urlSlug: landing-page-or-business-website
 title: Landing page or business website?
-description: This is not a choice between cheap and expensive, but between two tools with different jobs. Three questions tell you which one you need — or whether you need both.
+description: Not a choice between cheap and expensive, but between two tools with different jobs. Three questions tell you which one you need — or whether you need both.
 publishedAt: 2026-08-12
 category: Guide
 ---

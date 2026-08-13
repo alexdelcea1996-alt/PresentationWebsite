@@ -1,6 +1,7 @@
 ---
 urlSlug: why-your-site-is-slow
 title: Why your site is slow, and what you can fix yourself today
+metaTitle: Why your site is slow and what to fix today
 description: The four causes that slow down almost any small site, in order of impact. Three of them can be fixed without a developer, in one afternoon.
 publishedAt: 2026-08-04
 category: Guide

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
@@ -179,6 +179,55 @@ const ico = await icons.evaluate(async (base) => {
     bytes: buffer.length,
   };
 }, BASE);
+/**
+ * Meta lengths and feed discovery — the August 2026 audit's findings, held.
+ *
+ * An independent crawl found 15 titles over 60 characters and 12 descriptions
+ * over 160 — all truncating in search results — plus feed autodiscovery
+ * missing from the articles themselves. Nothing here asserted lengths, so the
+ * copy drifted long one string at a time, each one reasonable on its own.
+ * Aggregated checks rather than per-page, so adding a page does not change the
+ * suite's size — the failure detail lists the offending URLs.
+ */
+{
+  const walk = (dir) => readdirSync(join(dist, dir), { withFileTypes: true }).flatMap((e) => {
+    const rel = dir ? `${dir}/${e.name}` : e.name;
+    if (e.isDirectory()) return walk(rel);
+    return e.name.endsWith('.html') ? [rel] : [];
+  });
+  const isExample = (p) => p.includes('exemplu/') || p.includes('example/');
+
+  const overTitle = [];
+  const badDescription = [];
+  const blogMissingFeed = [];
+  for (const rel of walk('')) {
+    if (isExample(rel)) continue;
+    const html = readFileSync(join(dist, rel), 'utf8');
+    const noindex = /<meta name="robots" content="[^"]*noindex/.test(html);
+    const url = '/' + rel.replace(/index\.html$/, '');
+    if (!noindex) {
+      const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? '';
+      const description = html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '';
+      if (title.length > 60) overTitle.push(`${url} (${title.length})`);
+      if (description.length < 50 || description.length > 160) {
+        badDescription.push(`${url} (${description.length})`);
+      }
+    }
+    if (/^(en\/)?blog\//.test(rel) && !html.includes('application/rss+xml')) {
+      blogMissingFeed.push(url);
+    }
+  }
+
+  ck('every indexable title fits a search result (≤60 chars)',
+    overTitle.length === 0, overTitle.join(', '));
+  ck('every indexable description fits the snippet (50-160 chars)',
+    badDescription.length === 0, badDescription.join(', '));
+  ck('every blog page advertises the RSS feed, articles included',
+    blogMissingFeed.length === 0, blogMissingFeed.join(', '));
+  ck('favicon.ico ships with a cache rule',
+    /\/favicon\.ico\n\s*Cache-Control/.test(readFileSync(join(dist, '_headers'), 'utf8')));
+}
+
 ck('favicon.ico is served rather than 404ing into the error page',
   ico.status === 200, `${ico.status} ${ico.type}`);
 ck('and is a real icon container, not a renamed PNG',

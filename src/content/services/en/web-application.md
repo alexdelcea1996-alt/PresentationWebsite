@@ -1,7 +1,7 @@
 ---
 key: webapp
 urlSlug: web-application
-metaTitle: Custom web application development — from €2,500 | Alex Delcea
+metaTitle: Custom web applications — from €2,500 | Alex Delcea
 metaDescription: Internal platforms and tools built to measure, replacing spreadsheets and repetitive work. See when it is worth it, what it costs and who owns the code.
 eyebrow: Service
 title: Web applications that take the repetitive work out of your company

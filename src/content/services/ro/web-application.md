@@ -1,7 +1,7 @@
 ---
 key: webapp
 urlSlug: aplicatie-web
-metaTitle: Aplicații web la comandă pentru firme — de la 2.500 € | Alex Delcea
+metaTitle: Aplicații web la comandă — de la 2.500 € | Alex Delcea
 metaDescription: Platforme și instrumente interne construite pe măsură, care înlocuiesc fișierele Excel și munca repetitivă. Vezi când merită, cât costă și cine deține codul.
 eyebrow: Serviciu
 title: Aplicații web care scot munca repetitivă din firmă

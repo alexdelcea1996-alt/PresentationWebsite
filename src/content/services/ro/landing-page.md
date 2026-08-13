@@ -2,7 +2,7 @@
 key: landing
 urlSlug: landing-page
 metaTitle: Creare landing page — de la 400 € | Alex Delcea
-metaDescription: O pagină construită în jurul unei singure decizii, pentru o campanie, un produs sau un eveniment. Vezi ce include, cât costă, în cât timp e gata și când nu îți trebuie.
+metaDescription: O pagină construită în jurul unei singure decizii — campanie, produs sau eveniment. Vezi ce include, cât costă, în cât timp e gata și când nu îți trebuie.
 eyebrow: Serviciu
 title: O singură pagină, construită pentru o singură decizie
 lead: >-

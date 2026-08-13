@@ -1,7 +1,7 @@
 ---
 key: presentation
 urlSlug: site-de-prezentare
-metaTitle: Creare site de prezentare pentru firme — de la 900 € | Alex Delcea
+metaTitle: Creare site de prezentare — de la 900 € | Alex Delcea
 metaDescription: Site de prezentare făcut la comandă, rapid și optimizat pentru Google, livrat în 2–4 săptămâni. Vezi ce include, cât costă și cum decurge colaborarea.
 eyebrow: Serviciu
 title: Site de prezentare care aduce cereri de ofertă

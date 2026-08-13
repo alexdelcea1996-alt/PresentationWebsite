@@ -1,8 +1,8 @@
 ---
 key: optimization
 urlSlug: optimizare-site
-metaTitle: Optimizare site existent — viteză, mobil, SEO tehnic | Alex Delcea
-metaDescription: Site vechi care se încarcă greu, arată prost pe telefon sau nu apare în Google? Audit gratuit în 48 de ore, apoi reparat, de la 250 €. Fără promisiuni de locul întâi.
+metaTitle: Optimizare site — viteză, mobil, SEO tehnic | Alex Delcea
+metaDescription: Site care se încarcă greu, arată prost pe telefon sau nu apare în Google? Audit gratuit în 48 de ore, apoi reparat, de la 250 €. Fără promisiuni de locul întâi.
 eyebrow: Serviciu
 title: Site-ul există deja. Hai să îl facem să funcționeze.
 lead: >-

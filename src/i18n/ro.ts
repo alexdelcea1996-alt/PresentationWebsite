@@ -576,7 +576,7 @@ export const ro: Content = {
   },
 
   thankYou: {
-    metaTitle: 'Mesaj trimis — îți răspund în cel mult 24 de ore | Alex Delcea',
+    metaTitle: 'Mesaj trimis — răspund în cel mult 24 de ore | Alex Delcea',
     metaDescription: 'Mesajul a ajuns la mine. Iată ce urmează și cum poți sări peste așteptare.',
     eyebrow: 'Mesaj trimis',
     title: 'Am primit mesajul',
@@ -891,9 +891,9 @@ export const ro: Content = {
   },
 
   landingDemo: {
-    metaTitle: 'Demo: cum arată un landing page care convertește | Alex Delcea',
+    metaTitle: 'Demo: un landing page care convertește | Alex Delcea',
     metaDescription:
-      'Un landing page complet, funcțional, deschis într-o ramă de browser. O pagină, o singură decizie, formular care răspunde. Încearcă-l, apoi vezi ce se schimbă la un site de prezentare.',
+      'Un landing page funcțional, într-o ramă de browser. O pagină, o singură decizie, formular care răspunde. Încearcă-l, apoi compară cu un site de prezentare.',
     eyebrow: 'Exemplu funcțional',
     title: 'Un landing page, întreg, nu o captură',
     lead: 'Pagina de mai jos e reală: derulează, apasă butonul, completează formularul. E făcută pentru un atelier de tâmplărie inventat, ca să se vadă structura fără să conteze cine e clientul.',
@@ -917,7 +917,7 @@ export const ro: Content = {
   },
 
   siteDemo: {
-    metaTitle: 'Demo: cum arată un site de prezentare pe trei pagini | Alex Delcea',
+    metaTitle: 'Demo: un site de prezentare pe trei pagini | Alex Delcea',
     metaDescription:
       'Un site de prezentare complet, cu meniu care funcționează și trei pagini navigabile, deschis într-o ramă de browser. Vezi diferența față de un landing page.',
     eyebrow: 'Exemplu funcțional',
@@ -943,9 +943,9 @@ export const ro: Content = {
   },
   demo: {
     doneCta: 'Vreau un instrument ca ăsta în firma mea',
-    metaTitle: 'Demo: cum arată o aplicație web făcută la comandă | Alex Delcea',
+    metaTitle: 'Demo: o aplicație web făcută la comandă | Alex Delcea',
     metaDescription:
-      'O aplicație de programări, funcțională, direct în pagină. Adaugă, confirmă și anulează programări — exact felul de instrument intern care înlocuiește un Excel și un grup de WhatsApp.',
+      'O aplicație de programări, direct în pagină. Adaugă, confirmă și anulează programări — instrumentul intern care înlocuiește Excelul și grupul de WhatsApp.',
     eyebrow: 'Demo interactiv',
     title: 'Așa arată un proces care iese din Excel',
     lead: 'Un sistem de programări pentru un salon, un cabinet sau un atelier. Nu e o captură și nu e un film — funcționează. Încearcă-l: adaugă o programare, marchează un client ca venit, anulează alta.',
@@ -1001,9 +1001,9 @@ export const ro: Content = {
   },
 
   storeDemo: {
-    metaTitle: 'Demo: cum arată un magazin online făcut la comandă | Alex Delcea',
+    metaTitle: 'Demo: un magazin online făcut la comandă | Alex Delcea',
     metaDescription:
-      'Un magazin online funcțional, direct în pagină. Alege variante, pune în coș, treci prin checkout — cu costul livrării vizibil de la primul produs, nu ca surpriză la final.',
+      'Un magazin online funcțional, direct în pagină. Alege variante, pune în coș, treci prin checkout — cu costul livrării vizibil de la primul produs.',
     eyebrow: 'Demo interactiv',
     title: 'Un magazin în care drumul până la comandă e scurt',
     lead: 'Șase produse cu variante și stoc, un coș și un checkout pe un singur ecran. Costul livrării apare din clipa în care pui primul produs în coș — nu la final, unde pierde cele mai multe coșuri. Încearcă-l.',

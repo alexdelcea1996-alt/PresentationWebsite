@@ -105,6 +105,13 @@ const blog = defineCollection({
     /** Localised URL segment. Not `slug` — Astro reserves that key. */
     urlSlug: z.string(),
     title: z.string(),
+    /**
+     * Optional shorter form for the <title> tag and og:title, for when the
+     * headline plus the brand suffix would pass 60 characters and truncate in
+     * search results. The H1 keeps the full headline — a reader deserves the
+     * whole sentence; a results page does not have room for it.
+     */
+    metaTitle: z.string().optional(),
     /** Used on the card and as the meta description, so keep it under ~155 characters. */
     description: z.string(),
     publishedAt: z.coerce.date(),

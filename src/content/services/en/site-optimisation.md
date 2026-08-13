@@ -1,7 +1,7 @@
 ---
 key: optimization
 urlSlug: site-optimisation
-metaTitle: Website optimisation — speed, mobile, technical SEO | Alex Delcea
+metaTitle: Website optimisation — speed, mobile, SEO | Alex Delcea
 metaDescription: An old site that loads slowly, breaks on phones or never shows up on Google? Free audit within 48 hours, then fixed, from €250. No promises of first place.
 eyebrow: Service
 title: The site already exists. Let us make it work.

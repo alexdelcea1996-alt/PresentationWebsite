@@ -1,6 +1,7 @@
 ---
 urlSlug: de-ce-se-incarca-greu-site-ul-tau
 title: De ce se încarcă greu site-ul tău și ce poți repara singur azi
+metaTitle: De ce se încarcă greu site-ul tău
 description: Cele patru cauze care încetinesc aproape orice site mic, în ordinea impactului. Trei dintre ele se rezolvă fără dezvoltator, într-o după-amiază.
 publishedAt: 2026-08-04
 category: Ghid

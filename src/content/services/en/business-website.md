@@ -1,7 +1,7 @@
 ---
 key: presentation
 urlSlug: business-website
-metaTitle: Custom business website development — from €900 | Alex Delcea
+metaTitle: Business website development — from €900 | Alex Delcea
 metaDescription: A custom-built business website, fast and search-friendly, delivered in 2–4 weeks. See what it includes, what it costs and how working together goes.
 eyebrow: Service
 title: A business website that brings in enquiries

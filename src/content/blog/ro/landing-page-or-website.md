@@ -1,7 +1,7 @@
 ---
 urlSlug: landing-page-sau-site-de-prezentare
 title: Landing page sau site de prezentare?
-description: Nu e o alegere între ieftin și scump, ci între două instrumente cu treburi diferite. Trei întrebări îți spun care dintre ele îți trebuie — sau dacă îți trebuie amândouă.
+description: Nu e o alegere între ieftin și scump, ci între două instrumente cu treburi diferite. Trei întrebări îți spun care îți trebuie — sau dacă îți trebuie amândouă.
 publishedAt: 2026-08-12
 category: Ghid
 ---

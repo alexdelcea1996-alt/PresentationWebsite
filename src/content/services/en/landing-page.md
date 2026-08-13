@@ -2,7 +2,7 @@
 key: landing
 urlSlug: landing-page
 metaTitle: Landing page design and build — from €400 | Alex Delcea
-metaDescription: One page built around a single decision, for a campaign, a product or an event. See what it includes, what it costs, how long it takes and when you do not need one.
+metaDescription: One page built around a single decision — a campaign, a product or an event. What it includes, what it costs, how long it takes, when you do not need one.
 eyebrow: Service
 title: One page, built for one decision
 lead: >-

@@ -2,7 +2,7 @@
 key: shop
 urlSlug: online-store
 metaTitle: Custom online store development — from €2,200 | Alex Delcea
-metaDescription: A custom online store with payments, invoicing and couriers integrated. No commission on sales. See what it includes, what it costs and how it compares to a marketplace.
+metaDescription: A custom online store with payments, invoicing and couriers integrated. No commission on sales. What it includes, what it costs, when a marketplace is enough.
 eyebrow: Service
 title: An online store that sells, not just displays products
 lead: >-

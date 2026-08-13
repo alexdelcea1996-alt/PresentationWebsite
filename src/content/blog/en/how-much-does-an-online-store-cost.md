@@ -1,7 +1,7 @@
 ---
 urlSlug: how-much-does-an-online-store-cost
 title: How much does an online store cost?
-description: The build price is the easy part. This article separates what you pay once from what you pay on every order, and gives you the questions to compare two quotes with.
+description: The build price is the easy part. What you pay once, what you pay on every order, and the questions that let you compare two quotes honestly.
 publishedAt: 2026-08-12
 category: Guide
 ---

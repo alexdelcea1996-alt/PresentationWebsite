@@ -1,6 +1,6 @@
 # Teste
 
-1099 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1103 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -71,7 +71,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
-| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 139 |
+| `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 143 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 38 |
 | `share-images` | fiecare dintre cele 41 de pagini are propria imagine OG, la dimensiunea declarată, în culorile din foaia de stil | 17 |

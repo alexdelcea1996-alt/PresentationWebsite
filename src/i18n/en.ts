@@ -544,7 +544,7 @@ export const en: Content = {
   },
 
   blog: {
-    metaTitle: 'Blog — practical guides on websites and the web | Alex Delcea',
+    metaTitle: 'Blog — practical guides on websites | Alex Delcea',
     metaDescription:
       'Articles on speed, SEO and how building a website actually goes. Written for someone running a business, not for a programmer.',
     eyebrow: 'Blog',
@@ -891,7 +891,7 @@ export const en: Content = {
   },
 
   landingDemo: {
-    metaTitle: 'Demo: what a landing page that converts looks like | Alex Delcea',
+    metaTitle: 'Demo: a landing page that converts | Alex Delcea',
     metaDescription:
       'A complete, working landing page, open in a browser frame. One page, one decision, a form that answers. Try it, then see what changes on a business website.',
     eyebrow: 'Working example',
@@ -917,7 +917,7 @@ export const en: Content = {
   },
 
   siteDemo: {
-    metaTitle: 'Demo: what a three-page business website looks like | Alex Delcea',
+    metaTitle: 'Demo: a three-page business website | Alex Delcea',
     metaDescription:
       'A complete business website with a working menu and three navigable pages, open in a browser frame. See how it differs from a landing page.',
     eyebrow: 'Working example',
@@ -945,7 +945,7 @@ export const en: Content = {
     doneCta: 'I want a tool like this in my business',
     metaTitle: 'Demo: what a custom web application looks like | Alex Delcea',
     metaDescription:
-      'A working bookings application, right on the page. Add, confirm and cancel appointments — the kind of internal tool that replaces a spreadsheet and a group chat.',
+      'A working bookings application, right on the page. Add, confirm and cancel appointments — the internal tool that replaces a spreadsheet and a group chat.',
     eyebrow: 'Interactive demo',
     title: 'This is what a process leaving the spreadsheet looks like',
     lead: 'A bookings system for a salon, a practice or a workshop. Not a screenshot and not a video — it works. Try it: add a booking, mark someone as arrived, cancel another.',
@@ -1003,7 +1003,7 @@ export const en: Content = {
   storeDemo: {
     metaTitle: 'Demo: what a custom online store looks like | Alex Delcea',
     metaDescription:
-      'A working online store, right on the page. Pick variants, fill a basket, go through checkout — with the delivery cost on screen from the first item, not as a surprise at the end.',
+      'A working online store, right on the page. Pick variants, fill a basket, go through checkout — with the delivery cost on screen from the first item.',
     eyebrow: 'Interactive demo',
     title: 'A store where the road to the order is short',
     lead: 'Six products with variants and stock, a basket and a checkout on one screen. The delivery cost appears the moment you add the first item — not at the end, where most baskets are lost. Try it.',
