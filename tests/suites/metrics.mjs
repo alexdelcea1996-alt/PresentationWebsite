@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, settleAnimations } from '../harness.mjs';
+import { launch, BASE, axePath, settleAnimations, PRODUCTION_URL } from '../harness.mjs';
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 
@@ -111,8 +111,8 @@ const target = new URL(href).searchParams.get('url');
 ck('verify link goes to PageSpeed', new URL(href).host === 'pagespeed.web.dev', new URL(href).host);
 ck(
   'verify link carries the canonical production URL, not localhost',
-  target === 'https://presentationwebsite.alexdelcea1996.workers.dev/',
-  target,
+  target === `${PRODUCTION_URL}/`,
+  `${target} (expected ${PRODUCTION_URL}/)`,
 );
 ck(
   'verify link opens safely in a new tab',

@@ -36,6 +36,12 @@ const portfolioAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.portfolio}
 // Stamped with its origin, but no preselect: a reader's intent is unknown.
 const contactAnchor = contactPath(locale, undefined, 'case-study');
 
+// `self` in the frontmatter means this very site — see the schema. Resolved
+// here rather than stored, so the address bar in the screenshot frame and the
+// "visit site" button both follow `SITE_URL` when the domain changes.
+const liveUrl =
+  entry.data.url === 'self' ? new URL(Astro.site!).origin : entry.data.url;
+
 /**
  * One rule per distinct score on this page, telling its dial how far to sweep.
  * This has to be a <style> element rather than a style attribute: the CSP sets
@@ -93,9 +99,9 @@ const gaugeCss = scores
 
           <div class="mt-8 flex flex-wrap gap-3">
             {
-              entry.data.url && (
+              liveUrl && (
                 <a
-                  href={entry.data.url}
+                  href={liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="btn btn-primary text-sm"
@@ -127,7 +133,7 @@ const gaugeCss = scores
                 desktop={entry.data.coverDesktop}
                 mobile={entry.data.coverMobile}
                 alt={entry.data.coverAlt ?? entry.data.title}
-                url={entry.data.url}
+                url={liveUrl}
                 eager
               />
             </div>

@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, axePath, runAxe, settleAnimations, PRODUCTION_HOST } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -34,8 +34,8 @@ ck('the phone inset is not announced separately', (await phone.getAttribute('alt
 
 // The frame should show where the site actually lives, not an invented address.
 const chrome = await p.locator('figure').first().innerText();
-ck('the browser frame shows the real host', chrome.includes('presentationwebsite.alexdelcea1996.workers.dev'),
-  chrome.trim());
+ck('the browser frame shows the real host', chrome.includes(PRODUCTION_HOST),
+  `${chrome.trim()} (expected ${PRODUCTION_HOST})`);
 
 // --- Score dials -------------------------------------------------------------
 await p.locator('.score-gauge').first().scrollIntoViewIfNeeded();

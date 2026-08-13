@@ -13,6 +13,28 @@
   "name": "presentationwebsite",
   "compatibility_date": "2026-08-01",
 
+  // --- Moving to a custom domain ---------------------------------------------
+  //
+  // Left commented on purpose. The order matters and getting it wrong takes the
+  // site offline rather than moving it.
+  //
+  //   1. Point the domain's nameservers at Cloudflare and let the zone go
+  //      active. Nothing here changes yet.
+  //   2. Add the route below and deploy. The site now answers on both the
+  //      custom domain and the workers.dev address.
+  //   3. Set SITE_URL to the new origin in the Workers Builds settings and
+  //      redeploy, so canonicals, hreflang, og:url, the sitemap, security.txt
+  //      and the case-study link all move with it. Nothing in the repository
+  //      needs editing for this — `tests/suites/completeness.mjs` fails the
+  //      build if a hostname ever gets typed into a source file again.
+  //   4. Only once the custom domain is confirmed serving, set
+  //      "workers_dev": false to retire the old address.
+  //
+  // Doing step 4 before step 2 leaves the worker with no address at all.
+  //
+  // "routes": [{ "pattern": "example.ro", "custom_domain": true }],
+  // "workers_dev": false,
+
   "assets": {
     // `npm run build` writes here, including `_headers` — Workers static assets
     // reads that file, which is what puts the CSP and the cache rules in front

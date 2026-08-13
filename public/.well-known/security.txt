@@ -1,8 +1,0 @@
-# If you find a security problem with this site, tell me and I will fix it.
-# There is no bounty — this is a one-person freelance site — but I will credit
-# you if you want, and I will reply.
-
-Contact: mailto:alexdelcea1996@gmail.com
-Expires: 2027-08-12T00:00:00.000Z
-Preferred-Languages: ro, en
-Canonical: https://presentationwebsite.alexdelcea1996.workers.dev/.well-known/security.txt

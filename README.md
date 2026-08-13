@@ -50,7 +50,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1111 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1115 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -496,6 +496,30 @@ ar trimite toate către un domeniu inexistent, ceea ce strică indexarea în Goo
 
 Dacă schimbi vreodată adresa (domeniu propriu sau alt proiect Cloudflare), setează
 `SITE_URL` în variabilele de mediu — are prioritate și nu trebuie să atingi codul.
+
+### Mutarea pe domeniu propriu
+
+Ordinea contează. Pașii 2 și 4 inversați lasă site-ul fără nicio adresă.
+
+1. **Nameserverele domeniului** → Cloudflare; aștepți ca zona să devină activă.
+   Nu se schimbă nimic în repo.
+2. **Ruta**, în `wrangler.jsonc` — blocul comentat de acolo, cu domeniul tău:
+   `"routes": [{ "pattern": "domeniul-tau.ro", "custom_domain": true }]`. După
+   deploy, site-ul răspunde și pe domeniu, și pe vechea adresă `workers.dev`.
+3. **`SITE_URL`** = `https://domeniul-tau.ro` în setările Workers Builds, apoi un
+   redeploy. Atât. Adresa canonică, `hreflang`, `og:url`, sitemap-ul,
+   `robots.txt`, `/.well-known/security.txt` și linkul din studiul de caz se mută
+   toate singure, fiindcă toate se derivă din ea. **Nu se editează niciun fișier
+   pentru pasul ăsta** — iar dacă cineva scrie totuși un hostname într-un fișier
+   din `src/` sau `tests/`, `completeness.mjs` pică („no source file spells out
+   the production hostname").
+4. **Abia după ce domeniul răspunde confirmat**: `"workers_dev": false` în
+   `wrangler.jsonc`, ca să retragi vechea adresă. Ideal, un redirect 301 de pe ea
+   ca să nu pierzi ce a indexat deja Google.
+
+Verificarea că mutarea a reușit: `https://domeniul-tau.ro/version.txt` scrie
+commit-ul curent, iar `curl -sI https://domeniul-tau.ro/` întoarce 200 cu
+antetele din `_headers` (CSP, HSTS).
 
 ### Variabile de mediu
 
@@ -1022,10 +1046,14 @@ fișier, deci nu se mai pot suprapune.
 înscrierea domeniului într-o listă compilată în browsere, iar domeniul final încă
 nu e ales.
 
-`public/.well-known/security.txt` — contact pentru raportarea problemelor de
-securitate. **Are dată de expirare** (cerută de RFC 9116) și testul verifică să nu
-fie în trecut; un fișier expirat e mai rău decât niciunul. Reîmprospăteaz-o o dată
-pe an.
+`/.well-known/security.txt` — contact pentru raportarea problemelor de securitate.
+Se **generează la build** (`src/pages/.well-known/security.txt.ts`), nu e un fișier
+static, din două motive: `Canonical` trebuie să numească adresa reală, deci urmează
+`SITE_URL` ca tot restul; iar `Expires` (cerut de RFC 9116) se calculează din data
+build-ului — un an minus o zi. Scrisă de mână, data trecea într-o zi și fișierul
+devenea invalid fără ca nimic să pice. Testul verifică nu doar că nu e expirată, ci
+și că e la mai mult de șase luni distanță: o dată înghețată cade cu jumătate de an
+înainte să conteze.
 
 ## Securitate
 

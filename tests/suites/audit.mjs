@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, axePath, runAxe, settleAnimations, PRODUCTION_URL } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -314,7 +314,7 @@ if (!live) {
   await p.waitForTimeout(900);
   const self = new URL(requests.at(-1)).searchParams.get('url');
   ck('the self-test measures this site',
-    self === 'https://presentationwebsite.alexdelcea1996.workers.dev/', self);
+    self === `${PRODUCTION_URL}/`, `${self} (expected ${PRODUCTION_URL}/)`);
   // The canonical, not location.href — a visit carrying ?from= or a hash must
   // not measure a different address than the one that is indexed.
   ck('and asks for the canonical address, not the current one',

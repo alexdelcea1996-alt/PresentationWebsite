@@ -5,7 +5,7 @@ summary: A bilingual business site built to prove its own quality — with measu
 client: Own project
 category: Business website
 year: 2026
-url: https://presentationwebsite.alexdelcea1996.workers.dev
+url: self
 repo: https://github.com/alexdelcea1996-alt/PresentationWebsite
 tech:
   - Astro

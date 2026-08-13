@@ -23,8 +23,13 @@ const caseStudies = defineCollection({
     client: z.string(),
     category: z.string(),
     year: z.number(),
-    /** Live site, when it is public. */
-    url: z.url().optional(),
+    /**
+     * Live site, when it is public. The literal `self` means "this site" and
+     * resolves to `SITE_URL` at build time — a case study about the site you
+     * are reading should not carry a hostname typed by hand, or moving the
+     * domain leaves it pointing at the old address.
+     */
+    url: z.union([z.url(), z.literal('self')]).optional(),
     /** Public source code, when there is any. */
     repo: z.url().optional(),
     tech: z.array(z.string()).min(1),

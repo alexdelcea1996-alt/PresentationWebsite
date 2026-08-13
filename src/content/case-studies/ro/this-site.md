@@ -5,7 +5,7 @@ summary: Un site de prezentare bilingv construit ca să își demonstreze singur
 client: Proiect propriu
 category: Site de prezentare
 year: 2026
-url: https://presentationwebsite.alexdelcea1996.workers.dev
+url: self
 repo: https://github.com/alexdelcea1996-alt/PresentationWebsite
 tech:
   - Astro

@@ -1,9 +1,10 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, axePath, runAxe, settleAnimations, PRODUCTION_URL, PRODUCTION_HOST } from '../harness.mjs';
 
-const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
+const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const dist = join(root, 'dist');
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 const b = await launch();
@@ -566,7 +567,48 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   // RFC 9116 requires Expires, and a date in the past is worse than no file.
   const expires = text.match(/^Expires:\s*(.+)$/m)?.[1]?.trim();
   ck('it has not expired', Boolean(expires) && Date.parse(expires) > Date.now(), String(expires));
+  // Two-sided, and that is the point. The RFC asks for less than a year out;
+  // the lower bound is what catches a date that stopped being computed. A
+  // constant passes the "not expired" check right up until the day it fails
+  // for real, so this fails the build six months earlier instead.
+  const months = (Date.parse(expires) - Date.now()) / (30 * 24 * 3600 * 1000);
+  ck('the expiry is recomputed each build, not frozen',
+    months > 6 && months < 12.2, `${months.toFixed(1)} months out`);
+  // The canonical field names the address the file is served from. Wrong after
+  // a domain move unless it is generated, which is why this file is a route.
+  ck('the canonical field follows the build address',
+    text.includes(`Canonical: ${PRODUCTION_URL}/.well-known/security.txt`),
+    text.match(/^Canonical:.*$/m)?.[0] ?? 'absent');
   await s.close();
+}
+
+// --- Nothing types the domain by hand ----------------------------------------
+// Tomorrow this site moves to its own domain. `SITE_URL` in the Cloudflare
+// project settings is meant to be the one place that decides the address —
+// every canonical, hreflang, og:url, sitemap entry, security.txt and case-study
+// link derives from it. A hostname copied into a source file survives the move
+// silently and points visitors at the old address, so the move has to be one
+// setting, not a search.
+{
+  const skip = new Set(['node_modules', 'dist', '.git', '.astro']);
+  const sources = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (skip.has(entry.name)) continue;
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (/\.(astro|ts|tsx|mjs|js|json|md|css)$/.test(entry.name)) sources.push(path);
+    }
+  };
+  walk(join(root, 'src'));
+  walk(join(root, 'tests'));
+
+  const offenders = sources.filter((path) => readFileSync(path, 'utf8').includes(PRODUCTION_HOST));
+  ck('no source file spells out the production hostname',
+    offenders.length === 0,
+    offenders.map((path) => path.slice(root.length + 1)).join(', ') || `scanned ${sources.length} files`);
+  // A guard that scanned nothing would pass forever.
+  ck('the scan actually reached the source tree', sources.length > 100, `${sources.length} files`);
 }
 
 // --- The deployed build identifies itself ------------------------------------

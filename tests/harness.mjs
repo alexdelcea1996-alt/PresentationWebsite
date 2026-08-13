@@ -13,13 +13,34 @@
  */
 import { chromium } from 'playwright-core';
 import { createRequire } from 'node:module';
-import { existsSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 
 /** The built site, served by `tests/server.mjs` with the real `_headers`. */
 export const BASE = process.env.TEST_BASE_URL ?? 'http://localhost:4331';
+
+/**
+ * The address the built site believes it lives at.
+ *
+ * Read from the canonical link on the built home page rather than written out,
+ * because three suites need to assert "this points at production, not at
+ * localhost" and a hostname typed into each of them turns a domain move into a
+ * hunt through the test files. `SITE_URL` in the Cloudflare project settings is
+ * the single place that decides this; everything downstream, tests included,
+ * reads it back out of the artefact.
+ */
+export const PRODUCTION_URL = (() => {
+  const home = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'index.html');
+  if (!existsSync(home)) return null;
+  const canonical = readFileSync(home, 'utf8').match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+  return canonical ? new URL(canonical).origin : null;
+})();
+
+/** Same, as a bare hostname — what a fake address bar would show. */
+export const PRODUCTION_HOST = PRODUCTION_URL ? new URL(PRODUCTION_URL).host : null;
 
 export const axePath = require.resolve('axe-core/axe.min.js');
 

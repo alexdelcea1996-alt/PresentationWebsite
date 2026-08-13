@@ -69,7 +69,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **97–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **1111 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
+- **1115 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
   dark + 9 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
   programare (18), tranziții (17), completitudine (116), garanții (16), politica de
@@ -135,7 +135,11 @@ infrastructura proprie și nu depinde de Actions. Workflow-urile au fost șterse
    footer (deci pe toate paginile). WhatsApp cu mesaj pre-scris, RO/EN;
    telefonul și ca `telephone` în datele structurate
 5. ✅ Secțiune FAQ pe prima pagină — șase întrebări, plus schema `FAQPage` emisă separat
-6. Domeniu propriu + e-mail pe domeniu + 301 de pe workers.dev
+6. 🟡 Domeniu propriu — ✅ codul e pregătit: adresa vine dintr-un singur loc
+   (`SITE_URL`), iar un test cade dacă apare vreun hostname scris de mână în
+   `src/` sau `tests/`. Mutarea e o variabilă de mediu plus o rută în
+   `wrangler.jsonc` (pașii, în ordine, în README → „Mutarea pe domeniu propriu").
+   *Mai lipsește: domeniul cumpărat, e-mailul pe domeniu, 301 de pe workers.dev.*
 7. ~~Pagină de politică de confidențialitate (GDPR)~~ — ✅ făcut, la `/confidentialitate/`
    și `/en/privacy/`, plus repararea afirmației false de sub formular
 8. ✅ Pagină 404 + set complet de iconuri (apple-touch-icon, maskable, manifest)
