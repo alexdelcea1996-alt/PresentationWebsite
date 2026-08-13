@@ -202,6 +202,34 @@ if (rescueShown) {
     (await shown('#field-message')) && !(await shown('#field-name')));
   check('and the submit button appears only there', await shown('[data-submit]'));
 
+  /*
+   * What a screen reader is told when the step changes.
+   *
+   * The audit marked a human pass with NVDA as still owed, and it still is —
+   * these checks cannot hear anything. What they can do is verify the two
+   * things such a pass would most likely fault, both of which are silent on a
+   * screen: that the announcement carries the step's NAME and not just its
+   * number, and that focus lands in the new step so the listener is told what
+   * to type next instead of being left on a button that moved under them.
+   */
+  const announced = await stepped.evaluate(() => {
+    const region = document.querySelector('[data-step-progress] [role="status"]');
+    return {
+      exists: Boolean(region),
+      text: region?.innerText.replace(/\s+/g, ' ').trim() ?? '',
+      // The bar duplicates the counter visually and must not be read out.
+      barHidden: document.querySelector('[data-step-bar]')?.closest('[aria-hidden]') !== null,
+      focused: document.activeElement?.id ?? '',
+    };
+  });
+  check('step changes are announced in one live region', announced.exists);
+  check('and the announcement names the step, not only its number',
+    /3/.test(announced.text) && announced.text.replace(/[^\p{L}]/gu, '').length > 8,
+    announced.text);
+  check('the progress bar is not read out twice', announced.barHidden);
+  check('focus moves into the step that just opened',
+    announced.focused === 'field-message', announced.focused || '(nothing focused)');
+
   await stepped.locator('[data-step-back]').click();
   await stepped.waitForTimeout(250);
   check('back returns without losing what was typed',

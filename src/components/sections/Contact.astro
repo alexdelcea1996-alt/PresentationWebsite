@@ -59,12 +59,28 @@ const labelClass = 'block text-sm font-medium text-fg';
           that announces "step 1 of 3" while showing all three would be lying
           about itself.
         */}
+        {/*
+          Counter and title share ONE live region, deliberately.
+
+          They used to be two elements with `role="status"` on the counter
+          alone, so changing step announced "step 2 of 3" and stopped —
+          the number without the name of the thing being counted. A screen
+          reader user heard the position and not the subject. Wrapping both in
+          the same region makes it one utterance: "step 2 of 3, about you".
+
+          Focus still moves to the first field of the new step (see `show`),
+          so the sequence a listener gets is: the region announces where they
+          are, then the field announces what to type.
+        */}
         <div class="hidden" data-step-progress>
-          <p class="text-xs font-medium uppercase tracking-[0.14em] text-accent-alt" role="status">
-            <span data-step-counter></span>
-          </p>
-          <p class="mt-1.5 font-display text-lg font-semibold text-fg" data-step-title></p>
-          <div class="mt-3 h-1 overflow-hidden rounded-full bg-border">
+          <div role="status">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-accent-alt">
+              <span data-step-counter></span>
+            </p>
+            <p class="mt-1.5 font-display text-lg font-semibold text-fg" data-step-title></p>
+          </div>
+          {/* The bar repeats the counter in pixels. Nothing to announce. */}
+          <div class="mt-3 h-1 overflow-hidden rounded-full bg-border" aria-hidden="true">
             <div class="h-full rounded-full bg-linear-110 from-accent to-accent-alt" data-step-bar>
             </div>
           </div>

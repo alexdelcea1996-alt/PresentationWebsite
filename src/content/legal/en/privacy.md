@@ -99,6 +99,9 @@ scores. **Only the address being analysed** is sent — nothing about you, no na
 
 ## Your rights
 
+The rights below are the ones in **Regulation (EU) 2016/679** — the GDPR. Written in
+plain words rather than article numbers.
+
 You have the right to know what data I hold about you, to correct it, to have it deleted,
 to object to its use and to receive a copy. In practice, what I hold about you is the
 emails you sent me.

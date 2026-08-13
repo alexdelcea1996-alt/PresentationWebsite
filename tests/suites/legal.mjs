@@ -51,6 +51,26 @@ for (const [label, home, path, other, heading] of [
     `${label}: the supervisory authority is named`,
     body.includes('ANSPDCP') || body.includes('dataprotection.ro'),
   );
+  // The policy explains the rights in plain words, which is the right register
+  // for a reader — but a policy that never names the regulation it is written
+  // under leaves them nothing to look up. One sentence anchors it.
+  ck(
+    `${label}: the regulation it is written under is named`,
+    /2016\/679/.test(body) && /GDPR/i.test(body),
+    body.match(/[^.]*2016\/679[^.]*/)?.[0]?.trim().slice(0, 70) ?? 'not cited',
+  );
+  // All five rights, not a subset — the audit reads the words, not the intent.
+  {
+    const rights = [
+      [/știi ce date|know what data/i, 'access'],
+      [/corectezi|correct it/i, 'rectification'],
+      [/ștergi|deleted/i, 'erasure'],
+      [/te opui|object to/i, 'objection'],
+      [/o copie|a copy/i, 'portability'],
+    ];
+    const missing = rights.filter(([re]) => !re.test(body)).map(([, name]) => name);
+    ck(`${label}: every GDPR right is spelled out`, missing.length === 0, missing.join(', '));
+  }
   ck(
     `${label}: it gives an address to exercise rights`,
     (await p.locator('main a[href^="mailto:"]').count()) > 0,

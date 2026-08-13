@@ -100,6 +100,9 @@ e-mail.
 
 ## Drepturile tale
 
+Drepturile de mai jos sunt cele din **Regulamentul (UE) 2016/679** — GDPR. Le scriu pe
+românește, nu pe numere de articol.
+
 Ai dreptul să știi ce date am despre tine, să le corectezi, să le ștergi, să te opui
 folosirii lor și să primești o copie. În practică, datele pe care le am despre tine sunt
 e-mailurile pe care mi le-ai trimis tu.
