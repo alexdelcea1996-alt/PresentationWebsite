@@ -60,6 +60,55 @@ const outputs = [
   ['favicon-32.png', await render(32)],
 ];
 
+/**
+ * `favicon.ico`, built by hand because sharp does not write the container.
+ *
+ * Modern browsers take the SVG from the `<link>` tags and never ask for this.
+ * What does ask for it, at a fixed path, without reading any HTML: feed
+ * readers, link unfurlers, crawlers and a long tail of older clients. Without
+ * the file they all get the 404 page — thirty kilobytes of HTML in answer to a
+ * request for an icon, with a 404 in the log to match. A kilobyte here ends
+ * that.
+ *
+ * The format is deliberately simple: a six-byte directory header, one sixteen-
+ * byte entry per size, then the images. Since Vista the payload may be a PNG
+ * rather than a BMP, which is why sharp can produce everything but the wrapper.
+ * A side of 256 is written as 0 — the field is one byte — but nothing here is
+ * that large.
+ */
+function buildIco(images) {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // 1 = icon
+  header.writeUInt16LE(images.length, 4);
+
+  const entries = [];
+  let offset = 6 + images.length * 16;
+  for (const { size, data } of images) {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(size >= 256 ? 0 : size, 0);
+    entry.writeUInt8(size >= 256 ? 0 : size, 1);
+    entry.writeUInt8(0, 2); // palette size — 0 for true colour
+    entry.writeUInt8(0, 3); // reserved
+    entry.writeUInt16LE(1, 4); // colour planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(data.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    entries.push(entry);
+    offset += data.length;
+  }
+
+  return Buffer.concat([header, ...entries, ...images.map((i) => i.data)]);
+}
+
+outputs.push([
+  'favicon.ico',
+  buildIco([
+    { size: 16, data: await render(16) },
+    { size: 32, data: await render(32) },
+  ]),
+]);
+
 for (const [name, buffer] of outputs) {
   await writeFile(join(publicDir, name), buffer);
   console.log(`${name.padEnd(24)} ${String(Math.round(buffer.length / 1024)).padStart(4)} kB`);

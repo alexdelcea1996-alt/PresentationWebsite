@@ -10,7 +10,7 @@
  * a silently broken harness reads exactly like a clean run.
  */
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -143,5 +143,29 @@ const crashed = results.filter((r) => r.code !== 0 && r.fail === 0);
 const seconds = ((Date.now() - started) / 1000).toFixed(1);
 
 console.log(`\n${pass} passed, ${fail} failed${crashed.length ? `, ${crashed.length} crashed` : ''} in ${seconds}s`);
+
+/**
+ * Record the size of a full run.
+ *
+ * The colophon publishes how many checks are in this suite, and that number was
+ * kept by hand. The guard around it only compared the copies of the figure to
+ * each other, so when the suite grew all three copies agreed on a number that
+ * was no longer true — a page whose sole purpose is not overstating things,
+ * quietly overstating one.
+ *
+ * Writing the tally here closes that: `colophon.mjs` compares the published
+ * figure against this file, so the first full run after the suite changes fails
+ * and says what the number should be. One run behind is exactly right — a
+ * partial run must not overwrite it, which is why this is skipped when suites
+ * were named on the command line.
+ */
+if (!only.length && !fail && !crashed.length) {
+  const path = join(here, 'last-run.json');
+  const previous = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
+  if (previous.total !== pass) {
+    writeFileSync(path, `${JSON.stringify({ total: pass, suites: selected.length }, null, 2)}\n`);
+    console.log(`tests/last-run.json updated: ${previous.total ?? '—'} -> ${pass}`);
+  }
+}
 
 process.exit(fail || crashed.length ? 1 : 0);

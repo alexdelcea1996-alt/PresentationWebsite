@@ -133,6 +133,65 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
   await p.close();
 }
 
+// --- One mark, in three places ---------------------------------------------------
+/**
+ * The spark is drawn three times over: in `public/favicon.svg` on a 32 grid,
+ * in `src/data/icons.ts` for the header and footer logo on a 24 grid, and in
+ * the `--spark` mask for the section labels, also on 24. Three copies of one
+ * drawing is three chances for them to stop being the same drawing — and the
+ * failure is quiet, because each of them looks fine on its own. You only see it
+ * by opening two tabs side by side.
+ *
+ * So the geometry is compared as arithmetic: the two 24-grid copies must be
+ * identical, and the favicon must be exactly those coordinates scaled by 32/24.
+ */
+{
+  const { readFileSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const read = (...parts) => readFileSync(join(root, ...parts), 'utf8');
+
+  /** Every number in the path data, in order. */
+  const coords = (source) => {
+    const paths = [...source.matchAll(/\sd=["']([^"']+)["']/g)].map((m) => m[1]).join(' ');
+    return (paths.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+  };
+
+  const favicon = coords(read('public', 'favicon.svg'));
+  const iconsFile = read('src', 'data', 'icons.ts');
+  const sparkEntry = iconsFile.slice(iconsFile.indexOf('spark:'), iconsFile.indexOf("',", iconsFile.indexOf('spark:')));
+  const logo = coords(sparkEntry);
+  const cssFile = read('src', 'styles', 'global.css');
+  const maskEntry = cssFile.slice(cssFile.indexOf('--spark:'), cssFile.indexOf('\n', cssFile.indexOf('--spark:')));
+  // The mask is URL-encoded, so the quotes around `d` arrive as %27-free plain
+  // quotes but the angle brackets do not. Decoding first keeps `coords` simple.
+  const mask = coords(decodeURIComponent(maskEntry));
+
+  ck('the mark is drawn in all three places', favicon.length > 0 && logo.length > 0 && mask.length > 0,
+    `favicon ${favicon.length}, logo ${logo.length}, mask ${mask.length} numbers`);
+  ck('the logo and the label mask are the same drawing',
+    logo.length === mask.length && logo.every((v, i) => v === mask[i]),
+    `${logo.join(',')} vs ${mask.join(',')}`);
+
+  const SCALE = 32 / 24;
+  const scaled = logo.every((v, i) => Math.abs(v * SCALE - favicon[i]) < 0.005);
+  ck('and the favicon is the same drawing at the larger grid',
+    favicon.length === logo.length && scaled,
+    favicon.length === logo.length
+      ? logo.map((v, i) => `${(v * SCALE).toFixed(2)}~${favicon[i]}`).slice(0, 4).join(' ')
+      : `${favicon.length} vs ${logo.length} numbers`);
+
+  // Weight scales with the grid like everything else.
+  const weight = (source) => Number(source.match(/stroke-width=["']?([\d.]+)/)?.[1]);
+  const wFav = weight(read('public', 'favicon.svg'));
+  const wLogo = weight(sparkEntry);
+  const wMask = weight(decodeURIComponent(maskEntry));
+  ck('and the stroke weight scales with it',
+    wLogo === wMask && Math.abs(wLogo * SCALE - wFav) < 0.005,
+    `favicon ${wFav}, logo ${wLogo}, mask ${wMask}`);
+}
+
 // --- The rule that ends an article ------------------------------------------------
 {
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });

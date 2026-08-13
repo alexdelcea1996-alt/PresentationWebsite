@@ -53,7 +53,14 @@ export const iconPaths: Record<IconName, string> = {
   close,
   globe:
     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/>',
-  spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
+  // The logo, not a UI icon: eight rays meeting at the centre rather than a
+  // ring of detached ticks, so it survives the 16px it is rendered at in the
+  // header. Carries its own stroke-width because it is heavier than the rest
+  // of the set on purpose. Same geometry as `public/favicon.svg` and the
+  // `--spark` mask, scaled to this 24 viewBox — all three move together.
+  spark:
+    '<g stroke-width="2.25"><path d="M12 4.125v15.75M4.125 12h15.75"/>' +
+    '<path d="m7.755 7.755 8.49 8.49M16.245 7.755 7.755 16.245"/></g>',
   rss: '<path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>',
   moon: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',

@@ -64,14 +64,22 @@
   --grid-line: rgb(255 255 255 / 0.6);
 
   /*
-    The brand mark as a mask: the same eight-ray spark that is in the favicon,
-    redrawn as strokes so it stays crisp at 12px. Inline rather than a file
-    because it is a few hundred bytes and a separate request for it would cost
-    more than it weighs — and because a mask that arrives late would pop in
-    after the text it sits beside. The stroke colour is irrelevant (a mask reads
-    alpha only); it is `%23000` because a mask needs something opaque to be.
+    The brand mark as a mask: the same eight-ray spark as `public/favicon.svg`
+    and `src/data/icons.ts`, scaled to a 24 viewBox. Change one, change all
+    three — there is one mark, not three drawings that resemble each other.
+
+    The rays meet at the centre rather than ringing an empty middle, which is
+    what lets it hold together at the ~12px it renders at here. The detached
+    version it replaced looked like a footnote asterisk at best and a smudge at
+    worst.
+
+    Inline rather than a file because it is a few hundred bytes and a separate
+    request for it would cost more than it weighs — and because a mask that
+    arrived late would pop in after the text it sits beside. The stroke colour
+    is irrelevant (a mask reads alpha only); it is `%23000` because a mask needs
+    something opaque to be.
   */
-  --spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23000' stroke-width='2.6' stroke-linecap='round' fill='none'%3E%3Cpath d='M12 2.2v5.1M12 16.7v5.1M2.2 12h5.1M16.7 12h5.1'/%3E%3Cpath d='m5.1 5.1 3.6 3.6M15.3 15.3l3.6 3.6M18.9 5.1l-3.6 3.6M8.7 15.3l-3.6 3.6'/%3E%3C/g%3E%3C/svg%3E");
+  --spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23000' stroke-width='2.25' stroke-linecap='round' fill='none'%3E%3Cpath d='M12 4.125v15.75M4.125 12h15.75'/%3E%3Cpath d='m7.755 7.755 8.49 8.49M16.245 7.755 7.755 16.245'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 :root[data-theme='light'] {

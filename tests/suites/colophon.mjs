@@ -16,7 +16,7 @@
  * a one-word difference nobody would notice in review, and it is exactly the
  * claim this site exists to argue against, so it gets its own checks.
  */
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launch, BASE, AXE_RULES, axePath, settleAnimations } from '../harness.mjs';
@@ -50,6 +50,27 @@ ck('the declared size is at least the number of assertions written',
 // magnitude. This catches a digit typed twice.
 ck('and is not an implausible multiple of them',
   declared <= callSites * 6, `${declared} vs ${callSites} × 6`);
+
+/**
+ * And it equals what the suite actually produced last time it ran whole.
+ *
+ * The floor above only catches gross understatement, and the cross-file checks
+ * below only catch the three copies disagreeing with each other. Between them
+ * sits the failure that actually happened: the suite grew by ten checks, all
+ * three copies still said 1088, they all agreed, and the page published a
+ * number that was no longer true. `run.mjs` writes the tally of every clean
+ * full run; comparing against it is what makes the figure self-correcting
+ * rather than remembered.
+ */
+{
+  const path = join(here, '..', 'last-run.json');
+  const recorded = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')).total : null;
+  ck('the published figure matches the last full run',
+    recorded === null || recorded === declared,
+    recorded === null
+      ? 'no run recorded yet — run `npm test` whole once'
+      : `page says ${declared}, last full run produced ${recorded}`);
+}
 
 // Three files state the figure. They have to agree.
 //
