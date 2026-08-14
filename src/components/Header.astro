@@ -28,6 +28,14 @@ const links = [
 ];
 ---
 
+{/*
+  Outside the header on purpose: the header is `position: fixed`, and an
+  absolutely positioned child of a fixed element is anchored to the viewport,
+  so a sentinel in there would never scroll out of view. See `.scroll-sentinel`
+  in the stylesheet for what it replaces.
+*/}
+<div class="scroll-sentinel scroll-sentinel-header" data-header-sentinel aria-hidden="true"></div>
+
 <header
   class="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
   data-header
@@ -118,15 +126,19 @@ const links = [
 
 <script>
   // --- Condense the header once the reader scrolls past the hero fold ---
+  //
+  // Watched rather than measured. Asking `window.scrollY` forces a layout, and
+  // this script runs before the first paint, so that one question used to pull
+  // the whole page's first layout into it. The sentinel is 12px tall and sits at
+  // the top of the document: the moment it leaves the viewport, the reader has
+  // scrolled past 12px — the same threshold, answered for free.
   const bar = document.querySelector<HTMLElement>('[data-header-bar]');
+  const sentinel = document.querySelector('[data-header-sentinel]');
 
-  if (bar) {
-    const onScroll = () => {
-      if (window.scrollY > 12) bar.setAttribute('data-scrolled', '');
-      else bar.removeAttribute('data-scrolled');
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+  if (bar && sentinel) {
+    new IntersectionObserver(([entry]) => {
+      bar.toggleAttribute('data-scrolled', !entry.isIntersecting);
+    }).observe(sentinel);
   }
 
   // --- Mobile menu ---

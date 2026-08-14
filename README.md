@@ -38,6 +38,25 @@ Măsurat pe un server care comprimă ca Cloudflare (brotli): prima pagină trece
 prin rețea în **18,4 kB**, nu în 126. Fără compresie, măsurătoarea locală arăta
 un scor mobil mai mic decât realitatea de pe site-ul live.
 
+**Nimeni nu mai citește poziția de scroll.** Header-ul și dock-ul de pe telefon
+întrebau `window.scrollY` dintr-un listener de `scroll`. Asta e o citire de
+geometrie, iar o citire de geometrie forțează un layout sincron — și fiindcă
+scripturile modul rulează după parsare și înainte de prima pictură, prima
+întrebare trăgea în ea primul layout complet al paginii. PageSpeed raporta 82 ms
+de *forced reflow* pe seama header-ului. Acum două santinele invizibile, exact
+de înălțimea pragului, răspund la aceeași întrebare printr-un
+`IntersectionObserver`: aceeași geometrie, calculată de browser în pasul lui de
+randare, zero listenere de `scroll` pe pagină. Măsurat local, sub același
+throttling 4× CPU: timpul de blocare pe rularea mediană a scăzut de la 111 la
+84 ms. Layout-ul total nu se schimbă — se face oricum; ce s-a schimbat e că nu
+se mai face *în interiorul unui script*.
+
+Tot de acolo: fasciculul de pe cardul de preț se **oprește când nu e pe ecran**.
+Animează o proprietate custom, care prin specificație nu poate fi dată
+compozitorului, deci fiecare cadru e o repictare pe firul principal. Costul e
+acceptabil cât te uiți la card și inutil cât nu — mai ales pe telefon, pe
+baterie. Se oprește unde a rămas, nu de la zero.
+
 Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
 ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 
@@ -50,7 +69,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1115 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1125 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |

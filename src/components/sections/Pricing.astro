@@ -29,6 +29,7 @@ const t = getContent(locale).pricing;
             ]}
             data-reveal
             data-reveal-delay={index * 80}
+            data-plan-beam={plan.featured ? '' : undefined}
           >
             {plan.featured && (
               <p class="mb-5 inline-flex w-fit items-center gap-1.5 rounded-full bg-linear-110 from-accent to-accent-alt px-3 py-1 text-xs font-semibold text-on-accent">
@@ -68,3 +69,26 @@ const t = getContent(locale).pricing;
     </p>
   </div>
 </section>
+
+<script>
+  // --- Stop the beam when nobody is looking at it ---
+  //
+  // The ring animates a custom property, which by specification cannot be handed
+  // to the compositor: every frame is a repaint on the main thread. That is an
+  // accepted cost while the card is on screen and a pointless one when it is
+  // not — and the pricing section spends most of a visit scrolled past.
+  //
+  // Pausing rather than removing: `animation-play-state` freezes the angle where
+  // it stood, so scrolling back finds the ring where it was left rather than
+  // snapped to zero.
+  const beams = document.querySelectorAll<HTMLElement>('[data-plan-beam]');
+
+  if (beams.length) {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        (entry.target as HTMLElement).toggleAttribute('data-beam-idle', !entry.isIntersecting);
+      }
+    });
+    beams.forEach((card) => observer.observe(card));
+  }
+</script>

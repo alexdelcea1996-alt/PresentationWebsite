@@ -630,6 +630,22 @@
     z-index: -1;
   }
 
+  /*
+    Off screen, it stops.
+
+    A paused animation does not tick, so the per-frame repaint the comment above
+    calls an honest trade is only paid while the card is actually being looked
+    at. Scroll past the pricing section and the ring costs nothing at all —
+    which matters most on the device where it matters most, a phone holding the
+    page open on battery.
+
+    Default `running`, so the frozen state is purely an enhancement: with no
+    JavaScript the attribute is never set and the beam behaves exactly as before.
+  */
+  .beam[data-beam-idle]::before {
+    animation-play-state: paused;
+  }
+
   /* Decoration that never stops moving is exactly what this setting is for. */
   @media (prefers-reduced-motion: reduce) {
     .beam::before {
@@ -783,6 +799,62 @@
     Hidden until the script marks it active, which it only does for a fine
     pointer and when the reader has not asked for reduced motion.
   */
+  /*
+    Invisible markers that stand in for reading `window.scrollY`.
+
+    Two components need to know "has the reader scrolled past a point": the
+    header, to condense itself, and the phone dock, to appear. Both used to ask
+    the window directly, from a `scroll` listener. That is a geometry read, and
+    a geometry read costs a synchronous layout whenever styles are dirty —
+    which, on a page with reveal animations, they usually are. Worse, the module
+    scripts run after parsing and before first paint, so the very first read
+    dragged the whole page's first layout into a script: PageSpeed reported 82 ms
+    of forced reflow against the header, and a 50 ms long task on the document.
+
+    A sentinel of exactly the right height, anchored at the top of the document,
+    turns the same question into an IntersectionObserver: the browser answers it
+    from geometry it already computed, in its own rendering step, and nothing in
+    our code ever reads a layout property. `position: absolute` with no
+    positioned ancestor resolves against the initial containing block, which is
+    what puts these at the document origin rather than the viewport's.
+
+    `visibility: hidden` rather than `display: none` — a display-none element has
+    no box, so it can never intersect anything and the observer would sit silent
+    forever.
+  */
+  .scroll-sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* Matches the old `scrollY > 12`. */
+  .scroll-sentinel-header {
+    height: 12px;
+  }
+
+  /*
+    Matches the old `scrollY > innerHeight * 0.7`.
+
+    Plain `vh`, not `svh`, and not the two-line fallback pattern. `svh` is the
+    closer match to `innerHeight` — but written as `height: 70vh; height: 70svh`
+    the minifier keeps only the second line, and a browser without `svh` then
+    computes a zero-height sentinel that never intersects, which shows the dock
+    from the first pixel of the page. Exactly the greeting this component exists
+    not to be.
+
+    One unit, universally supported, is worth more here than the last tenth of
+    fidelity: `vh` is the viewport with the phone's toolbar hidden, so the dock
+    arrives a little later than it used to. It also no longer drifts as the
+    toolbar slides in and out, which `innerHeight` did.
+  */
+  .scroll-sentinel-dock {
+    height: 70vh;
+  }
+
   /* --- The sticky bottom dock on phones --- */
   /*
    * Hidden three ways, each for its own reason: `display` above `sm` (it is a

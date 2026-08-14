@@ -289,14 +289,51 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
     `${ring.composite} | ${ring.clip}`);
   ck('one pixel of it', ring.padding === '1px', ring.padding);
 
-  // The angle has to actually move; a registered property that never advances
-  // looks identical in a screenshot and is the whole failure mode.
   const angleAt = () =>
     beams.first().evaluate((el) => getComputedStyle(el, '::before').getPropertyValue('--beam-angle'));
+  const playState = () =>
+    beams.first().evaluate((el) => getComputedStyle(el, '::before').animationPlayState);
+
+  /*
+    Off screen it must be genuinely stopped, on screen it must genuinely move.
+
+    Animating a custom property cannot be handed to the compositor — by
+    specification, not by oversight — so every frame is a repaint on the main
+    thread. Paying that for a card nobody is looking at is waste, and on a phone
+    it is waste measured in battery. An IntersectionObserver pauses it.
+
+    Both halves are checked because either one alone is satisfied by a bug. A
+    ring that never runs passes "it is paused off screen"; a ring that never
+    pauses passes "it travels". The pair is also the reason the check below
+    scrolls first: this suite used to read the angle at the top of the page,
+    where the beam is now correctly frozen.
+  */
+  ck('the ring is idle while the card is far below the fold',
+    (await playState()) === 'paused' && (await beams.first().getAttribute('data-beam-idle')) !== null,
+    await playState());
+
+  await beams.first().scrollIntoViewIfNeeded();
+  await p.waitForTimeout(250);
+  ck('it wakes when the card comes into view',
+    (await playState()) === 'running' && (await beams.first().getAttribute('data-beam-idle')) === null,
+    await playState());
+
+  // The angle has to actually move; a registered property that never advances
+  // looks identical in a screenshot and is the whole failure mode.
   const first = await angleAt();
   await p.waitForTimeout(700);
   const second = await angleAt();
   ck('the beam travels rather than sitting still', first !== second, `${first} -> ${second}`);
+
+  // And freezes where it stood, rather than snapping back to zero — scrolling
+  // away and back should not restart the cycle.
+  await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await p.waitForTimeout(250);
+  const parked = await angleAt();
+  await p.waitForTimeout(700);
+  ck('and stops again when it leaves, holding its angle',
+    (await playState()) === 'paused' && (await angleAt()) === parked && parked !== second,
+    `${second} -> ${parked}`);
 
   await p.close();
 }

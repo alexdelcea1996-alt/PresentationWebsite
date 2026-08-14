@@ -155,7 +155,7 @@ async function inlineJs(page) {
   return total;
 }
 
-// Today: 12.5 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
+// Today: 12.7 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
 // a framed one, 0.3 kB inside an example site. The landing figure went 14.6 →
 // 18.1 kB when the contact form became stepped and the cursor glow arrived, and
 // back down to 12.5 when the configurator and the audit band crossed Astro's
@@ -163,6 +163,9 @@ async function inlineJs(page) {
 // with it: a 21 kB budget against 12.5 kB of actual bytes stops being a guard
 // and starts being decoration. Raising it again is allowed — deliberately, in
 // the commit that spends the bytes, with this paragraph rewritten.
+//
+// The last move was almost a wash: the beam's pause observer cost ~0.4 kB and
+// replacing two scroll handlers with sentinels gave most of it back.
 const homeJs = await inlineJs('index.html');
 ck('inline JS on the landing page is under budget', homeJs <= 15 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));

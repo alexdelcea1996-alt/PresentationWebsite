@@ -37,6 +37,83 @@ await mobile.waitForTimeout(300);
 check('mobile menu closes after navigating', await menu.isHidden());
 await mobile.keyboard.press('Escape');
 
+// --- Scroll state, without ever reading the scroll position ---
+//
+// The header (condense past 12px) and the dock (appear past 70% of a screen)
+// both need to know how far the reader has come. Both used to ask
+// `window.scrollY` from a `scroll` listener. That is a geometry read, and a
+// geometry read forces a synchronous layout whenever styles are dirty — which,
+// on a page full of reveal animations, they usually are. Worse: module scripts
+// run after parsing and before the first paint, so the very first question
+// dragged the page's entire first layout into the script. PageSpeed measured
+// 82 ms of forced reflow against the header and a 50 ms task on the document.
+//
+// Sentinels of exactly the right height plus an IntersectionObserver answer the
+// same two questions from geometry the browser has already computed. The
+// invariant that keeps it that way is blunt: no scroll listener on the page.
+{
+  const watched = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await watched.addInitScript(() => {
+    window.__scrollListeners = [];
+    const original = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function (type, ...rest) {
+      // Only the ones that cost: a listener on a scrollable element is a local
+      // affair, but one on the window or the document runs for every pixel of
+      // every scroll on the page.
+      if (type === 'scroll' && (this === window || this === document)) {
+        window.__scrollListeners.push(new Error().stack ?? 'unknown');
+      }
+      return original.call(this, type, ...rest);
+    };
+  });
+  await watched.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+
+  const registered = await watched.evaluate(() => window.__scrollListeners ?? []);
+  check('nothing listens to scroll on the landing page', registered.length === 0,
+    registered.map((stack) => stack.split('\n')[1]?.trim() ?? stack).join(' | '));
+
+  // Both sentinels sit at the top of the *document*. The distinction matters:
+  // put one inside the fixed header and it rides the viewport instead, never
+  // leaves it, and the header never condenses. Scrolling away from it is the
+  // behavioural version of that check, and the one that would actually fail.
+  const geometry = await watched.evaluate(() => {
+    const rect = (selector) => {
+      const el = document.querySelector(selector);
+      return el ? el.getBoundingClientRect() : null;
+    };
+    return {
+      header: rect('[data-header-sentinel]'),
+      dock: rect('[data-dock-sentinel]'),
+      viewport: window.innerHeight,
+    };
+  });
+  check('the header sentinel is 12px tall at the top of the document',
+    geometry.header?.height === 12 && geometry.header?.top === 0,
+    JSON.stringify(geometry.header && { top: geometry.header.top, height: geometry.header.height }));
+  check('the dock sentinel spans 70% of a screen',
+    Math.abs((geometry.dock?.height ?? 0) - geometry.viewport * 0.7) < 2,
+    `${Math.round(geometry.dock?.height ?? 0)}px of ${geometry.viewport}`);
+
+  const bar = watched.locator('[data-header-bar]');
+  check('the header starts open at the top', !(await bar.getAttribute('data-scrolled')) === true);
+
+  // `instant`: the page sets `scroll-behavior: smooth`, and a smooth jump is
+  // still travelling when the next line runs.
+  await watched.evaluate(() => window.scrollTo({ top: 400, behavior: 'instant' }));
+  await watched.waitForTimeout(250);
+  const scrolledAway = await watched.evaluate(
+    () => document.querySelector('[data-header-sentinel]')?.getBoundingClientRect().top,
+  );
+  check('the sentinel scrolls with the document, not with the fixed header',
+    scrolledAway === -400, `top ${scrolledAway}`);
+  check('the header condenses once past it', (await bar.getAttribute('data-scrolled')) !== null);
+
+  await watched.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await watched.waitForTimeout(250);
+  check('and opens again back at the top', (await bar.getAttribute('data-scrolled')) === null);
+  await watched.close();
+}
+
 // --- Sticky mobile CTA dock ---
 // Below `sm` the header's quote button is hidden, so this dock is the only
 // persistent way to act on a phone. It must answer scrolling, not greet, and

@@ -31,6 +31,11 @@ const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.repl
 const whatsapp = whatsappHref(t.contact.whatsappMessage);
 ---
 
+{/* Same reasoning as the header's — the dock is fixed, so this cannot live
+    inside it. 70svh tall: when it clears the viewport, the reader has scrolled
+    the distance that used to be `scrollY > innerHeight * 0.7`. */}
+<div class="scroll-sentinel scroll-sentinel-dock" data-dock-sentinel aria-hidden="true"></div>
+
 <nav class="sticky-cta" data-sticky-cta aria-label={t.nav.ariaQuick}>
   <a href={contactHref} class="btn btn-primary min-h-11 flex-1 text-sm">
     {t.nav.cta}
@@ -62,6 +67,11 @@ const whatsapp = whatsappHref(t.contact.whatsappMessage);
       .map((selector) => document.querySelector(selector))
       .filter((el): el is Element => el !== null);
     const visibleEnds = new Set<Element>();
+    // The sentinel answers "has the reader scrolled with intent" without any
+    // geometry read — see `.scroll-sentinel` in the stylesheet. Folded into the
+    // observer that was already here rather than given one of its own: same
+    // callback, same frame, one fewer object.
+    const sentinel = document.querySelector('[data-dock-sentinel]');
     let scrolled = false;
 
     const apply = () => {
@@ -71,7 +81,8 @@ const whatsapp = whatsappHref(t.contact.whatsappMessage);
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) visibleEnds.add(entry.target);
+          if (entry.target === sentinel) scrolled = !entry.isIntersecting;
+          else if (entry.isIntersecting) visibleEnds.add(entry.target);
           else visibleEnds.delete(entry.target);
         }
         apply();
@@ -83,12 +94,6 @@ const whatsapp = whatsappHref(t.contact.whatsappMessage);
       { rootMargin: '0px' },
     );
     ends.forEach((el) => observer.observe(el));
-
-    const onScroll = () => {
-      scrolled = window.scrollY > window.innerHeight * 0.7;
-      apply();
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    if (sentinel) observer.observe(sentinel);
   }
 </script>
