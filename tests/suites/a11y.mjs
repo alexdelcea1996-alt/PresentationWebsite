@@ -71,6 +71,123 @@ for (const [label, path] of [
   await page.close();
 }
 
+/**
+ * --- WCAG 2.4.7: the configurator's option cards must show their focus ---
+ *
+ * axe cannot see this one, and that is the whole reason it is here. The cards
+ * wrap an `sr-only` radio or checkbox — the standard way to get a large styled
+ * target with real form semantics. But `sr-only` clips its element with
+ * `clip: rect(0,0,0,0)`, and a clipped element's focus ring is clipped with it,
+ * so the global `:focus-visible` outline fires, paints, and is thrown away. To
+ * axe everything looks perfect: the input is focusable, labelled and reachable.
+ * To a keyboard user, tabbing through the price configurator showed nothing at
+ * all — not which option they were on, not that they had entered the group.
+ *
+ * Three things are asserted, because the first two alone can each be satisfied
+ * by a bug:
+ *   - a ring is drawn on the CARD (not on the clipped input, whose own outline
+ *     is exactly the thing nobody can see);
+ *   - it is the accent colour, not the inherited `currentColor` — a card that
+ *     lost only the colour utility still draws a ring and would pass a
+ *     width-only check;
+ *   - it clears 3:1 against the surface behind it (1.4.11).
+ *
+ * Focus is moved with real Tab presses: `:focus-visible` is allowed not to
+ * match a programmatic `.focus()`, and for checkboxes in Chrome it does not —
+ * which made an earlier version of this check report a working ring as broken.
+ *
+ * The settle before reading is not padding either. The card carries
+ * `transition-colors`, and Tailwind's colour transition list includes
+ * `outline-color`, so an immediate read catches the ring mid-fade and reports
+ * the colour it is coming FROM.
+ */
+{
+  const contrast = (a, b) => {
+    const lum = (rgb) => {
+      const [r, g, bl] = rgb.map((v) => {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+    };
+    const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const parse = (css) => (css.match(/\d+/g) ?? []).slice(0, 3).map(Number);
+
+  for (const theme of ['dark', 'light']) {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
+    await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+
+    const tabTo = async (kind) => {
+      for (let i = 0; i < 320; i += 1) {
+        await page.keyboard.press('Tab');
+        const on = await page.evaluate((k) => {
+          const el = document.activeElement;
+          return k === 'radio'
+            ? el?.getAttribute?.('name') === 'project-type'
+            : (el?.hasAttribute?.('data-feature-input') ?? false);
+        }, kind);
+        if (on) return true;
+      }
+      return false;
+    };
+
+    const ring = async () => {
+      await page.waitForTimeout(700);
+      return page.evaluate(() => {
+        const card = document.activeElement?.closest('label');
+        if (!card) return null;
+        const s = getComputedStyle(card);
+        // What the ring is drawn against: the section behind the card.
+        const behind = getComputedStyle(card.closest('section') ?? document.body).backgroundColor;
+        return {
+          width: parseFloat(s.outlineWidth),
+          style: s.outlineStyle,
+          colour: s.outlineColor,
+          text: s.color,
+          accent: s.getPropertyValue('--color-accent').trim(),
+          behind,
+          pageBg: getComputedStyle(document.body).backgroundColor,
+        };
+      });
+    };
+
+    for (const kind of ['radio', 'checkbox']) {
+      if (kind === 'checkbox') {
+        // Step two is hidden until a project type is chosen and the wizard advances.
+        await page.locator('label:has(input[name="project-type"])').first().click();
+        await page.locator('#estimate [data-action="next"]').click();
+        await page.waitForTimeout(400);
+        await page.evaluate(() => document.activeElement.blur());
+      }
+
+      const reached = await tabTo(kind);
+      check(`${theme}: the configurator ${kind} is reachable by keyboard`, reached);
+      if (!reached) continue;
+
+      const r = await ring();
+      check(`${theme}: focusing the ${kind} draws a ring on the card`,
+        r !== null && r.width >= 2 && r.style !== 'none',
+        `${r?.width}px ${r?.style}`);
+      // Not currentColor: a card that kept the width utility and lost the colour
+      // one still draws a ring, and a width-only check would call that fine.
+      check(`${theme}: the ring is the accent colour, not inherited text colour`,
+        r !== null && r.colour !== r.text,
+        `ring ${r?.colour} vs text ${r?.text} (accent ${r?.accent})`);
+      const behind = parse(r.behind).length === 3 && !/rgba\(0, 0, 0, 0\)/.test(r.behind)
+        ? parse(r.behind)
+        : parse(r.pageBg);
+      const ratio = contrast(parse(r.colour), behind);
+      check(`${theme}: the ring clears 3:1 against what is behind it`,
+        ratio >= 3, `${ratio.toFixed(2)}:1`);
+    }
+
+    await page.close();
+  }
+}
+
 // --- Transferred bytes for a cold visit ---
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const bytes = {};

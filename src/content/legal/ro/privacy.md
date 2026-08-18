@@ -4,7 +4,7 @@ urlSlug: confidentialitate
 title: Politica de confidențialitate
 metaTitle: Politica de confidențialitate | Alex Delcea
 metaDescription: Ce date colectez prin site, unde ajung, cât le țin și cum le ștergi. Fără cookie-uri de urmărire, fără profilare, fără liste de e-mail.
-updatedAt: 2026-08-12
+updatedAt: 2026-08-18
 ---
 
 Pagina asta spune exact ce se întâmplă cu datele tale când folosești site-ul. E scrisă ca
@@ -57,13 +57,18 @@ Dacă nu apeși pe buton, Cal.com nu se încarcă deloc și nu află nimic despr
 **Site-ul nu pune niciun cookie.** Nici de urmărire, nici de statistică, nici funcțional —
 de aceea nu vezi nicio bară care să îți ceară acordul.
 
-Două lucruri se salvează totuși în browserul tău, prin `localStorage`, și **nu pleacă
-niciodată de acolo**:
+Câteva lucruri se salvează totuși în browserul tău și **nu pleacă niciodată de acolo**:
 
 - **tema aleasă** (întunecat sau luminos), ca să nu ți-o resetez la fiecare vizită;
 - **datele din demo-uri** — programările și coșul din paginile de demo. Sunt inventate,
   sunt ale tale și le poți șterge din butonul „Resetează datele demo" de pe fiecare demo,
-  sau golind datele site-ului din browser.
+  sau golind datele site-ului din browser;
+- **rezultatele instrumentului de audit**, dacă el e pornit — ținute doar cât ține fila
+  deschisă (`sessionStorage`), ca să nu cer de două ori aceeași măsurătoare pentru aceeași
+  adresă. Se șterg singure când închizi fila.
+
+Primele două stau în `localStorage`, al treilea în `sessionStorage`. Nici unul nu e cookie
+și niciunul nu se trimite nicăieri — sunt citite doar de pagina care le-a scris.
 
 Cadrul de programare de la Cal.com poate pune propriile cookie-uri, în contextul lor, dar
 numai dacă îl deschizi.
@@ -97,6 +102,35 @@ Site-ul are o bandă unde poți cere un audit rapid al unui site. Când e activ�
 care o scrii tu acolo pleacă spre **Google PageSpeed Insights**, care returnează scorurile.
 Se trimite **doar adresa site-ului analizat** — nicio dată despre tine, fără nume și fără
 e-mail.
+
+## De ce am voie să fac asta
+
+Regulamentul cere să spun nu doar *ce* fac cu datele, ci și **pe ce temei**. Sunt două, și
+niciunul nu e „ți-ai dat acordul printr-o bifă":
+
+- **Pentru formular și pentru programare: pași ceruți de tine înainte de un eventual
+  contract.** Mi-ai scris ca să afli dacă lucrăm împreună; ca să îți răspund, trebuie să
+  citesc ce mi-ai trimis. Dacă nu vrei să fie așa, pur și simplu nu completezi formularul —
+  ai și e-mailul, și telefonul, și WhatsApp-ul, direct.
+- **Pentru găzduire și pentru statisticile agregate: interesul legitim** de a ține site-ul
+  online, în siguranță și de a ști dacă e citit. Aici nu se prelucrează nimic care să te
+  identifice — de asta nu îți cer acordul: nu am ce să îți cer.
+
+Nu iau nicio decizie automată despre tine și nu te încadrez în niciun profil. Nu prelucrez
+intenționat date ale copiilor; site-ul se adresează firmelor.
+
+## Unde ajung datele, geografic
+
+Serviciile de mai sus — Web3Forms, Cal.com, Google PageSpeed Insights și Cloudflare — sunt
+companii din afara Uniunii Europene sau cu infrastructură în afara ei, așa că **datele pot
+fi prelucrate și în afara Spațiului Economic European**, cel mai probabil în Statele Unite.
+
+Sunt onest până la capăt: nu am negociat clauze contractuale cu niciunul dintre ei — sunt
+servicii standard, folosite așa cum le folosește toată lumea. Mă bazez pe garanțiile pe care
+le publică ei (clauze contractuale standard și cadrul de transfer UE–SUA), iar linkurile
+către politicile lor sunt mai sus, la fiecare secțiune. Dacă lucrul ăsta contează pentru
+tine, spune-mi înainte să folosești formularul: îți răspund la fel de bine pe e-mail sau la
+telefon, unde nu intervine niciunul dintre serviciile de mai sus.
 
 ## Drepturile tale
 

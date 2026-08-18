@@ -4,7 +4,7 @@ urlSlug: privacy
 title: Privacy policy
 metaTitle: Privacy policy | Alex Delcea
 metaDescription: What the site collects, where it goes, how long I keep it and how to have it deleted. No tracking cookies, no profiling, no mailing list.
-updatedAt: 2026-08-12
+updatedAt: 2026-08-18
 ---
 
 This page says exactly what happens to your data when you use the site. It is written to
@@ -58,13 +58,18 @@ visit.
 **The site sets no cookies.** Not for tracking, not for statistics, not even functional
 ones — which is why there is no banner asking for your consent.
 
-Two things are saved in your own browser through `localStorage`, and they **never leave
-it**:
+A few things are saved in your own browser, and they **never leave it**:
 
 - **your chosen theme** (dark or light), so it is not reset on every visit;
 - **the demo data** — the bookings and the basket on the demo pages. It is invented, it is
   yours, and you can clear it with the "Reset the demo data" button on each demo, or by
-  clearing site data in your browser.
+  clearing site data in your browser;
+- **the audit tool's results**, if it is switched on — kept only for as long as the tab is
+  open (`sessionStorage`), so the same address is not measured twice. They clear themselves
+  when you close the tab.
+
+The first two live in `localStorage`, the third in `sessionStorage`. None of them is a
+cookie and none is sent anywhere — only the page that wrote them can read them.
 
 The Cal.com booking frame may set its own cookies, in their context, but only if you open
 it.
@@ -96,6 +101,35 @@ security policy does not even permit a connection to Cloudflare for that purpose
 The site has a band where you can ask for a quick audit of a website. When it is switched
 on, the address you type there is sent to **Google PageSpeed Insights**, which returns the
 scores. **Only the address being analysed** is sent — nothing about you, no name, no email.
+
+## Why I am allowed to do this
+
+The Regulation asks me to say not only *what* I do with data but **on what basis**. There
+are two, and neither of them is "you ticked a box":
+
+- **For the form and the booking: steps you asked for before a possible contract.** You
+  wrote to me to find out whether we should work together; to answer, I have to read what
+  you sent. If you would rather it did not work that way, simply do not use the form — the
+  email address, the phone number and WhatsApp are all there, direct.
+- **For hosting and the aggregate statistics: legitimate interest** in keeping the site
+  online, safe, and knowing whether anyone reads it. Nothing processed there identifies
+  you — which is why I do not ask for your consent: there is nothing to ask for.
+
+I make no automated decisions about you and put you in no profile. I do not knowingly
+process children's data; this site addresses businesses.
+
+## Where the data goes, geographically
+
+The services above — Web3Forms, Cal.com, Google PageSpeed Insights and Cloudflare — are
+companies outside the European Union or with infrastructure outside it, so **your data may
+be processed outside the European Economic Area**, most likely in the United States.
+
+Honest all the way: I have negotiated contractual clauses with none of them — they are
+standard services, used the way everyone uses them. I rely on the safeguards they publish
+themselves (standard contractual clauses and the EU–US transfer framework), and the links
+to their policies are above, in each section. If this matters to you, tell me before using
+the form: I answer just as well by email or by phone, where none of those services is
+involved.
 
 ## Your rights
 

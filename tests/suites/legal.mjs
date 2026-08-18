@@ -133,6 +133,57 @@ for (const [label, home, path, other, heading] of [
   await p.close();
 }
 
+/**
+ * --- The three disclosures a policy is legally required to make ---
+ *
+ * Everything above checks that the policy is honest about what the site does.
+ * These check that it is *complete*, which is a different failure: a policy can
+ * describe every processor accurately and still be non-compliant by leaving out
+ * a disclosure the Regulation names.
+ *
+ * All three were missing, and all three are invisible to a reader who is not
+ * looking for them — which is why they sat there through several passes over
+ * this page. Each is asserted in both languages, because a translation is
+ * exactly where a late addition gets dropped.
+ */
+for (const [label, path, needles] of [
+  ['RO', '/confidentialitate/', {
+    // Art. 13(1)(c): the lawful basis, not merely "here is what I do".
+    basis: [/temei/i, /interes(ul)? legitim/i, /înainte de un eventual\s+contract/i],
+    // Art. 13(1)(f): that data can leave the EEA at all.
+    transfer: [/spațiul(ui)? economic european/i, /statele unite/i, /clauze contractuale standard/i],
+    // Accuracy: the browser-storage list must account for the audit cache too.
+    storage: [/sessionStorage/, /localStorage/],
+    // No automated decision-making — cheap to say, required to say.
+    automated: [/nicio decizie automat/i],
+  }],
+  ['EN', '/en/privacy/', {
+    basis: [/on what basis/i, /legitimate interest/i, /before a possible\s+contract/i],
+    transfer: [/european economic area/i, /united states/i, /standard contractual clauses/i],
+    storage: [/sessionStorage/, /localStorage/],
+    automated: [/no automated decisions/i],
+  }],
+]) {
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+  // Read the rendered text, not the source: a section that fails to render is
+  // a section that is not disclosed, however good the Markdown looks.
+  const text = await p.evaluate(() => document.querySelector('main')?.textContent ?? '');
+
+  for (const [topic, patterns] of Object.entries(needles)) {
+    const missing = patterns.filter((re) => !re.test(text));
+    ck(`${label}: the policy states the ${topic}`, missing.length === 0,
+      missing.map(String).join(' '));
+  }
+
+  // The policy promises, in its own last section, that the date at the top moves
+  // when the page changes. A disclosure added under a stale date is a disclosure
+  // a reader has no reason to re-read.
+  const stamped = await p.evaluate(() => document.querySelector('time')?.getAttribute('datetime') ?? '');
+  ck(`${label}: the page carries a machine-readable date`, /^\d{4}-\d{2}-\d{2}/.test(stamped), stamped);
+  await p.close();
+}
+
 // --- Accessibility -----------------------------------------------------------------
 for (const [label, path] of [
   ['RO', '/confidentialitate/'],

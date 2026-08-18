@@ -1,6 +1,6 @@
 # Teste
 
-1125 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1151 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -60,7 +60,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 
 | Suită | Ce verifică | Verificări |
 |---|---|---|
-| `a11y` | axe-core (WCAG 2.1 AA) pe 30 de pagini, temă întunecată, plus greutatea paginii | 42 |
+| `a11y` | axe-core (WCAG 2.1 AA) pe 30 de pagini, temă întunecată, plus greutatea paginii și inelul de focus de pe cardurile configuratorului — pe care axe nu-l poate vedea, fiindcă input-ul e decupat de `sr-only` împreună cu inelul lui | 58 |
 | `a11y-light` | aceleași reguli pe 11 pagini în tema luminoasă | 28 |
 | `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 11 |
 | `interact` | meniu mobil, comutator de limbă, ancore, formularul în pași, ambele căi de trimitere, și starea de scroll fără să citească poziția de scroll (niciun listener de `scroll` pe pagină, santinelele la locul lor) | 53 |
@@ -73,7 +73,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt` (inclusiv expirarea recalculată la fiecare build), niciun hostname scris de mână în `src/` sau `tests/`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 147 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
-| `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer | 42 |
+| `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer, și declară ce cere Regulamentul — temeiul legal, transferul în afara SEE, ce se scrie în browser | 52 |
 | `share-images` | fiecare dintre cele 41 de pagini are propria imagine OG, la dimensiunea declarată, în culorile din foaia de stil | 17 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 91 |

@@ -46,8 +46,25 @@ const configuratorData = {
   },
 };
 
+/**
+ * The option cards. Each wraps an `sr-only` radio or checkbox, which is the
+ * standard way to get a large styled target with real form semantics — the
+ * control stays a control, the card is what you see and click.
+ *
+ * `has-focus-visible:` is not decoration here, it is the whole keyboard
+ * experience. `sr-only` clips its element with `clip: rect(0,0,0,0)`, and a
+ * clipped element's focus ring is clipped away with it — so the global
+ * `:focus-visible` outline in `global.css` fires, paints, and is thrown away.
+ * Without a ring on the card, someone tabbing through the price configurator
+ * sees nothing at all: not which option they are on, not that they have entered
+ * the group. `has-checked:` below covers the *chosen* state and reads as if it
+ * covered focus too, which is exactly why this was missing.
+ *
+ * Verified by pixel diff rather than by eye, in both themes, against a control
+ * that does have a ring — the check is in `tests/suites/a11y.mjs`.
+ */
 const optionCardClass =
-  'group relative flex cursor-pointer flex-col rounded-xl border border-border bg-surface/60 p-4 transition-colors hover:border-accent/50 has-checked:border-accent has-checked:bg-accent/10';
+  'group relative flex cursor-pointer flex-col rounded-xl border border-border bg-surface/60 p-4 transition-colors hover:border-accent/50 has-checked:border-accent has-checked:bg-accent/10 has-focus-visible:outline has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent';
 ---
 
 <section id={sectionIds.estimate} class="relative overflow-hidden py-20 sm:py-28">
