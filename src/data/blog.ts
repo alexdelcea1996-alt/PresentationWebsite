@@ -6,12 +6,24 @@ export type Post = CollectionEntry<'blog'>;
 /** The shared file name that pairs a post with its other-language twin. */
 export const postKey = (entry: Post) => entry.id.split('/').slice(1).join('/');
 
-/** Published posts for a locale, newest first. Drafts never leave the editor. */
+/**
+ * Published posts for a locale, newest first. Drafts never leave the editor.
+ *
+ * Ties break on the file name, which is the name both translations share. Ten
+ * articles published on the same day is an ordinary thing to do, and without
+ * the tie-break their order would be whatever the content loader happened to
+ * return — free to differ between the two languages, and free to change under
+ * a dependency upgrade, which would quietly reshuffle both feeds.
+ */
 export async function getPosts(locale: Locale): Promise<Post[]> {
   const all = await getCollection('blog');
   return all
     .filter((entry) => entry.id.startsWith(`${locale}/`) && !entry.data.draft)
-    .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+    .sort(
+      (a, b) =>
+        b.data.publishedAt.getTime() - a.data.publishedAt.getTime() ||
+        postKey(a).localeCompare(postKey(b)),
+    );
 }
 
 /**

@@ -104,8 +104,25 @@ ck('and none of them compresses badly',
 // trade this file exists to police. The previous raw ceiling was cleared by
 // 305 bytes, which is not a budget, it is a coincidence; both numbers are set
 // with room now and will be pulled back down if it turns out not to be spent.
-const stylesheets = pick((name) => name.endsWith('.css'));
+/*
+  `/rss.css` is not the site's stylesheet and is not counted as one.
+
+  It styles the page a browser shows when somebody opens the feed address —
+  a document produced by an XSLT transform, which cannot be handed the
+  content-hashed name of the real bundle and would not want the whole design
+  system for a heading and a list. It is held to its own ceiling instead, right
+  below, so "not counted" cannot quietly become "not watched".
+*/
+const stylesheets = pick((name) => name.endsWith('.css') && name !== '/rss.css');
 ck('the site ships one stylesheet', stylesheets.length === 1, `${stylesheets.length}`);
+
+// Today: 2.5 kB raw. Small enough that it stays a signpost rather than becoming
+// a second design system nobody remembers to update.
+const feedStyles = pick((name) => name === '/rss.css');
+ck('the feed viewer brings its own, and it stays small',
+  feedStyles.length === 1 && (await readFile(feedStyles[0])).length <= 4 * KB,
+  feedStyles.length ? kb((await readFile(feedStyles[0])).length) : 'missing');
+
 const css = await readFile(stylesheets[0]);
 ck('the stylesheet compresses under budget', brotli(css) <= 13 * KB, `${kb(brotli(css))} brotli`);
 ck('and stays under budget uncompressed', css.length <= 76 * KB, `${kb(css.length)} raw`);

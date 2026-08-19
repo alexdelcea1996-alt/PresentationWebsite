@@ -182,6 +182,8 @@ for (const [label, home, priceLabel, services] of [
     ['EN landing vs website', '/en/blog/landing-page-or-business-website/'],
     ['RO store costs', '/blog/cat-costa-un-magazin-online/'],
     ['EN store costs', '/en/blog/how-much-does-an-online-store-cost/'],
+    ['RO website costs', '/blog/cat-costa-un-site-de-prezentare/'],
+    ['EN website costs', '/en/blog/how-much-does-a-business-website-cost/'],
   ]) {
     const a = await b.newPage(VIEWPORT);
     const res = await a.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });

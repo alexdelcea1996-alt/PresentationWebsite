@@ -1,0 +1,184 @@
+/*
+  The feed viewer's own stylesheet.
+
+  Deliberately not the site's. That one is content-hashed — its file name
+  changes on every build that touches a style — and an XSLT stylesheet cannot
+  be told the new name. It also carries the whole design system for a page that
+  needs a heading, a list and a box.
+
+  System fonts for the same reason: the site's faces are subsetted and hashed
+  too. This page is a signpost, not a piece of the design, and the palette is
+  what carries the identity here.
+
+  Theme follows the operating system rather than the site's toggle. The toggle
+  writes to localStorage and is applied by a script; this document is generated
+  by an XSLT transform and runs no script at all, which is the point of it.
+*/
+
+:root {
+  color-scheme: dark light;
+
+  --surface: #0b0f1a;
+  --raised: #0f1420;
+  --border: #1c2436;
+  --fg: #f1f5f9;
+  --muted: #9aa8be;
+  --accent: #8370fe;
+  --accent-alt: #56deb2;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --surface: #f7f3ea;
+    --raised: #fdfbf6;
+    --border: #e2d9c8;
+    --fg: #1c1814;
+    --muted: #524a3f;
+    --accent: #5b3fd0;
+    --accent-alt: #0a6b50;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.head {
+  margin-bottom: 2rem;
+}
+
+.mark {
+  display: inline-block;
+  line-height: 0;
+}
+
+.mark img {
+  border-radius: 8px;
+}
+
+h1 {
+  margin: 1rem 0 0;
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+}
+
+.note {
+  margin: 0 0 2.5rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--raised);
+}
+
+.note p {
+  margin: 0 0 0.75rem;
+}
+
+.note-title {
+  font-weight: 600;
+}
+
+.feed-url code {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--accent-alt);
+  font-size: 0.9rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.meta {
+  margin: 0 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.cat {
+  color: var(--accent-alt);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.item h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.item h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.item h2 a:hover {
+  color: var(--accent);
+}
+
+.summary {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+}
+
+.back {
+  margin: 2.5rem 0 0;
+  font-size: 0.85rem;
+}
+
+.back a {
+  color: var(--muted);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+

@@ -48,6 +48,7 @@ const types = {
   '.webp': 'image/webp',
   '.avif': 'image/avif',
   '.xml': 'application/xml',
+  '.xsl': 'application/xslt+xml',
   '.json': 'application/json',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain',

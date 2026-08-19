@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { launch, BASE, axePath, runAxe, settleAnimations, PRODUCTION_URL, PRODUCTION_HOST } from '../harness.mjs';
@@ -632,6 +632,153 @@ await settleAnimations(a);
 const axeResult = await runAxe(a);
 ck('the 404 page is axe-clean', axeResult.violations.length === 0,
   axeResult.violations.map((v) => v.id).join(', '));
+
+// --- Every link in every article goes somewhere -------------------------------
+/*
+  `offers.mjs` already walks the links in the articles that quote prices, one
+  page at a time through a browser. That was fine for four articles and is the
+  wrong shape for fourteen: naming each one by hand means the article somebody
+  adds next month is the one nobody checks.
+
+  This reads the built files instead. A dead internal link in a published
+  article is a reader lost at exactly the moment they wanted more, and markdown
+  offers no compile-time warning whatsoever — the address is just text until
+  somebody clicks it.
+*/
+{
+  // `walk` above is scoped to its own block; this one is ours.
+  const pages = (dir) =>
+    readdirSync(join(dist, dir), { withFileTypes: true }).flatMap((entry) => {
+      const rel = dir ? `${dir}/${entry.name}` : entry.name;
+      return entry.isDirectory() ? pages(rel) : [rel];
+    });
+
+  const articles = pages('').filter((rel) => /^(en\/)?blog\/[^/]+\/index\.html$/.test(rel));
+  ck('there are articles to check', articles.length >= 20, `${articles.length}`);
+
+  const dead = [];
+  let checked = 0;
+  for (const rel of articles) {
+    const html = readFileSync(join(dist, rel), 'utf8');
+    const body = html.slice(html.indexOf('<article'), html.indexOf('</article>'));
+    for (const [, href] of body.matchAll(/href="(\/[^"]*)"/g)) {
+      checked += 1;
+      // The CTAs carry an origin: "/?via=blog#contact" is the home page. Cut the
+      // query and the fragment before looking for a file, or every article
+      // reports its own call to action as a dead link.
+      const path = href.split(/[?#]/)[0] || '/';
+      // "/blog/x/" -> dist/blog/x/index.html; "/rss.xml" -> dist/rss.xml
+      const target = path.endsWith('/') ? join(dist, path, 'index.html') : join(dist, path);
+      if (!existsSync(target)) dead.push(`${rel.replace(/index\.html$/, '')} -> ${href}`);
+    }
+  }
+  ck('every internal link in every article resolves to a real page',
+    dead.length === 0, dead.join(', ') || `${checked} link(s) checked`);
+
+  /*
+    Each article has to lead somewhere. An article that informs and then dead-ends
+    is a page that did its job for the reader and none of its job for the site
+    that paid to write it — and the whole point of writing these is that somebody
+    reaches the end of one and knows where to go next.
+  */
+  const stranded = articles.filter((rel) => {
+    const html = readFileSync(join(dist, rel), 'utf8');
+    const body = html.slice(html.indexOf('<article'), html.indexOf('</article>'));
+    return [...body.matchAll(/href="(\/[^"]*)"/g)].length < 2;
+  });
+  ck('no article leaves the reader at a dead end',
+    stranded.length === 0, stranded.join(', '));
+}
+
+// --- The feed is readable by people too --------------------------------------
+/*
+  An RSS feed opened in a browser prints its own source. That is correct — a
+  feed is written for software — and it reads exactly like a broken page, which
+  matters because the link that leads here says "Subscribe via RSS" and sits on
+  a blog read by people who do not run feed readers.
+
+  `public/rss.xsl` transforms it into a page. Nothing throws if it stops being
+  applied: the feed keeps working, the browser goes back to printing source, and
+  the only symptom is a visitor who thinks the site is broken. Hence the checks.
+*/
+{
+  const xslSource = readFileSync(join(dist, 'rss.xsl'), 'utf8');
+  const headers = readFileSync(join(dist, '_headers'), 'utf8');
+
+  ck('the feed viewer ships', xslSource.includes('<xsl:stylesheet'));
+  // Served as a byte stream, a stylesheet is one `nosniff` tells the browser to
+  // refuse — and the feed silently prints as source again.
+  ck('and is declared as XSLT, which nosniff requires',
+    /\/rss\.xsl\n\s*Content-Type: application\/xslt\+xml/.test(headers));
+  /*
+    Every asset the viewer pulls must be root-relative. The first build derived
+    them from the feed's own <link>, which is the canonical address rather than
+    the address being served — correct-looking, and refused by CSP on every host
+    but production, where nobody would have seen it until it was live.
+  */
+  const absolute = [...xslSource.matchAll(/(?:href|src)="(https?:[^"]*)"/g)].map((m) => m[1]);
+  ck('and pulls nothing from an absolute address', absolute.length === 0, absolute.join(' '));
+
+  for (const [label, path, locale] of [['ro', '/rss.xml', 'ro'], ['en', '/en/rss.xml', 'en']]) {
+    const raw = readFileSync(join(dist, path.replace(/^\//, '')), 'utf8');
+    ck(`${label}: the feed points at the viewer`,
+      raw.includes('<?xml-stylesheet href="/rss.xsl"'), raw.slice(0, 120));
+
+    const page = await b.newPage({ viewport: { width: 1100, height: 900 } });
+    const noise = [];
+    page.on('pageerror', (error) => noise.push(error.message));
+    page.on('console', (message) => { if (message.type() === 'error') noise.push(message.text()); });
+    await page.goto(`${BASE}${path}`, { waitUntil: 'load' });
+
+    // If the transform did not run, the document is the XML tree and there is
+    // no <h1> anywhere in it.
+    ck(`${label}: a browser is shown a page, not the source`,
+      (await page.locator('h1').count()) === 1);
+    ck(`${label}: nothing on it is refused by the CSP`, noise.length === 0, noise.join(' | '));
+
+    /*
+      Read, never await-and-hope.
+
+      The first version of these checks called `.innerText()` straight on the
+      locator. With the transform switched off there is no such element, the
+      call sat there for its full thirty seconds and then threw — and because
+      results are printed at the end, the crash took every check above it down
+      with it. A suite that dies is counted as a failure, but it names nothing,
+      and naming what broke is most of the job.
+    */
+    const text = async (selector) =>
+      (await page.locator(selector).first().innerText({ timeout: 2000 }).catch(() => '')).trim();
+
+    const rendered = await page.locator('.item').count();
+    const inFeed = (raw.match(/<item>/g) ?? []).length;
+    ck(`${label}: every article in the feed is on the page`,
+      rendered === inFeed && rendered > 0, `${rendered} shown, ${inFeed} in the feed`);
+
+    // The address in the box is the one somebody pastes into a reader, so it is
+    // the only absolute URL here — and it has to be this feed, not the other.
+    const shown = await text('.feed-url code');
+    ck(`${label}: the address it offers is this feed's own`,
+      shown.endsWith(path) && shown.startsWith('http'), shown || 'nothing shown');
+
+    // One file serves both languages, switching on the feed's own <language>.
+    const month = await text('.item .meta');
+    ck(`${label}: the dates are written in the feed's language`,
+      locale === 'en' ? /[A-Z][a-z]{2} \d{4}/.test(month) : /(ian|feb|mar|apr|mai|iun|iul|aug|sept|oct|nov|dec)\.? \d{4}/.test(month),
+      month || 'no dates found');
+
+    const first = await page.locator('.item h2 a').first()
+      .getAttribute('href', { timeout: 2000 }).catch(() => null);
+    ck(`${label}: the titles link to the articles themselves`,
+      Boolean(first) && first.includes(locale === 'en' ? '/en/blog/' : '/blog/'), first ?? 'no links');
+
+    await page.close();
+  }
+
+  const styles = await fetch(`${BASE}/rss.css`);
+  ck('the viewer\'s stylesheet is served as CSS',
+    styles.status === 200 && (styles.headers.get('content-type') ?? '').startsWith('text/css'),
+    `${styles.status} ${styles.headers.get('content-type')}`);
+}
 
 console.log(R.join('\n'));
 await b.close();

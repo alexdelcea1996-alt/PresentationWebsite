@@ -12,6 +12,15 @@ export async function buildFeed(locale: Locale, context: { site?: URL | undefine
   const posts = await getPosts(locale);
 
   return rss({
+    /*
+      What a browser does with a feed address.
+
+      Without this line it prints the source, which is correct behaviour and
+      reads exactly like a broken page — and the link that leads here is a link
+      a person clicks. `public/rss.xsl` turns the same bytes into something
+      readable; feed readers ignore the declaration entirely.
+    */
+    stylesheet: '/rss.xsl',
     title: `${site.name} — ${t.blog.eyebrow}`,
     description: t.blog.metaDescription,
     site: context.site ?? '',
