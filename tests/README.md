@@ -1,6 +1,6 @@
 # Teste
 
-1183 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1245 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -70,7 +70,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `theme` | light/dark, persistență, fără flash la încărcare | 15 |
 | `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
-| `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |
+| `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; că pagina care pleacă e chiar decupată în forma mărcii — citită din stilul calculat al pseudo-elementului și din pixelii de la mijlocul ecranului, în ambele teme; plus că hero-ul nu pornește ascuns | 35 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt` (inclusiv expirarea recalculată la fiecare build), niciun hostname scris de mână în `src/` sau `tests/`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine" | 147 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer, și declară ce cere Regulamentul — temeiul legal, transferul în afara SEE, ce se scrie în browser | 52 |
@@ -83,6 +83,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
 | `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării și ștampilele numesc verificări care chiar există | 44 |
+| `motion` | cele două mișcări mici: titlul se culege o singură dată și nu mișcă nimic din layout (CLS 0), virgula nu ajunge niciodată la început de rând, cifrele din banda de măsurători se întorc doar când au și valoare și sunt și pe ecran — iar sub reduced-motion niciuna nu e prinsă vreodată în poziția de start | 40 |
 | `blueprint` | modul planșă: e oprit până îl ceri, cifrele din panou sunt cele pe care le raportează browserul (nu constante), fiecare secțiune e etichetată cu dimensiunea ei reală, închiderea nu lasă nimic în urmă, și nu apare pe paginile care nu l-au cerut | 29 |
 | `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 55 |
 | `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 29 |

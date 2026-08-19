@@ -59,7 +59,10 @@ const metrics = [
       {/* Subgrid keeps every label on one row and every value on the next, so a
           label that wraps on a narrow screen cannot knock the numbers out of
           line with each other. */}
-      <dl class="grid grid-cols-3 grid-rows-[auto_auto] gap-x-4 gap-y-2 sm:gap-x-10 lg:ml-auto">
+      <dl
+        class="grid grid-cols-3 grid-rows-[auto_auto] gap-x-4 gap-y-2 sm:gap-x-10 lg:ml-auto"
+        data-stagger
+      >
         {
           metrics.map((metric) => (
             <div class="row-span-2 grid min-w-0 grid-rows-subgrid">

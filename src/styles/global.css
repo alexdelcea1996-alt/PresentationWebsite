@@ -439,10 +439,137 @@
       navigation: auto;
     }
 
+    /*
+      Leaving happens through the mark.
+
+      The default is a cross-fade, and a cross-fade is what every site with
+      transitions turned on looks like. Here the outgoing page is cut open in
+      the shape of the same eight-ray spark the favicon, the section labels and
+      the constellation are drawn from — the mark opens, light comes through
+      it, and the new page arrives inside the opening.
+
+      The first attempt did the obvious thing and masked the INCOMING page into
+      a spark. It reads as almost nothing: both pages are the same near-black,
+      so a hole in one showing the other is only visible where their text
+      happens to differ, and what you see is not a mark, it is a paragraph
+      being eaten. Cutting the hole in the OUTGOING page instead means the
+      shape can be filled with something of its own — the glow below, on the
+      image pair, which sits behind both snapshots — and the mark becomes an
+      object rather than an absence.
+
+      The hole is three mask layers. Read bottom-up, which is the order the
+      compositing actually happens in:
+
+        3. an ellipse, sized in percentages of the snapshot so it carries the
+           viewport's own aspect ratio on every device;
+        2. the spark, unioned with it (`add`);
+        1. a solid layer with `subtract`, which inverts the whole thing:
+           everything EXCEPT the shape below.
+
+      The ellipse is not decoration either — built without it and watched at
+      half speed, the second half of the transition is two pages read at once.
+      The spark's rays cross at the centre but the gaps between them widen with
+      radius, so a spark on its own leaves the outgoing page legible everywhere
+      between its arms, and the incoming page then fades in on top of that
+      rather than onto light. The ellipse takes the old page away in time for
+      the new one to arrive on a clean field. 141% of the snapshot exactly
+      reaches its corners and the ellipse's opaque core stops at 82% of its
+      radius, so 200% is the first round number that clears a phone and a
+      monitor alike.
+
+      Sizes stay bounded on purpose. An SVG mask is rasterised at the size it
+      is drawn at, and the naive version of this — one spark scaled to 900% —
+      asks the compositor for an eleven-thousand-pixel texture every frame.
+
+      In a browser that does not know `mask-composite`, every layer composites
+      with the default `add`, the union covers the whole snapshot, and the
+      outgoing page is simply never cut: what is left is the new page fading
+      in. The effect degrades to the transition this site already had.
+    */
+    @keyframes spark-part {
+      0% {
+        mask-size:
+          100% 100%,
+          0% 0%,
+          0% 0%;
+      }
+
+      /* Held near this size for a beat — long enough to be read as the mark
+         rather than as a flash of something star-shaped. */
+      30% {
+        mask-size:
+          100% 100%,
+          72% 72%,
+          0% 0%;
+        animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1);
+      }
+
+      100% {
+        mask-size:
+          100% 100%,
+          210% 210%,
+          200% 200%;
+      }
+    }
+
+    /* The new page waits until the mark has opened, then fills it. */
+    @keyframes page-arrive {
+      0%,
+      42% {
+        opacity: 0;
+      }
+
+      92% {
+        opacity: 1;
+      }
+    }
+
     ::view-transition-old(root),
     ::view-transition-new(root) {
-      animation-duration: 220ms;
+      /*
+        The UA stylesheet blends the two snapshots with `plus-lighter`, which is
+        the correct choice for a cross-fade — two half-opaque copies of the same
+        pixel add back up to it — and the wrong one here. The outgoing page
+        stays fully opaque around the opening while the incoming one is painted
+        over it, so additive blending would burn every overlap white.
+      */
+      mix-blend-mode: normal;
+      animation-duration: 420ms;
       animation-timing-function: var(--ease-out-soft);
+    }
+
+    /*
+      What shows through the opening.
+
+      The image pair sits behind both snapshots, so a background on it is only
+      ever visible where the outgoing page has been cut away — which means this
+      costs one flat paint and no animation at all.
+    */
+    ::view-transition-image-pair(root) {
+      background-color: color-mix(in oklab, var(--color-accent) 10%, var(--color-surface-deep));
+      background-image: radial-gradient(
+        ellipse 78% 68% at 50% 44%,
+        color-mix(in oklab, var(--color-accent) 85%, transparent),
+        color-mix(in oklab, var(--color-accent) 34%, transparent) 46%,
+        transparent 82%
+      );
+    }
+
+    ::view-transition-old(root) {
+      mask-image:
+        linear-gradient(#000 0 0),
+        var(--spark),
+        radial-gradient(ellipse closest-side, #000 82%, transparent 100%);
+      mask-composite: subtract, add, add;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      animation-name: spark-part;
+      animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1);
+    }
+
+    ::view-transition-new(root) {
+      animation-name: page-arrive;
+      animation-timing-function: linear;
     }
 
     /* The header is identical on every page, so giving it its own name lifts it
@@ -804,6 +931,97 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /*
+    The headline sets itself, once, on load.
+
+    A compositor drops sorts into a chase one at a time and the line settles;
+    that is the whole gesture, and it is 26ms apart per word so the eye reads
+    it as one movement rather than ten. It only ever writes `transform`: the
+    words never fade, never blur and never change size, because the h1 is the
+    LCP element and every one of those tricks either delays the paint that
+    Lighthouse measures or hides the biggest text on the page behind a frame
+    that might not come.
+
+    The delay lives in a custom property rather than an inline `style` because
+    a `style` attribute is dropped outright by this site's CSP. Eleven rules
+    look wasteful next to one `attr()` — which is Chromium-only for anything
+    but `content` — and brotli reduces the lot to a rounding error.
+  */
+  @keyframes type-set {
+    from {
+      transform: translateY(0.16em);
+    }
+  }
+
+  .type-set > span {
+    display: inline-block;
+    animation: type-set 300ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--sort, 0) * 26ms);
+  }
+
+  /*
+    The stagger ladder, written once and used twice.
+
+    A CSP without `unsafe-inline` drops `style` attributes, so the index of a
+    thing among its siblings cannot be handed to CSS the usual way — and
+    `attr()` outside `content` is Chromium-only. Eleven rules is what is left,
+    and they are worth naming rather than duplicating: the headline steps
+    through them at 26ms and the measurement figures at 90ms, from one ladder.
+  */
+  [data-stagger] > *:nth-child(2) {
+    --sort: 1;
+  }
+
+  [data-stagger] > *:nth-child(3) {
+    --sort: 2;
+  }
+
+  [data-stagger] > *:nth-child(4) {
+    --sort: 3;
+  }
+
+  [data-stagger] > *:nth-child(5) {
+    --sort: 4;
+  }
+
+  [data-stagger] > *:nth-child(6) {
+    --sort: 5;
+  }
+
+  [data-stagger] > *:nth-child(7) {
+    --sort: 6;
+  }
+
+  [data-stagger] > *:nth-child(8) {
+    --sort: 7;
+  }
+
+  [data-stagger] > *:nth-child(9) {
+    --sort: 8;
+  }
+
+  [data-stagger] > *:nth-child(10) {
+    --sort: 9;
+  }
+
+  /* A longer translation than either locale has today lands here rather than
+     drifting on past a second of stagger. */
+  [data-stagger] > *:nth-child(n + 11) {
+    --sort: 10;
+  }
+
+  /*
+    Reduced motion needs the whole declaration gone, not a shorter one. The
+    blanket rule further up crushes `animation-duration` to nothing but says
+    nothing about delay, which would leave the last word sitting a sixth of a
+    line low for a quarter of a second and then jumping.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .type-set > span {
+      animation: none;
+    }
   }
 
   /*
@@ -1215,6 +1433,52 @@
     letter-spacing: -0.01em;
     min-width: 4ch;
     color: var(--color-fg);
+  }
+
+  /*
+    Each figure turns over as it lands, like a mechanical board.
+
+    Two things have to be true before it runs, and the selector says both: the
+    band has finished measuring (`data-ready`, set by the script below the
+    band) and the row has been scrolled into view (`is-visible`, from the one
+    reveal observer the page already runs). Either alone is wrong — a figure
+    that turns while it still reads "—" animates a placeholder, and one that
+    turns on measurement alone has done it below the fold where nobody is. A
+    CSS animation starts when the element starts matching the rule, so whichever
+    of the two arrives second is the trigger, and neither order needs code.
+
+    Deliberately NOT driven by a registered custom property. `@property` would
+    let one `<number>` feed the angle and something else besides, but animating
+    a custom property runs on the main thread — style recalculation every frame
+    — where this transform is handed to the compositor and costs nothing. The
+    mechanism that reads better in a blog post is the slower one here.
+  */
+  @keyframes metric-set {
+    from {
+      transform: perspective(28rem) rotateX(-78deg);
+    }
+  }
+
+  [data-live-metrics][data-ready] [data-reveal].is-visible .metric-figure {
+    transform-origin: 50% 12%;
+    animation: metric-set 460ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--sort, 0) * 90ms);
+  }
+
+  /*
+    Same trap as the headline, and worse here.
+
+    The blanket reduced-motion rule crushes the duration and leaves the delay
+    alone, so the second and third figures would fill the `from` state — lying
+    on their side, unreadable — for 90 and 180 milliseconds before snapping
+    upright. A figure this page describes as its own evidence must not be
+    unreadable for a fifth of a second on the setting that exists to stop
+    exactly that.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    [data-live-metrics][data-ready] [data-reveal].is-visible .metric-figure {
+      animation: none;
+    }
   }
 
   /*

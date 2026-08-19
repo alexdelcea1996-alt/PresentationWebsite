@@ -1,7 +1,14 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 import { launch, BASE } from '../harness.mjs';
+
+/** Mean R, G, B of a PNG buffer — the site's own dependency, no new one. */
+const mean = async (png) => {
+  const { channels } = await sharp(png).stats();
+  return channels.slice(0, 3).map((channel) => channel.mean);
+};
 
 const distCss = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist', '_astro');
 
@@ -38,6 +45,69 @@ ck('@view-transition survives minification', sheet.includes('@view-transition'))
 ck('the transition is gated on prefers-reduced-motion',
   /prefers-reduced-motion:\s*no-preference/.test(sheet));
 ck('the header is named so it does not cross-fade', sheet.includes('view-transition-name:site-header'));
+
+// --- The aperture ----------------------------------------------------------
+// The outgoing page is cut open in the shape of the site's own mark and the
+// light behind it shows through the hole. Everything about that is declarative,
+// which means every part of it can be deleted without anything throwing.
+
+/** The body of the first at-rule block whose header matches, braces balanced. */
+const blockAfter = (text, needle) => {
+  const at = text.indexOf(needle);
+  if (at < 0) return '';
+  let depth = 0;
+  for (let i = at; i < text.length; i += 1) {
+    if (text[i] === '{') depth += 1;
+    else if (text[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(at, i + 1);
+    }
+  }
+  return '';
+};
+
+const calmGate = blockAfter(sheet, '@media (prefers-reduced-motion:no-preference)');
+ck('the reduced-motion gate is a real block, not a stray string', calmGate.length > 400,
+  `${calmGate.length} chars`);
+ck('the aperture lives inside that gate', calmGate.includes('@keyframes spark-part'));
+
+const cutRule = blockAfter(sheet, '::view-transition-old(root){');
+ck('the hole is cut into the OUTGOING page', /mask-image:/.test(cutRule));
+ck('and it is cut with the site mark itself, not a copy of it',
+  cutRule.includes('var(--spark)'), cutRule.slice(0, 160));
+ck('the mark is subtracted, not added — otherwise there is no hole',
+  /mask-composite:\s*subtract/.test(cutRule) || /-webkit-mask-composite:\s*source-out/.test(cutRule),
+  cutRule.slice(0, 200));
+ck('the ellipse that finishes the reveal ships too',
+  /radial-gradient\(ellipse closest-side/.test(cutRule));
+
+// A spark scaled to 900% asks the compositor for an eleven-thousand-pixel
+// texture on every frame. The ellipse is what makes the reveal finish, and it
+// is cheap; the bound below is the note in the stylesheet, enforced.
+const spark = blockAfter(sheet, '@keyframes spark-part');
+const sizes = [...spark.matchAll(/(\d+)%(?=[\s,;}])/g)].map((m) => Number(m[1]));
+ck('no mask layer is ever scaled past the bound the comment sets',
+  sizes.length > 0 && Math.max(...sizes) <= 400, `largest ${Math.max(...sizes)}%`);
+
+// The other end of the same bound. A declared-but-never-grown ellipse is the
+// failure that hides best: the spark still opens, the mark is still visible in
+// the middle of the screen, and every other check here still passes — while
+// the outgoing page never clears and the second half of the transition is two
+// pages read at once. 141% of the snapshot reaches its corners and the opaque
+// core stops at 82% of that, so anything under 172% leaves some of the old
+// page standing.
+const lastFrame = [...spark.matchAll(/mask-size:([^};]+)/g)].at(-1)?.[1] ?? '';
+const layers = lastFrame.split(',').map((layer) => Number.parseFloat(layer));
+ck('the aperture ends with three mask layers, as written', layers.length === 3, lastFrame);
+ck('and the ellipse ends wide enough to have cleared the outgoing page',
+  layers[2] >= 172, `${layers[2]}%`);
+ck('and the spark itself ends wider than it was held at',
+  layers[1] > 72, `${layers[1]}%`);
+
+ck('the light behind the opening is painted on the image pair',
+  /::view-transition-image-pair\(root\)\{[^}]*background/.test(sheet));
+ck('the snapshots do not blend additively over each other',
+  /::view-transition-old\(root\),::view-transition-new\(root\)\{[^}]*mix-blend-mode:normal/.test(sheet));
 
 // --- A real navigation runs a real transition ------------------------------
 const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
@@ -157,6 +227,67 @@ ck('reduced motion gets a plain navigation, no transition',
   quiet.fired && quiet.transition === false, JSON.stringify(quiet));
 ck('reduced motion still lands on the right page', calm.url().endsWith('/blog/'), calm.url());
 await calm.close();
+
+// --- The aperture is real, on the page, in both themes ----------------------
+// Everything above reads the stylesheet. A stylesheet can be perfect and the
+// effect still absent — a browser that quietly ignores `mask-composite` on a
+// view-transition pseudo would leave the outgoing page whole and nothing would
+// report it. So: read what the pseudo-elements actually computed to, and then
+// look at the pixels.
+for (const theme of ['dark', 'light']) {
+  const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await ctx.newPage();
+  await page.addInitScript((wanted) => {
+    try { localStorage.setItem('theme', wanted); } catch {}
+    window.__pseudo = null;
+    window.addEventListener('pagereveal', () => {
+      const cut = getComputedStyle(document.documentElement, '::view-transition-old(root)');
+      const pair = getComputedStyle(document.documentElement, '::view-transition-image-pair(root)');
+      window.__pseudo = {
+        mask: cut.maskImage,
+        composite: cut.maskComposite,
+        animation: cut.animationName,
+        light: pair.backgroundImage,
+      };
+    });
+  }, theme);
+
+  // The animation clock is slowed rather than raced: at full speed the sample
+  // below would be deciding whether it caught 130ms or 260ms of a 420ms move.
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.06 });
+
+  await page.goto(`${BASE}/`, { waitUntil: 'load' });
+  await page.waitForTimeout(600);
+  const patch = { x: 620, y: 380, width: 40, height: 40 };
+  const before = await mean(await page.screenshot({ clip: patch }));
+
+  await page.locator('header nav a[href$="/blog/"]').first().click();
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(2200); // ~130ms of animation: the mark at full size
+  const during = await mean(await page.screenshot({ clip: patch }));
+
+  const pseudo = await page.evaluate(() => window.__pseudo);
+  ck(`${theme}: the outgoing snapshot really is masked`,
+    Boolean(pseudo) && pseudo.mask.includes('data:image/svg+xml'), JSON.stringify(pseudo?.mask?.slice(0, 40)));
+  ck(`${theme}: and the browser really did subtract it`,
+    pseudo?.composite?.startsWith('subtract'), pseudo?.composite);
+  ck(`${theme}: the aperture keyframes are the ones running`,
+    pseudo?.animation === 'spark-part', pseudo?.animation);
+  ck(`${theme}: there is light behind the opening`,
+    Boolean(pseudo?.light) && pseudo.light !== 'none', pseudo?.light?.slice(0, 30));
+
+  // The middle of the screen is inside the mark at this point. Whatever it
+  // looked like a moment ago, it does not look like that now — measured
+  // against the page itself rather than a hard-coded colour, so the check
+  // holds in both themes and survives the palette moving again.
+  const shift = Math.max(...before.map((channel, i) => Math.abs(channel - during[i])));
+  ck(`${theme}: the mark is visible in the middle of the screen mid-transition`,
+    shift > 24, `channels ${before.map(Math.round)} -> ${during.map(Math.round)}`);
+
+  await ctx.close();
+}
 
 console.log(R.join('\n'));
 await b.close();

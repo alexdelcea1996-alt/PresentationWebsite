@@ -19,6 +19,41 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale).hero;
+
+/**
+ * The headline, broken into the pieces that settle into place on load.
+ *
+ * Each piece gets its own box so it can be moved without moving anything else,
+ * which is the whole reason the animation is a `transform`: a transform takes
+ * no part in layout, so a headline that arrives a sixth of a line low is not a
+ * layout shift, and the CLS this site publishes on its own colophon stays at
+ * zero. Nothing here ever animates opacity — the largest text on the page is
+ * the LCP element, and starting it invisible is how the hero lost a Lighthouse
+ * point once already.
+ *
+ * The accent phrase stays whole. Split into words it would be two gradients
+ * instead of one, each restarting the purple-to-jade ramp, and the phrase is
+ * short enough that keeping it unbreakable costs no line break at any width
+ * the site is built for.
+ *
+ * A piece that opens with punctuation is not a piece of its own. Two adjacent
+ * inline-blocks are a line-break opportunity even with no space between them,
+ * and the first thing this did once built was put the comma after "clienți" at
+ * the start of the next line. Punctuation joins the sort in front of it, which
+ * also makes that sort unbreakable — the reason the accent keeps its own inner
+ * span rather than simply absorbing the comma into the gradient.
+ */
+const pieces = [
+  ...t.titleLead.trim().split(/\s+/).map((text) => ({ text, accent: false })),
+  { text: t.titleAccent, accent: true },
+  ...t.titleTail.trim().split(/\s+/).map((text) => ({ text, accent: false })),
+].filter((piece) => piece.text);
+
+const sorts: (typeof pieces)[] = [];
+for (const piece of pieces) {
+  if (sorts.length > 0 && /^[,.;:!?…]/.test(piece.text)) sorts[sorts.length - 1].push(piece);
+  else sorts.push([piece]);
+}
 ---
 
 <section class="relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28" data-hero>
@@ -79,10 +114,12 @@ const t = getContent(locale).hero;
         {t.badge}
       </p>
 
-      <h1 class="mt-7 text-4xl font-semibold leading-[1.08] sm:text-5xl md:text-6xl lg:text-[4.25rem]">
-        {t.titleLead}{' '}
-        <span class="text-gradient">{t.titleAccent}</span>{t.titleTail}
-      </h1>
+      {/* One line on purpose: a newline between these expressions would be a
+          text node, and the headline would gain spaces it never had. */}
+      <h1
+        class="type-set mt-7 text-4xl font-semibold leading-[1.08] sm:text-5xl md:text-6xl lg:text-[4.25rem]"
+        data-stagger
+      >{sorts.map((sort, index) => (<Fragment>{index === 0 ? '' : ' '}<span>{sort.map((piece) => (piece.accent ? <span class="text-gradient">{piece.text}</span> : piece.text))}</span></Fragment>))}</h1>
 
       <p class="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg">
         {t.subtitle}

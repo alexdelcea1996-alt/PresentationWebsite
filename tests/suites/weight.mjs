@@ -95,19 +95,20 @@ ck('and none of them compresses badly',
 // Still one stylesheet for the whole site, shared across every page. The example
 // sites bring their own, but it is small enough that Astro inlines it into those
 // pages rather than emitting a file — which is why the count stays at one.
-// Today: 62.6 kB raw, 10.5 kB brotli.
+// Today: 70.3 kB raw, 11.9 kB brotli.
 //
-// Raised 10.5 -> 12 brotli and 64 -> 70 raw when the page stopped being one
-// uninterrupted column: the full-bleed measurement band, the heading rules for
-// a serif with an optical-size axis, and the warm light theme. The old ceiling
-// was cleared by ten bytes, which is not a budget, it is a coincidence — this
-// one leaves room for the rest of the redesign and will be pulled back down if
-// it turns out not to be spent.
+// Raised 12 -> 13 brotli and 70 -> 76 raw for the movement: the page-to-page
+// aperture, the headline that sets itself, and the measurement figures that
+// turn over as they land. All of it is CSS because all of it had to be — the
+// alternative was a client-side router and a scroll observer, which is the
+// trade this file exists to police. The previous raw ceiling was cleared by
+// 305 bytes, which is not a budget, it is a coincidence; both numbers are set
+// with room now and will be pulled back down if it turns out not to be spent.
 const stylesheets = pick((name) => name.endsWith('.css'));
 ck('the site ships one stylesheet', stylesheets.length === 1, `${stylesheets.length}`);
 const css = await readFile(stylesheets[0]);
-ck('the stylesheet compresses under budget', brotli(css) <= 12 * KB, `${kb(brotli(css))} brotli`);
-ck('and stays under budget uncompressed', css.length <= 70 * KB, `${kb(css.length)} raw`);
+ck('the stylesheet compresses under budget', brotli(css) <= 13 * KB, `${kb(brotli(css))} brotli`);
+ck('and stays under budget uncompressed', css.length <= 76 * KB, `${kb(css.length)} raw`);
 
 // The examples must not start pulling the main stylesheet in: their whole point
 // is that they do not inherit this site's design. Today: 4.8 kB of inline CSS on
