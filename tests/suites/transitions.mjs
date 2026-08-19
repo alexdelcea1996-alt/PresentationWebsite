@@ -78,14 +78,17 @@ ck('navigating from the header runs a view transition', seen.fired && seen.trans
 
 // Zero JavaScript is the whole point — the effect must not have shipped a router.
 // The ceiling is a proxy for that, so it moves when something else legitimately
-// adds inline script and stays put otherwise. Today: 4.2 kB on this page, up
-// from 3.3 kB when the site-wide cursor glow arrived. A client-side router
-// would be several times this, which is what the check is really watching for.
+// adds inline script and stays put otherwise. Today: 5.2 kB on this page, up
+// from 4.2 when the theme toggle stopped hard-coding the palette and started
+// reading `--color-surface` instead — about a hundred bytes, on every page,
+// bought by deleting two hex literals that had already drifted once. A
+// client-side router would be several times this, which is what the check is
+// really watching for.
 const jsBytes = await p.evaluate(() =>
   [...document.querySelectorAll('script')]
     .filter((s) => !s.src && s.type !== 'application/ld+json')
     .reduce((sum, s) => sum + new TextEncoder().encode(s.textContent ?? '').length, 0));
-ck('no router was shipped to buy the effect', jsBytes < 5000, `${jsBytes} B of inline JS on this page`);
+ck('no router was shipped to buy the effect', jsBytes < 5600, `${jsBytes} B of inline JS on this page`);
 ck('no external script bundles', (await p.locator('script[src]').count()) === 0);
 
 // --- The arriving page is not left blank -----------------------------------

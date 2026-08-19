@@ -8,7 +8,7 @@
  *
  * Why not the old approach: the previous script drew a single generic card per
  * language, ran only when someone remembered `npm run og`, and rasterised text
- * with librsvg — which meant it silently depended on Space Grotesk and Inter
+ * with librsvg — which meant it silently depended on Fraunces and Inter
  * being installed system-wide via fontconfig. On a clean machine it produced
  * blank or fallback-font images. Satori embeds the glyph outlines from font
  * files committed to the repo, so the result is identical everywhere.
@@ -49,7 +49,7 @@ function identityFrom(html) {
 }
 
 const fonts = [
-  { name: 'Space Grotesk', weight: 600, style: 'normal', data: await readFile(join(fontDir, 'space-grotesk-600.ttf')) },
+  { name: 'Fraunces', weight: 600, style: 'normal', data: await readFile(join(fontDir, 'fraunces-600.ttf')) },
   { name: 'Inter', weight: 400, style: 'normal', data: await readFile(join(fontDir, 'inter-400.ttf')) },
   { name: 'Inter', weight: 600, style: 'normal', data: await readFile(join(fontDir, 'inter-600.ttf')) },
 ];
@@ -128,7 +128,7 @@ function card({ eyebrow, title, brand, email }) {
             children: [
               { type: 'img', props: { src: mark, width: 56, height: 56 } },
               text(brand, {
-                fontFamily: 'Space Grotesk',
+                fontFamily: 'Fraunces',
                 fontWeight: 600,
                 fontSize: 26,
                 color: '#f1f5f9',
@@ -148,7 +148,7 @@ function card({ eyebrow, title, brand, email }) {
                 marginBottom: 26,
               }),
               text(title, {
-                fontFamily: 'Space Grotesk',
+                fontFamily: 'Fraunces',
                 fontWeight: 600,
                 fontSize: title.length > 68 ? 52 : 64,
                 lineHeight: 1.16,

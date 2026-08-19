@@ -1,6 +1,6 @@
 # Teste
 
-1151 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1152 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -67,7 +67,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `channels` | e-mail, telefon și WhatsApp în card, footer și date structurate | 39 |
 | `metrics` | banda care măsoară pagina: cifrele afișate = ce raportează browserul, plus rândul-verdict și sursa lui | 29 |
 | `configurator` | wizardul de ofertă, calculul prețului, precompletarea formularului, estimarea partajabilă | 25 |
-| `theme` | light/dark, persistență, fără flash la încărcare | 14 |
+| `theme` | light/dark, persistență, fără flash la încărcare | 15 |
 | `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; plus că hero-ul nu pornește ascuns | 17 |

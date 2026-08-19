@@ -30,9 +30,18 @@ const UA =
 // above cannot be reused for it.
 const LEGACY_UA = 'Mozilla/4.0';
 
-/** Static instances the share images need, at the weights they actually use. */
+/**
+ * Static instances the share images need, at the weights they actually use.
+ *
+ * Fraunces is requested at a pinned optical size as well as a weight
+ * (`opsz,wght@144,600`). The browser picks a point on the `opsz` axis by itself
+ * from the font size; Satori cannot — it reads a static TTF and would render
+ * the axis default, which is the small-text cut. At the 60-70px a share image
+ * sets its title, that cut looks thin and mealy next to the same headline on
+ * the page. 144 is the display end of the axis, which is what a share image is.
+ */
 const OG_FONTS = [
-  { query: 'Space+Grotesk:wght@600', file: 'space-grotesk-600.ttf' },
+  { query: 'Fraunces:opsz,wght@144,600', file: 'fraunces-600.ttf' },
   { query: 'Inter:wght@400', file: 'inter-400.ttf' },
   { query: 'Inter:wght@600', file: 'inter-600.ttf' },
 ];
@@ -40,8 +49,37 @@ const OG_FONTS = [
 // `latin` covers English; `latin-ext` carries the Romanian ș/ț/ă/â/î.
 const WANTED_SUBSETS = ['latin', 'latin-ext'];
 
+/**
+ * Fraunces carries two axes, `opsz` and `wght`, and both are kept.
+ *
+ * `opsz` is the reason it is here rather than another serif. Browsers set
+ * `font-optical-sizing: auto` by default, so the same file draws a high-contrast
+ * display cut in an 84px headline and a sturdier text cut at 18px — one
+ * download, two designs, no second file and no manual switching. Subsetting
+ * keeps both axes: `pyftsubset` drops glyphs, not axes.
+ */
 const families = [
-  { name: 'Space Grotesk', query: 'Space+Grotesk:wght@500..700', slug: 'space-grotesk' },
+  {
+    name: 'Fraunces',
+    query: 'Fraunces:opsz,wght@9..144,300..700',
+    slug: 'fraunces',
+    /*
+      Ship one axis, not two.
+
+      Every one of the 87 places this site sets the display face asks for the
+      same weight — 600 — and the headings in `global.css` do too. A weight axis
+      nobody moves is pure payload: variable deltas for a range of weights that
+      will never be rendered. Pinning `wght` at 600 and keeping `opsz` free cuts
+      Fraunces from 71 kB to 38 kB across the two subsets, and loses nothing
+      visible, because the thing being kept is the axis that actually does work
+      here.
+
+      If a second display weight is ever wanted, remove this pin and re-run —
+      the cost is the 33 kB back, not a redesign. The suite's font budget is
+      what will notice.
+    */
+    pin: { wght: 600 },
+  },
   { name: 'Inter', query: 'Inter:wght@400..600', slug: 'inter' },
 ];
 
@@ -160,6 +198,16 @@ for (const family of families) {
       '--desubroutinize',
     ]);
 
+    // Drop the axes this site never moves. `pyftsubset` removes glyphs but
+    // keeps every axis, so the pinning is a second pass — see the note on the
+    // family above for why it is worth a step of its own.
+    if (family.pin) {
+      const pins = Object.entries(family.pin).map(([axis, value]) => `${axis}=${value}`);
+      execFileSync('fonttools', ['varLib.instancer', '-o', target, target, ...pins], {
+        stdio: 'pipe',
+      });
+    }
+
     const subsetted = await readFile(target);
     await writeFile(rawFile, ''); // keep the tree clean; the file is gitignored
     before += original.length;
@@ -167,7 +215,10 @@ for (const family of families) {
 
     variants.push({
       file: fileName,
-      weight: face.weight,
+      // A pinned axis has to be declared as the single value it now is. Leaving
+      // the range Google advertised would let the browser ask for a weight the
+      // file can no longer draw, and it would synthesise one instead.
+      weight: family.pin?.wght ? String(family.pin.wght) : face.weight,
       style: 'normal',
       unicodeRange: face.unicodeRange,
     });

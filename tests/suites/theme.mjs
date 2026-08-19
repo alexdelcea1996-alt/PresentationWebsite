@@ -26,9 +26,42 @@ await p.waitForTimeout(150);
 ck('click switches to light', (await p.evaluate(() => document.documentElement.dataset.theme)) === 'light');
 ck('choice is stored', (await p.evaluate(() => localStorage.getItem('theme'))) === 'light');
 ck('label flips after switching', (await toggle.getAttribute('aria-label')) !== labelBefore, await toggle.getAttribute('aria-label'));
-ck('theme-color meta follows', (await p.locator('meta[name=theme-color]').getAttribute('content')) === '#ffffff');
-ck('page background is actually light',
-  (await p.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgb(255, 255, 255)');
+/*
+  Both of these used to name #ffffff outright. The light theme is warm paper
+  now, and a literal in a test is a third place for a colour to live — the
+  palette moved once and this file did not, which is the whole failure mode.
+
+  So the token is the source and the test derives from it: the browser resolves
+  `--color-surface`, and both the painted body and the `theme-color` the OS uses
+  for its chrome have to equal that. Change the palette and this follows;
+  change only one of the three and it fails.
+*/
+const surface = await p.evaluate(() => {
+  const token = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
+  // Resolve whatever notation the token is written in into rgb(), so the
+  // comparison does not depend on the author's syntax.
+  const probe = document.createElement('span');
+  probe.style.color = token;
+  document.body.append(probe);
+  const resolved = getComputedStyle(probe).color;
+  probe.remove();
+  return { token, resolved };
+});
+ck('the light surface token is a real colour', /^rgb/.test(surface.resolved), JSON.stringify(surface));
+ck('page background is the paper surface, not white',
+  (await p.evaluate(() => getComputedStyle(document.body).backgroundColor)) === surface.resolved,
+  `${await p.evaluate(() => getComputedStyle(document.body).backgroundColor)} vs token ${surface.resolved}`);
+ck('theme-color meta matches the surface the page actually paints',
+  await p.evaluate((expected) => {
+    const meta = document.querySelector('meta[name=theme-color]')?.getAttribute('content') ?? '';
+    const probe = document.createElement('span');
+    probe.style.color = meta;
+    document.body.append(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved === expected;
+  }, surface.resolved),
+  `${await p.locator('meta[name=theme-color]').getAttribute('content')} vs ${surface.resolved}`);
 
 // Reload: the stored choice must win over the OS, before first paint.
 await p.reload({ waitUntil: 'commit' });

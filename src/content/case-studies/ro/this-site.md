@@ -53,9 +53,12 @@ Tot ce nu servea acestui scop a rămas pe dinafară — inclusiv lucruri care ar
 **Static, nu dinamic.** Paginile sunt generate la build și livrate direct de pe CDN. Nu există server
 care poate cădea și nici bază de date de întreținut. Costul de găzduire e zero.
 
-**Fonturile stau în repository.** Space Grotesk și Inter sunt descărcate ca fonturi variabile și
-livrate de pe același domeniu, împărțite pe `unicode-range`. Fișierul cu diacritice românești se
-descarcă doar pe paginile care chiar le folosesc, iar build-ul nu depinde de niciun serviciu extern.
+**Fonturile stau în repository.** Fraunces (titluri) și Inter (text) sunt descărcate ca fonturi
+variabile și livrate de pe același domeniu, împărțite pe `unicode-range`. Fișierul cu diacritice
+românești se descarcă doar pe paginile care chiar le folosesc, iar build-ul nu depinde de niciun
+serviciu extern. Fraunces păstrează axa de mărime optică — aceeași literă e desenată altfel la 80px
+și la 18px — dar i s-a fixat greutatea la singura folosită pe site, ceea ce taie 33 kB dintr-un
+fișier care altfel ar fi purtat variații pe care nimeni nu le cere.
 
 **Conținutul e separat de cod.** Toate textele stau în două fișiere, câte unul per limbă, verificate
 față de aceeași structură de tip. O traducere lipsă devine eroare la compilare, nu un spațiu gol

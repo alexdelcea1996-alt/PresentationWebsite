@@ -58,7 +58,7 @@ acceptabil cât te uiți la card și inutil cât nu — mai ales pe telefon, pe
 baterie. Se oprește unde a rămas, nu de la zero.
 
 Zero încălcări axe-core (WCAG 2.1 AA) pe toate paginile, în ambele limbi și în
-ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
+ambele teme. Fonturile: 74 kB pentru tot site-ul. Zero JavaScript de framework.
 
 ## Comenzi
 
@@ -69,7 +69,7 @@ ambele teme. Fonturile: 57 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1151 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1152 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -602,13 +602,34 @@ luminos în ambele teme.
 
 ## Fonturi
 
-Space Grotesk și Inter sunt descărcate ca fonturi variabile, **subsetate la
-caracterele pe care site-ul le folosește efectiv** și commit-uite în repo, în
-`src/assets/fonts/`. Build-ul nu depinde de rețea și dă același rezultat oriunde.
+**Fraunces** (titluri) și **Inter** (text) sunt descărcate ca fonturi variabile,
+**subsetate la caracterele pe care site-ul le folosește efectiv** și commit-uite
+în repo, în `src/assets/fonts/`. Build-ul nu depinde de rețea și dă același
+rezultat oriunde.
 
-Subsetarea taie 170 kB la **57 kB** (−66%). Cel mai mare câștig e la fișierul
+Subsetarea taie 254 kB la **74 kB** (−71%). Cel mai mare câștig e la fișierul
 `latin-ext` al lui Inter: 83 kB → 7 kB, pentru că din tot alfabetul extins
 european site-ul are nevoie doar de diacriticele românești.
+
+### De ce Fraunces, și de ce doar o axă din ea
+
+Fraunces are o **axă de mărime optică** (`opsz`). Browserul o citește singur din
+mărimea la care randează — `font-optical-sizing: auto` e comportamentul implicit
+— deci un titlu de 80px primește o tăietură de afiș, cu contrast mare și serife
+adevărate, iar un titlu de card la 18px primește o tăietură de text, mai solidă.
+Un fișier, două desene. Asta e motivul alegerii, nu estetica în sine: e singurul
+mod de a avea și titluri cu personalitate, și titluri mici lizibile, fără două
+fișiere.
+
+Are și o axă de greutate — care s-a **fixat la 600 la generare**. Toate cele 87
+de locuri din site care cer fața de titlu cer aceeași greutate, și la fel fac
+`h1`–`h4` din foaia de stil. O axă pe care n-o mișcă nimeni e doar payload:
+variații pentru greutăți care nu se randează niciodată. Fixarea taie Fraunces de
+la 71 kB la 38 kB pe cele două subseturi, fără nicio pierdere vizibilă.
+
+Dacă vrei vreodată o a doua greutate de titlu, scoți `pin` din
+`scripts/fetch-fonts.mjs` și rulezi din nou — costul sunt cei 33 kB înapoi, nu o
+rescriere. Bugetul din suită e cel care va observa.
 
 `npm run fonts` reia tot lanțul: descarcă de la Google, adună caracterele din
 `src/i18n/`, `src/content/` și `src/data/`, le unește cu o listă de bază
@@ -699,7 +720,7 @@ Măsurătorile de azi și pragurile puse peste ele (azi + ~10-15%):
 | Foaia de stil (una singură) | 8,9 kB / 54,6 kB | 10,5 / 62 kB |
 | Fiecare bundle de demo | 5,6 și 5,0 kB | 7 kB |
 | JS inline pe prima pagină | 14,6 kB | 17 kB |
-| Fonturile, toate patru | 56,8 kB | 64 kB |
+| Fonturile, toate patru | 73,9 kB | 80 kB |
 | Cea mai mare imagine OG | 90,9 kB | 120 kB |
 
 Când depășești un buget **intenționat** — o secțiune nouă, o fotografie, un

@@ -53,9 +53,12 @@ would have slowed the page down.
 **Static, not dynamic.** Pages are generated at build time and served straight from a CDN. There is
 no server to fall over and no database to maintain. Hosting costs nothing.
 
-**Fonts live in the repository.** Space Grotesk and Inter are downloaded as variable fonts and served
-from the same domain, split by `unicode-range`. The file carrying Romanian diacritics is fetched only
-by pages that actually use them, and the build depends on no external service.
+**Fonts live in the repository.** Fraunces (headings) and Inter (text) are downloaded as variable
+fonts and served from the same domain, split by `unicode-range`. The file carrying Romanian
+diacritics is fetched only by pages that actually use them, and the build depends on no external
+service. Fraunces keeps its optical-size axis — the same letter is drawn differently at 80px and at
+18px — but its weight axis was pinned to the only weight this site uses, which cuts 33 kB from a
+file that would otherwise carry variations nobody asks for.
 
 **Content is separate from code.** All copy sits in two files, one per language, checked against the
 same type contract. A missing translation becomes a compile error rather than a blank space

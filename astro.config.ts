@@ -26,7 +26,7 @@ interface FontVariantManifest {
 
 interface FontFamilyManifest {
   name: string;
-  slug: 'space-grotesk' | 'inter';
+  slug: 'fraunces' | 'inter';
   variants: FontVariantManifest[];
 }
 
@@ -39,7 +39,7 @@ const fontManifest: FontFamilyManifest[] = JSON.parse(
 );
 
 const cssVariableBySlug: Record<FontFamilyManifest['slug'], string> = {
-  'space-grotesk': '--ff-display',
+  fraunces: '--ff-display',
   inter: '--ff-body',
 };
 

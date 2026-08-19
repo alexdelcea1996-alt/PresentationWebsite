@@ -53,10 +53,25 @@ const t = getContent(locale).theme;
     document.documentElement.dataset.theme = theme;
     if (persist) localStorage.setItem(STORAGE_KEY, theme);
 
-    // Keep the browser chrome (mobile address bar) in step with the page.
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'light' ? '#ffffff' : '#0b0f1a');
+    /*
+      Keep the browser chrome (mobile address bar) in step with the page — and
+      read the colour rather than repeat it.
+
+      This used to carry its own pair of hex values, which made three places
+      that had to agree about what "light" looks like: the palette, the pre-paint
+      resolver, and here. When the light theme became warm paper, this one was
+      still painting the address bar pure white against a cream page.
+
+      Reading the token after the attribute flips costs one style resolution on
+      a click — the pre-paint resolver cannot afford that and keeps its literal,
+      but nothing here is on the critical path.
+    */
+    const surface = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-surface')
+      .trim();
+    if (surface) {
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', surface);
+    }
 
     syncButtons(theme);
   };

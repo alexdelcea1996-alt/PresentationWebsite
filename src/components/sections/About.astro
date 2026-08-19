@@ -42,9 +42,18 @@ const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.repl
   <div class="glow left-[-12rem] bottom-0 size-[26rem] bg-accent/10" aria-hidden="true"></div>
 
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    {/*
+      Left-aligned, and the only section heading on the page that is.
 
-    <div class="mx-auto mt-16 grid max-w-5xl gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+      Everything else on this page is centred, which is correct for a pitch and
+      wrong for this: the section is a person introducing himself, and a centred
+      introduction reads like a brochure. Breaking the axis here — once — is
+      what makes the rest of the page's symmetry look chosen rather than
+      inherited from a template.
+    */}
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} align="left" />
+
+    <div class="mt-16 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-12">
       <div class="card" data-reveal data-about-card>
         {
           portrait && (
@@ -85,10 +94,24 @@ const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.repl
         </a>
       </div>
 
+      {/*
+        The opening paragraph is set as a lead rather than as body text. It is
+        the sentence that answers the question the section title asks, and at
+        the same size as the two that follow it, nobody reads it first. Type
+        treatment only — the copy is untouched, and every paragraph keeps the
+        hook the suite counts.
+      */}
       <div class="space-y-5" data-reveal data-reveal-delay="100">
         {
-          t.body.map((paragraph) => (
-            <p class="text-base leading-relaxed text-fg-muted" data-about-body>
+          t.body.map((paragraph, index) => (
+            <p
+              class:list={[
+                index === 0
+                  ? 'font-display text-xl font-semibold leading-snug text-fg sm:text-2xl'
+                  : 'text-base leading-relaxed text-fg-muted',
+              ]}
+              data-about-body
+            >
               {paragraph}
             </p>
           ))
@@ -98,7 +121,7 @@ const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.repl
 
     {/* Across the full width rather than stacked beside the card: three short
         columns balance the row above instead of leaving it lopsided. */}
-    <ul class="mx-auto mt-12 grid max-w-5xl gap-8 border-t border-border pt-10 sm:grid-cols-3">
+    <ul class="mt-14 grid gap-8 border-t border-border pt-10 sm:grid-cols-3">
       {
         t.principles.map((principle, index) => (
           <li data-about-principle data-reveal data-reveal-delay={index * 80}>

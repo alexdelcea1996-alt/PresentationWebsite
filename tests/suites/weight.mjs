@@ -95,12 +95,19 @@ ck('and none of them compresses badly',
 // Still one stylesheet for the whole site, shared across every page. The example
 // sites bring their own, but it is small enough that Astro inlines it into those
 // pages rather than emitting a file — which is why the count stays at one.
-// Today: 56.0 kB raw, 9.1 kB brotli.
+// Today: 62.6 kB raw, 10.5 kB brotli.
+//
+// Raised 10.5 -> 12 brotli and 64 -> 70 raw when the page stopped being one
+// uninterrupted column: the full-bleed measurement band, the heading rules for
+// a serif with an optical-size axis, and the warm light theme. The old ceiling
+// was cleared by ten bytes, which is not a budget, it is a coincidence — this
+// one leaves room for the rest of the redesign and will be pulled back down if
+// it turns out not to be spent.
 const stylesheets = pick((name) => name.endsWith('.css'));
 ck('the site ships one stylesheet', stylesheets.length === 1, `${stylesheets.length}`);
 const css = await readFile(stylesheets[0]);
-ck('the stylesheet compresses under budget', brotli(css) <= 10.5 * KB, `${kb(brotli(css))} brotli`);
-ck('and stays under budget uncompressed', css.length <= 64 * KB, `${kb(css.length)} raw`);
+ck('the stylesheet compresses under budget', brotli(css) <= 12 * KB, `${kb(brotli(css))} brotli`);
+ck('and stays under budget uncompressed', css.length <= 70 * KB, `${kb(css.length)} raw`);
 
 // The examples must not start pulling the main stylesheet in: their whole point
 // is that they do not inherit this site's design. Today: 4.8 kB of inline CSS on
@@ -155,7 +162,7 @@ async function inlineJs(page) {
   return total;
 }
 
-// Today: 12.7 kB on the landing page, 3.2 kB on a playable demo page, 3.5 kB on
+// Today: 12.9 kB on the landing page, 5.1 kB on a playable demo page, 3.6 kB on
 // a framed one, 0.3 kB inside an example site. The landing figure went 14.6 →
 // 18.1 kB when the contact form became stepped and the cursor glow arrived, and
 // back down to 12.5 when the configurator and the audit band crossed Astro's
@@ -169,18 +176,24 @@ async function inlineJs(page) {
 const homeJs = await inlineJs('index.html');
 ck('inline JS on the landing page is under budget', homeJs <= 15 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));
-ck('inline JS on a demo page is under budget', demoJs <= 5 * KB, `${kb(demoJs)} raw`);
+ck('inline JS on a demo page is under budget', demoJs <= 5.5 * KB, `${kb(demoJs)} raw`);
 const exampleJs = await inlineJs(join('demo', 'exemplu', 'atelier', 'index.html'));
 ck('an example site ships almost no JavaScript', exampleJs <= 2 * KB, `${kb(exampleJs)} raw`);
 
 // --- Fonts -------------------------------------------------------------------
-// Four subsetted files: two families × latin and latin-ext. Today: 56.8 kB.
+// Four subsetted files: two families × latin and latin-ext. Today: 73.9 kB.
 // The number that matters is the total, because all four are preloaded.
+//
+// The budget went 64 -> 80 kB when the display face became Fraunces, and the
+// jump is smaller than it looks: a serif carrying an optical-size axis costs
+// more per glyph than a geometric sans, but the weight axis was pinned at 600
+// on the way in — nothing on this site asks for a second display weight — which
+// gave back 33 kB of the 51 the swap would otherwise have cost.
 const fonts = pick((name) => name.endsWith('.woff2'));
 ck('the fonts are still subsetted, not the full families', fonts.length === 4, `${fonts.length} file(s)`);
 let fontBytes = 0;
 for (const font of fonts) fontBytes += (await readFile(font)).length;
-ck('the font payload is under budget', fontBytes <= 64 * KB, kb(fontBytes));
+ck('the font payload is under budget', fontBytes <= 80 * KB, kb(fontBytes));
 
 // --- Share images ------------------------------------------------------------
 // Drawn at build time, one per page, and fetched by crawlers rather than

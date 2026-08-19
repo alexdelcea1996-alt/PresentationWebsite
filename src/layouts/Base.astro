@@ -245,9 +245,15 @@ const breadcrumbSchema = breadcrumb?.length
         }
         document.documentElement.dataset.theme = theme;
         if (theme === 'light') {
+          // The browser paints its own chrome with this, so it has to be the
+          // page's real surface colour — warm paper, not white. Written as a
+          // literal rather than read from the stylesheet on purpose: this runs
+          // before first paint, and asking for a computed style here would
+          // force the very layout the rest of the site works to avoid.
+          // `theme.mjs` pins it to `--color-surface`, so the two cannot drift.
           document
             .querySelector('meta[name="theme-color"]')
-            ?.setAttribute('content', '#ffffff');
+            ?.setAttribute('content', '#f7f3ea');
         }
       })();
     </script>

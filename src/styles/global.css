@@ -82,35 +82,67 @@
   --spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23000' stroke-width='2.25' stroke-linecap='round' fill='none'%3E%3Cpath d='M12 4.125v15.75M4.125 12h15.75'/%3E%3Cpath d='m7.755 7.755 8.49 8.49M16.245 7.755 7.755 16.245'/%3E%3C/g%3E%3C/svg%3E");
 }
 
+/*
+  The light theme, as paper rather than as an inversion.
+
+  It used to be pure white with slate greys — the dark palette turned inside
+  out, which is why it had no character of its own: nothing in it was chosen,
+  it was all derived. This is warm stock instead. The dark theme is the
+  laboratory; this is the drawing board. Two rooms in one workshop.
+
+  The neutrals carry a yellow-red bias rather than the blue one that slate
+  greys have, so the ground reads as paper and not as "white, slightly off".
+  The inks are warm near-blacks for the same reason: #0f172a on cream looks
+  like text pasted from somewhere else.
+
+  Every pairing was recomputed from scratch, not nudged from the old values —
+  the same discipline the dark palette got. Against the four grounds the site
+  actually paints, the weakest text pairing is `fg-subtle` on `surface-deep` at
+  5.01:1, and the accents sit between 5.4 and 8.7:1. `a11y-light.mjs` walks the
+  whole site in this theme on every run, so the arithmetic is checked by a
+  browser rather than trusted.
+*/
 :root[data-theme='light'] {
   color-scheme: light;
-  --glow-opacity: 0.45;
-  --grid-line: rgb(15 23 42 / 0.5);
+  --glow-opacity: 0.4;
+  --grid-line: rgb(28 24 20 / 0.5);
 
-  --color-surface-deep: #eef2f7;
-  --color-surface: #ffffff;
-  --color-surface-raised: #f8fafc;
-  --color-surface-hover: #eff3f9;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
+  --color-surface-deep: #efe9dc;
+  --color-surface: #f7f3ea;
+  --color-surface-raised: #fdfbf6;
+  --color-surface-hover: #f2ece0;
+  --color-border: #e2d9c8;
+  --color-border-strong: #cdc0a9;
 
-  --color-fg: #0f172a;
-  --color-fg-muted: #475569;
-  --color-fg-subtle: #5b6b82;
+  --color-fg: #1c1814;
+  --color-fg-muted: #524a3f;
+  --color-fg-subtle: #6b6154;
 
   /*
      Same two hues, lightness derived again from scratch rather than nudged.
      The dark theme needs stops light enough to carry near-black text; here the
-     same names are used as TEXT on white, which wants the opposite. Reusing
-     one set for both is what produces a light theme that either glares or
-     fails AA. Every pairing the site actually renders was checked: accent and
-     accent-alt as body text on white and on the raised surface, white text on
-     the button gradient including its midpoint, and the accent as a focus
-     ring. Lowest of them is 5.44:1.
+     same names are used as TEXT on a warm ground, which wants the opposite.
+     Reusing one set for both is what produces a light theme that either glares
+     or fails AA.
+
+     Re-derived a second time when the ground went from white to paper: a hue
+     that clears 4.5:1 on #ffffff does not automatically clear it on #f7f3ea,
+     and a cool violet on warm stock also reads slightly dirty. Both stops were
+     warmed a little and darkened a little. Every pairing the site actually
+     renders was checked against all four surfaces; the weakest is 5.37:1.
   */
-  --color-accent: #6043d4; /* oklch(0.505 0.210 285) */
-  --color-accent-bright: #4f30b9; /* oklch(0.440 0.200 285) */
-  --color-accent-alt: #017558; /* oklch(0.500 0.101 168) */
+  --color-accent: #5b3fd0; /* oklch(0.487 0.213 287) */
+  --color-accent-bright: #4a2eb4; /* oklch(0.422 0.201 287) */
+  --color-accent-alt: #0a6b50; /* oklch(0.470 0.093 168) */
+
+  /*
+     The grain, and the only reason this reads as stock rather than as a beige
+     rectangle. Two hundred bytes of SVG turbulence at 4% opacity, tiled — no
+     image request, nothing to lazy-load, and it survives any zoom because it is
+     generated rather than sampled. `data:` URLs in CSS are governed by
+     `img-src`, which this site's policy already allows for the mark.
+  */
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)' opacity='.04'/%3E%3C/svg%3E");
 }
 
 /*
@@ -139,6 +171,14 @@
 
   body {
     background-color: var(--color-surface);
+    /*
+      Empty in the dark theme, tiled turbulence in the light one — the token
+      carries the whole difference, so no rule here needs to know a theme
+      exists. `fixed` keeps the grain still while the page scrolls: paper does
+      not slide under its own ink.
+    */
+    background-image: var(--paper-grain, none);
+    background-attachment: fixed;
     color: var(--color-fg);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -148,13 +188,31 @@
       color 0.25s var(--ease-out-soft);
   }
 
+  /*
+    Headings, on a serif with an optical-size axis.
+
+    `font-optical-sizing: auto` is the browser default, and it is the entire
+    reason this face was chosen — Fraunces reads its `opsz` axis off the rendered
+    font size, so an 80px headline gets a high-contrast display cut with real
+    serifs while an 18px card title gets a sturdier text cut, from one file. It
+    is written out rather than left implicit because it looks like decoration
+    and is load-bearing: turn it off and every heading on the site renders in
+    the 9pt cut, which at display size looks spindly and slightly wrong in a way
+    that is hard to name.
+
+    Tracking is looser than the −0.02em this had as a geometric sans. Serifs
+    carry their own optical spacing in the letterforms; pulling them together by
+    the same amount closes the counters and turns a headline into a smudge. The
+    remaining −0.008em only takes the edge off the largest sizes.
+  */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-display);
+    font-optical-sizing: auto;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.008em;
     text-wrap: balance;
   }
 
@@ -748,14 +806,24 @@
     color: transparent;
   }
 
+  /*
+    Section labels moved off the display face when it became a serif.
+
+    Not a tidy-up — a split of voices. The serif now says the things the site
+    asserts; the sans says what kind of thing you are looking at. Keeping both
+    on the serif made the labels read as small headings competing with the real
+    one underneath, which is the failure mode of every page that owns exactly
+    one nice typeface. Uppercase Inter at this tracking reads as an annotation
+    instead, which is what a section label is.
+  */
   .eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: var(--font-display);
-    font-size: 0.8rem;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--color-accent-alt);
   }
@@ -799,6 +867,48 @@
     Hidden until the script marks it active, which it only does for a fine
     pointer and when the reader has not asked for reduced motion.
   */
+  /*
+    The measurement band, and the one place the page stops being a column.
+
+    Fourteen sections all sat in the same 72rem container, in the same rounded
+    card, with the same rhythm — which is the most visible sign of a template,
+    more visible than any colour. This band is the deliberate break, and it is
+    this band because it is the argument: the hero claims the site is fast, and
+    the next thing you see is the browser measuring the page you are on.
+
+    Edge to edge on the deep surface, hairlines top and bottom, and the figures
+    set large on the display face. The rule works only because it is rare — one
+    interruption reads as emphasis, four read as noise.
+
+    `border-block` rather than a box: the band is a stratum the page passes
+    through, not another card floating in it.
+  */
+  .metrics-band {
+    background-color: var(--color-surface-deep);
+    border-block: 1px solid var(--color-border);
+  }
+
+  /*
+    Figures at display size, and every one of them a measurement.
+
+    `tabular-nums` is not typographic fussiness here: these numbers are replaced
+    the moment the browser finishes measuring, and proportional digits would
+    change the width of the row as they land — a layout shift on the section
+    whose entire claim is that the page does not shift. The `ch`-based minimum
+    reserves the widest realistic reading before any value exists.
+  */
+  .metric-figure {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.75rem, 1.1rem + 2.4vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    min-width: 4ch;
+    color: var(--color-fg);
+  }
+
   /*
     Invisible markers that stand in for reading `window.scrollY`.
 
