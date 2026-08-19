@@ -1,4 +1,5 @@
 ---
+import Blueprint from './Blueprint.astro';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icon from './Icon.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
@@ -11,9 +12,15 @@ import { getLegalPage, legalPath } from '../data/legal';
 
 interface Props {
   locale: Locale;
+  /**
+   * Renders the "see the construction" control beside the provenance line.
+   * Off by default: the drawing is worth having on the two pages that argue
+   * about how the site is built, and would be clutter on the other forty-seven.
+   */
+  blueprint?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, blueprint = false } = Astro.props;
 const t = getContent(locale);
 const year = new Date().getFullYear();
 const privacy = await getLegalPage(locale, 'privacy');
@@ -136,6 +143,7 @@ const contacts = [
           )
         }
       </p>
+      {blueprint && <Blueprint locale={locale} />}
     </div>
   </div>
 </footer>

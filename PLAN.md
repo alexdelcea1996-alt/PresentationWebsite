@@ -69,7 +69,7 @@ Structura de fișiere și regulile de editare a conținutului sunt documentate �
 - Lighthouse desktop **100 / 100 / 100 / 100**, mobil **97–100 / 100 / 100 / 100**
   (măsurat cu compresie brotli, ca în producție)
 - axe-core: **0 încălcări** WCAG 2.1 AA, pe ambele limbi și în ambele teme
-- **1154 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
+- **1183 de verificări** rulate cu `npm test`, din repo: accesibilitate (26 de pagini
   dark + 9 light), CSP cu header-ele reale aplicate, interacțiuni (15), canale de
   contact (39), banda de măsurători (24), configurator (17), temă (14), hero (12),
   programare (18), tranziții (17), completitudine (116), garanții (16), politica de

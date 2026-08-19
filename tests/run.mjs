@@ -43,6 +43,7 @@ const SUITES = [
   'theme',
   'hero',
   'signature',
+  'blueprint',
   'colophon',
   'booking',
 ];

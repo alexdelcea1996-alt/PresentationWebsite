@@ -604,6 +604,20 @@ export const ro: Content = {
     nav: 'Navigare',
   },
 
+  blueprint: {
+    show: 'Vezi construcția',
+    hide: 'Ascunde construcția',
+    title: 'Planșa paginii',
+    note: 'Măsurat acum, în browserul tău — nu scris la build. Închide și dispare.',
+    nodes: 'Elemente în pagină',
+    page: 'Cât s-a descărcat',
+    styles: 'Din care stiluri',
+    scripts: 'Din care scripturi',
+    fonts: 'Din care fonturi',
+    shift: 'Deplasare de layout',
+    contrast: 'Contrast text/fundal',
+  },
+
   colophon: {
     metaTitle: 'Colofon — cum se ține singur onest acest site | Alex Delcea',
     metaDescription:

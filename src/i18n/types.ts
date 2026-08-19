@@ -495,6 +495,22 @@ export interface Content {
    * may not say how many passed. `checksNote` is where that distinction is
    * spelled out for the reader rather than hidden behind careful phrasing.
    */
+  /** The blueprint overlay: the page's own technical drawing, on request. */
+  blueprint: {
+    show: string;
+    hide: string;
+    title: string;
+    /** Explains that the figures are measured now, in this browser. */
+    note: string;
+    nodes: string;
+    page: string;
+    styles: string;
+    scripts: string;
+    fonts: string;
+    shift: string;
+    contrast: string;
+  };
+
   colophon: {
     metaTitle: string;
     metaDescription: string;

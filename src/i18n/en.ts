@@ -604,6 +604,20 @@ export const en: Content = {
     nav: 'Navigation',
   },
 
+  blueprint: {
+    show: 'See the construction',
+    hide: 'Hide the construction',
+    title: 'The page, as a drawing',
+    note: 'Measured right now, in your browser — not written at build time. Close it and it is gone.',
+    nodes: 'Elements on the page',
+    page: 'Downloaded so far',
+    styles: 'Of which styles',
+    scripts: 'Of which scripts',
+    fonts: 'Of which fonts',
+    shift: 'Layout shift',
+    contrast: 'Text / background contrast',
+  },
+
   colophon: {
     metaTitle: 'Colophon — how this site keeps itself honest | Alex Delcea',
     metaDescription:

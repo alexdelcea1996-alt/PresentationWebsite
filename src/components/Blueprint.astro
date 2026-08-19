@@ -1,0 +1,203 @@
+---
+/**
+ * The page's own technical drawing, on request.
+ *
+ * Every other site hides its construction because showing it would be
+ * embarrassing. This one sells the construction, so the drawing is the
+ * argument: press the control in the footer and the page rules itself off —
+ * a grid, every section measured, and a read-out of what actually came down
+ * the wire.
+ *
+ * Two rules make it worth having rather than a gimmick.
+ *
+ * It is OPT-IN and forgets itself. Nothing renders until asked, the state is
+ * not stored, and closing it removes every trace. A permanent overlay would be
+ * a costume; a thing you can ask for is an invitation to check.
+ *
+ * Every figure is MEASURED, here, now, in the reader's browser — none of it is
+ * written at build time. That means the drawing cannot go stale the way the
+ * colophon's budget rows quietly did, and it means the numbers describe the
+ * visit rather than a claim about some other visit.
+ *
+ * The measuring reads geometry, which forces a layout — deliberately, once, on
+ * a click. The site works hard to keep layout reads out of scroll handlers and
+ * out of the pre-paint path; this is neither, and a drawing that refused to
+ * measure would have nothing to draw.
+ */
+import { getContent, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).blueprint;
+
+const rows = [
+  ['nodes', t.nodes],
+  ['page', t.page],
+  ['styles', t.styles],
+  ['scripts', t.scripts],
+  ['fonts', t.fonts],
+  ['shift', t.shift],
+  ['contrast', t.contrast],
+] as const;
+---
+
+<button
+  type="button"
+  class="blueprint-toggle js-only"
+  data-blueprint-toggle
+  data-label-show={t.show}
+  data-label-hide={t.hide}
+  aria-expanded="false"
+  aria-controls="blueprint-panel"
+>
+  {/*
+    Words only, no decorative glyph. The first version opened with `◫`, which is
+    in none of the subsetted fonts — the charset is built from the content
+    directories, and a character typed into a component never reaches it. It
+    rendered in a fallback face, one glyph in the whole footer wearing a
+    different typeface. The label already says what the control does.
+  */}
+  <span data-blueprint-label>{t.show}</span>
+</button>
+
+{/* Rendered but empty until asked; `hidden` keeps it out of the a11y tree too. */}
+<div class="blueprint-grid" data-blueprint-grid aria-hidden="true" hidden></div>
+
+<aside class="blueprint-panel" id="blueprint-panel" data-blueprint-panel hidden>
+  <p class="blueprint-panel-title">{t.title}</p>
+  <dl class="blueprint-rows">
+    {
+      rows.map(([key, label]) => (
+        <div class="blueprint-row">
+          <dt>{label}</dt>
+          <dd data-blueprint={key}>—</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <p class="blueprint-note">{t.note}</p>
+</aside>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-blueprint-toggle]');
+  const panel = document.querySelector<HTMLElement>('[data-blueprint-panel]');
+  const grid = document.querySelector<HTMLElement>('[data-blueprint-grid]');
+
+  if (toggle && panel && grid) {
+    const label = toggle.querySelector<HTMLElement>('[data-blueprint-label]');
+    const root = document.documentElement;
+
+    /*
+      Layout shift is cumulative from the moment the page loads, so the observer
+      has to be running long before anyone asks to see the figure. It is a few
+      dozen bytes and does no work unless the page actually moves — which, on
+      this site, is the claim being made.
+    */
+    let shift = 0;
+    try {
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          const layout = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
+          if (!layout.hadRecentInput) shift += layout.value;
+        }
+      }).observe({ type: 'layout-shift', buffered: true });
+    } catch {
+      // No layout-shift entries in this browser; the row reports what it can.
+    }
+
+    const kb = (bytes: number) =>
+      `${new Intl.NumberFormat(document.documentElement.lang || 'ro').format(Math.round(bytes / 1024))} kB`;
+
+    /** WCAG relative luminance, so the contrast row is arithmetic and not a vibe. */
+    const luminance = (rgb: number[]) => {
+      const [r, g, b] = rgb.map((value) => {
+        const channel = value / 255;
+        return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+    };
+
+    /*
+      Colours arrive as `oklab(...)` wherever the stylesheet used `color-mix`,
+      and parsing that by hand is how a contrast figure ends up quietly wrong.
+      Painting the value onto a throwaway element and reading it back makes the
+      browser do the conversion.
+    */
+    const toRgb = (value: string) => {
+      const probe = document.createElement('span');
+      probe.style.color = value;
+      document.body.append(probe);
+      const resolved = getComputedStyle(probe).color.match(/[\d.]+/g);
+      probe.remove();
+      return resolved ? resolved.slice(0, 3).map(Number) : [0, 0, 0];
+    };
+
+    const set = (key: string, value: string) => {
+      const cell = panel.querySelector(`[data-blueprint="${key}"]`);
+      if (cell) cell.textContent = value;
+    };
+
+    const measure = () => {
+      set('nodes', String(document.querySelectorAll('*').length));
+
+      const nav = performance.getEntriesByType('navigation')[0] as
+        | PerformanceNavigationTiming
+        | undefined;
+      const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+      let total = nav?.decodedBodySize ?? 0;
+      let styles = 0;
+      let scripts = 0;
+      let fonts = 0;
+      for (const resource of resources) {
+        const size = resource.decodedBodySize || 0;
+        total += size;
+        if (resource.initiatorType === 'css' || resource.name.endsWith('.css')) styles += size;
+        else if (resource.initiatorType === 'script') scripts += size;
+        else if (/\.woff2?($|\?)/.test(resource.name)) fonts += size;
+      }
+      set('page', kb(total));
+      set('styles', kb(styles));
+      set('scripts', kb(scripts));
+      set('fonts', kb(fonts));
+      set('shift', shift.toFixed(3));
+
+      const body = getComputedStyle(document.body);
+      const ratio = (() => {
+        const [high, low] = [luminance(toRgb(body.color)), luminance(toRgb(body.backgroundColor))]
+          .sort((a, b) => b - a);
+        return (high! + 0.05) / (low! + 0.05);
+      })();
+      set('contrast', `${ratio.toFixed(2)}:1`);
+
+      // Each section gets its own real dimensions written onto it; the CSS
+      // prints them with `content: attr(...)`, which needs no inline style and
+      // so survives a policy with no `unsafe-inline`.
+      for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
+        const box = section.getBoundingClientRect();
+        const name = section.id ? `#${section.id}` : 'section';
+        section.dataset.blueprintNote = `${name} · ${Math.round(box.width)} × ${Math.round(box.height)}`;
+      }
+    };
+
+    const clear = () => {
+      for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
+        delete section.dataset.blueprintNote;
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      const on = root.toggleAttribute('data-blueprint');
+      toggle.setAttribute('aria-expanded', String(on));
+      panel.hidden = !on;
+      grid.hidden = !on;
+      if (label) {
+        label.textContent = (on ? toggle.dataset.labelHide : toggle.dataset.labelShow) ?? '';
+      }
+      if (on) measure();
+      else clear();
+    });
+  }
+</script>
