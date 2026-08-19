@@ -17,7 +17,8 @@ import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import { getContent, locales, type Locale } from '../i18n';
-import { build, SUITE_CHECKS } from '../data/build';
+import Constellation from './Constellation.astro';
+import { build, BUDGETS, SUITE_CHECKS } from '../data/build';
 import { colophonPath, contactPath } from '../data/demo';
 
 interface Props {
@@ -31,7 +32,8 @@ const alternates = Object.fromEntries(
   locales.map((code) => [code, colophonPath(code)]),
 ) as Partial<Record<Locale, string>>;
 
-const checks = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'ro-RO').format(SUITE_CHECKS);
+const number = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'ro-RO');
+const checks = number.format(SUITE_CHECKS);
 ---
 
 <Base locale={locale} title={t.metaTitle} description={t.metaDescription} alternates={alternates}>
@@ -100,14 +102,30 @@ const checks = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'ro-RO').format
           <h2 class="font-display text-xl font-semibold">{t.checksTitle}</h2>
           <p class="mt-3 text-sm leading-relaxed text-fg-muted">{t.checksBody}</p>
 
-          <div class="mt-5 rounded-2xl border border-border bg-surface-raised/60 p-6">
-            <p class="font-display text-4xl font-semibold text-gradient" data-colophon-checks>
-              {checks}
-            </p>
-            <p class="mt-1 text-sm text-fg-muted">{t.checksLabel}</p>
-            <p class="mt-4 text-xs leading-relaxed text-fg-subtle" data-colophon-note>
-              {t.checksNote}
-            </p>
+          <div class="mt-5 grid gap-8 rounded-2xl border border-border bg-surface-raised/60 p-6 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div class="min-w-0">
+              <p class="font-display text-4xl font-semibold text-gradient" data-colophon-checks>
+                {checks}
+              </p>
+              <p class="mt-1 text-sm text-fg-muted">{t.checksLabel}</p>
+              <p class="mt-4 text-xs leading-relaxed text-fg-subtle" data-colophon-note>
+                {t.checksNote}
+              </p>
+            </div>
+
+            {/*
+              The same drawing as behind the hero, but here it answers back: the
+              number to its left is abstract, and a reader who hovers a dot gets
+              a concrete example of what one of those checks actually says. The
+              hint underneath is deliberate about the limit — the count is exact,
+              the names are a sample, and the page says which is which.
+            */}
+            <div class="justify-self-center">
+              <Constellation size={220} interactive label={t.constellationLabel} class="w-[220px] max-w-full" />
+              <p class="mt-1 max-w-[34ch] text-center text-xs leading-relaxed text-fg-subtle">
+                {t.constellationHint}
+              </p>
+            </div>
           </div>
         </section>
 
@@ -121,10 +139,24 @@ const checks = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'ro-RO').format
             data-colophon-budgets
           >
             {
+              /*
+                The figure comes from `BUDGETS`, never from the copy. These rows
+                used to carry their numbers as prose, and when the font and CSS
+                ceilings moved the page went on publishing the old ones — on the
+                page whose whole subject is that the site does not claim things
+                it has not checked. The suite compares `BUDGETS` against the
+                assertions in `weight.mjs`; this makes the printed figure the
+                same value rather than a copy of it.
+              */
               t.budgetRows.map((row) => (
                 <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-6 py-4">
                   <dt class="text-sm text-fg-muted">{row.label}</dt>
-                  <dd class="font-display text-sm font-semibold text-fg tabular-nums">{row.value}</dd>
+                  <dd
+                    class="font-display text-sm font-semibold text-fg tabular-nums"
+                    data-colophon-budget={row.key}
+                  >
+                    {t.budgetAtMost.replace('{value}', number.format(BUDGETS[row.key]))}
+                  </dd>
                 </div>
               ))
             }

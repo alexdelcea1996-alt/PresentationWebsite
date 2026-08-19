@@ -184,6 +184,9 @@ export interface Content {
     verdictPending: string;
     sourceLabel: string;
     sourceHref: string;
+    /** The control stamp beside the band's title. Only ever on checked claims. */
+    stampLabel: string;
+    stampDetail: string;
   };
   services: {
     eyebrow: string;
@@ -510,9 +513,21 @@ export interface Content {
     /** "N checks in the suite" — the count, never a pass rate. */
     checksLabel: string;
     checksNote: string;
+    /** Announced for the constellation canvas, which no screen reader can read. */
+    constellationLabel: string;
+    /** Says out loud that the names are a sample, so the picture cannot overclaim. */
+    constellationHint: string;
     budgetsTitle: string;
     budgetsBody: string;
-    budgetRows: { label: string; value: string }[];
+    /**
+     * Only the label is copy. The figure is read from `BUDGETS`, because a
+     * budget written out in prose is a budget that goes stale silently — this
+     * page published "at most 64 kB" for the fonts for exactly as long as it
+     * took someone to notice.
+     */
+    budgetRows: { key: 'homeInlineJs' | 'css' | 'fonts' | 'homeBrotli'; label: string }[];
+    /** "at most {value} kB" — `{value}` is substituted with the real budget. */
+    budgetAtMost: string;
     cspTitle: string;
     cspBody: string;
     limitsTitle: string;

@@ -67,6 +67,8 @@ export const ro: Content = {
     verdictPending: 'Se măsoară…',
     sourceLabel: 'mediana web, HTTP Archive, 2025',
     sourceHref: 'https://httparchive.org/reports/page-weight',
+    stampLabel: 'Măsurat, nu promis',
+    stampDetail: 'de browserul tău',
   },
 
   services: {
@@ -625,15 +627,21 @@ export const ro: Content = {
     checksNote:
       'Scrie „în suită”, nu „trecute”, și diferența contează: build-ul care a produs pagina asta a rulat ÎNAINTE de teste. O pagină care și-ar anunța propriile teste ca fiind verzi ar afirma exact genul de lucru pe care restul site-ului îl combate. Dacă vrei rezultatul, rulează suita — e în depozit, cu tot cu instrucțiuni.',
 
+    constellationLabel:
+      'Marca site-ului, desenată din câte un punct pentru fiecare verificare din suită.',
+    constellationHint:
+      'Un punct pentru fiecare verificare. Treci cu mouse-ul peste unul: numele care apare e al unei verificări reale din suită — un eșantion, nu numele punctului atins.',
+
     budgetsTitle: 'Bugetele',
     budgetsBody:
       'Măsurarea singură nu apără nimic: o creștere lentă trece verde la nesfârșit. Pragurile de mai jos sunt asertate, deci o depășire pică build-ul. Când e depășit ceva intenționat, pragul se ridică în același commit cu explicația de ce.',
     budgetRows: [
-      { label: 'JavaScript inline pe prima pagină', value: 'cel mult 15 kB' },
-      { label: 'Foaia de stil, comprimată brotli', value: 'cel mult 10,5 kB' },
-      { label: 'Fonturile, toate patru la un loc', value: 'cel mult 64 kB' },
-      { label: 'Prima pagină, HTML comprimat', value: 'cel mult 25 kB' },
+      { key: 'homeInlineJs', label: 'JavaScript inline pe prima pagină' },
+      { key: 'css', label: 'Foaia de stil, comprimată brotli' },
+      { key: 'fonts', label: 'Fonturile, toate patru la un loc' },
+      { key: 'homeBrotli', label: 'Prima pagină, HTML comprimat' },
     ],
+    budgetAtMost: 'cel mult {value} kB',
 
     cspTitle: 'Politica de securitate',
     cspBody:

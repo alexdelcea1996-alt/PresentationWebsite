@@ -187,23 +187,28 @@ const optionCardClass =
         <div data-step="2" hidden>
           <h3 class="font-display text-lg font-semibold">{t.resultTitle}</h3>
 
-          <div class="mt-6 grid gap-4 sm:grid-cols-2" aria-live="polite" data-result>
-            <div class="rounded-xl border border-accent/30 bg-accent/10 p-5">
-              <p class="text-xs font-medium uppercase tracking-wider text-accent-alt">
-                {t.resultPriceLabel}
-              </p>
-              <p class="mt-2 font-display text-2xl font-semibold text-fg" data-result-price></p>
+          {/*
+            One slip instead of two cards and a list. See `.estimate-slip` for
+            why it is shaped like a receipt and why it carries no per-line
+            prices. Every hook the script and the suite use is unchanged —
+            `data-result`, `data-result-price`, `data-result-time` and
+            `data-result-summary` all still mean exactly what they meant.
+          */}
+          <div class="estimate-slip mt-6" aria-live="polite" data-result>
+            <div class="flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
+              <div class="min-w-0">
+                <p class="slip-label">{t.resultPriceLabel}</p>
+                <p class="slip-figure mt-1.5" data-result-price></p>
+              </div>
+              <div class="min-w-0">
+                <p class="slip-label">{t.resultTimeLabel}</p>
+                <p class="slip-figure mt-1.5" data-result-time></p>
+              </div>
             </div>
-            <div class="rounded-xl border border-border bg-surface/60 p-5">
-              <p class="text-xs font-medium uppercase tracking-wider text-fg-subtle">
-                {t.resultTimeLabel}
-              </p>
-              <p class="mt-2 font-display text-2xl font-semibold text-fg" data-result-time></p>
-            </div>
-          </div>
 
-          <div class="mt-6">
-            <p class="text-sm font-semibold text-fg">{t.resultSummaryTitle}</p>
+            <hr class="slip-rule my-5" />
+
+            <p class="slip-label">{t.resultSummaryTitle}</p>
             <ul class="mt-3 space-y-2" data-result-summary></ul>
           </div>
 
@@ -234,7 +239,8 @@ const optionCardClass =
             </button>
           </div>
 
-          <p class="mt-6 rounded-xl border border-border bg-surface/40 p-4 text-xs leading-relaxed text-fg-subtle">
+          {/* The fine print at the foot of the slip, where fine print belongs. */}
+          <p class="mx-auto mt-4 max-w-xl text-center text-xs leading-relaxed text-fg-subtle">
             {t.disclaimer}
           </p>
         </div>

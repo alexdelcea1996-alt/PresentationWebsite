@@ -1,0 +1,241 @@
+---
+/**
+ * The suite, drawn.
+ *
+ * One dot per check that runs against this site on every build — not a
+ * decorative particle field that happens to have a lot of particles. The count
+ * comes from the same constant the colophon publishes and the suite asserts, so
+ * the picture cannot quietly disagree with the number printed under it.
+ *
+ * Canvas rather than SVG: 1,152 nodes in the DOM would cost more in style and
+ * layout than the whole rest of the page, and none of them would ever be
+ * queried, focused or read. This draws in one element.
+ *
+ * Two shapes of instance:
+ *  - decorative (default) — behind the hero, `aria-hidden`, no pointer, no
+ *    names shipped;
+ *  - interactive — on the colophon, where the number is the subject: hovering a
+ *    dot names a real check from the suite.
+ */
+import { SUITE_CHECKS } from '../data/build';
+import { CHECK_SAMPLE } from '../data/checks';
+
+interface Props {
+  /** Drawing size in CSS pixels. The canvas is square. */
+  size: number;
+  interactive?: boolean;
+  /** Announced to screen readers; required when interactive. */
+  label?: string;
+  class?: string;
+}
+
+const { size, interactive = false, label, class: className } = Astro.props;
+---
+
+<div class:list={['constellation', className]} data-constellation-wrap>
+  <canvas
+    class="constellation-canvas"
+    width={size}
+    height={size}
+    data-constellation
+    data-count={SUITE_CHECKS}
+    data-size={size}
+    data-interactive={interactive ? '' : undefined}
+    data-names={interactive ? JSON.stringify(CHECK_SAMPLE) : undefined}
+    aria-hidden={interactive ? undefined : 'true'}
+    role={interactive ? 'img' : undefined}
+    aria-label={interactive ? label : undefined}></canvas>
+  {interactive && <p class="constellation-tip" data-constellation-tip role="status" aria-live="polite" />}
+</div>
+
+<script>
+  type Dot = { x: number; y: number; name: string };
+
+  const seeded = (seed: number) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  for (const canvas of document.querySelectorAll<HTMLCanvasElement>('[data-constellation]')) {
+    const context = canvas.getContext('2d');
+    if (!context) continue;
+
+    const size = Number(canvas.dataset.size ?? 320);
+    const count = Number(canvas.dataset.count ?? 0);
+    const interactive = canvas.dataset.interactive !== undefined;
+    const names: string[] = interactive ? JSON.parse(canvas.dataset.names ?? '[]') : [];
+    const tip = canvas.parentElement?.querySelector<HTMLElement>('[data-constellation-tip]');
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Draw at device resolution, lay out at CSS resolution.
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = size * ratio;
+    canvas.height = size * ratio;
+    context.scale(ratio, ratio);
+
+    /*
+      The mark is stroked once into an offscreen canvas and then read back as
+      pixels, so the dots are sampled from the real geometry rather than from a
+      second, hand-placed copy of it. Change `favicon.svg` and this follows.
+    */
+    const stencil = document.createElement('canvas');
+    stencil.width = stencil.height = size;
+    const mask = stencil.getContext('2d', { willReadFrequently: true });
+    if (!mask) continue;
+    const mid = size / 2;
+    const arm = size * 0.34;
+    const diag = arm * 0.72;
+    mask.lineCap = 'round';
+    mask.lineWidth = size * 0.092;
+    mask.strokeStyle = '#fff';
+    mask.beginPath();
+    mask.moveTo(mid, mid - arm);
+    mask.lineTo(mid, mid + arm);
+    mask.moveTo(mid - arm, mid);
+    mask.lineTo(mid + arm, mid);
+    mask.moveTo(mid - diag, mid - diag);
+    mask.lineTo(mid + diag, mid + diag);
+    mask.moveTo(mid + diag, mid - diag);
+    mask.lineTo(mid - diag, mid + diag);
+    mask.stroke();
+    const alpha = mask.getImageData(0, 0, size, size).data;
+
+    // Seeded, so every build and every visit draws the same constellation.
+    const random = seeded(count || 1);
+    const pool: [number, number][] = [];
+    for (let y = 1; y < size; y += 2) {
+      for (let x = 1; x < size; x += 2) {
+        if (alpha[(y * size + x) * 4 + 3]! > 128) pool.push([x, y]);
+      }
+    }
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    }
+
+    const dots: Dot[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const point = pool[i % pool.length]!;
+      // Points are reused only if the mark is too small to hold the whole
+      // suite; the jitter keeps a reused position from drawing twice over.
+      const spread = i < pool.length ? 1.6 : 2.6;
+      dots.push({
+        x: point[0] + (random() * 2 - 1) * spread,
+        y: point[1] + (random() * 2 - 1) * spread,
+        name: names.length ? names[i % names.length]! : '',
+      });
+    }
+
+    // Colours come from the palette, so the mark follows the theme rather than
+    // carrying a second copy of it.
+    let from = [131, 112, 254];
+    let to = [86, 222, 178];
+    const readPalette = () => {
+      const style = getComputedStyle(document.documentElement);
+      const parse = (name: string, fallback: number[]) => {
+        const probe = document.createElement('span');
+        probe.style.color = style.getPropertyValue(name).trim();
+        document.body.append(probe);
+        const value = getComputedStyle(probe).color.match(/\d+/g);
+        probe.remove();
+        return value ? value.slice(0, 3).map(Number) : fallback;
+      };
+      from = parse('--color-accent', from);
+      to = parse('--color-accent-alt', to);
+    };
+    readPalette();
+    new MutationObserver(() => {
+      readPalette();
+      draw();
+    }).observe(document.documentElement, { attributeFilter: ['data-theme'] });
+
+    let hot = -1;
+    let pulse: { index: number; start: number } | null = null;
+
+    function paint(now?: number) {
+      const ctx = context!;
+      ctx.clearRect(0, 0, size, size);
+      for (let i = 0; i < dots.length; i += 1) {
+        const dot = dots[i]!;
+        const t = Math.min(1, Math.max(0, (dot.x + dot.y) / (2 * size)));
+        ctx.fillStyle = `rgb(${Math.round(from[0]! + (to[0]! - from[0]!) * t)},${Math.round(
+          from[1]! + (to[1]! - from[1]!) * t,
+        )},${Math.round(from[2]! + (to[2]! - from[2]!) * t)})`;
+        ctx.globalAlpha = i === hot ? 1 : 0.85;
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, i === hot ? size * 0.0095 : size * 0.0046, 0, 7);
+        ctx.fill();
+      }
+      if (pulse && now !== undefined) {
+        const t = (now - pulse.start) / 950;
+        if (t >= 1) pulse = null;
+        else {
+          const dot = dots[pulse.index]!;
+          ctx.globalAlpha = (1 - t) * 0.85;
+          ctx.strokeStyle = `rgb(${to.join(',')})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, size * 0.01 + t * size * 0.075, 0, 7);
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+    const draw = () => paint();
+    draw();
+
+    /*
+      The frame loop runs only while there is something moving AND the mark is
+      on screen — the same rule the beam on the pricing card follows. A
+      decorative animation that keeps painting behind a scrolled-past viewport
+      is battery spent on nobody.
+    */
+    let frame = 0;
+    let onScreen = false;
+    const tick = (now: number) => {
+      paint(now);
+      frame = pulse || hot >= 0 ? requestAnimationFrame(tick) : 0;
+    };
+    const wake = () => {
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry!.isIntersecting;
+    }).observe(canvas);
+
+    if (!still.matches) {
+      setInterval(() => {
+        if (!onScreen || document.hidden) return;
+        pulse = { index: Math.floor(Math.random() * dots.length), start: performance.now() };
+        wake();
+      }, 1800);
+    }
+
+    if (interactive && tip) {
+      const reach = size * 0.05;
+      canvas.addEventListener('pointermove', (event) => {
+        const box = canvas.getBoundingClientRect();
+        const px = (event.clientX - box.left) * (size / box.width);
+        const py = (event.clientY - box.top) * (size / box.height);
+        let best = -1;
+        let nearest = reach * reach;
+        for (let i = 0; i < dots.length; i += 1) {
+          const dx = dots[i]!.x - px;
+          const dy = dots[i]!.y - py;
+          const distance = dx * dx + dy * dy;
+          if (distance < nearest) {
+            nearest = distance;
+            best = i;
+          }
+        }
+        if (best === hot) return;
+        hot = best;
+        wake();
+        tip.textContent = best >= 0 ? `„${dots[best]!.name}”` : '';
+      });
+      canvas.addEventListener('pointerleave', () => {
+        hot = -1;
+        tip.textContent = '';
+        wake();
+      });
+    }
+  }
+</script>

@@ -86,7 +86,15 @@ ck('no placeholder left behind', ![lcp, weight, js].includes('—'), `${lcp} | $
 
 const num = (s) => Number(s.replace(/[^\d]/g, ''));
 ck('weight is in a plausible range (100-400 kB)', num(weight) >= 100 && num(weight) <= 400, weight);
-ck('JS is a small slice of the page (< 25 kB)', num(js) > 0 && num(js) < 25, js);
+/*
+  The figure the band shows a visitor, not an internal budget — which is why it
+  is asserted as a claim about the page rather than as a ceiling in weight.mjs.
+  Raised 25 -> 30 kB for the constellation: it is the largest script the site
+  has added, and it is on the landing page by choice. Still under a fortieth of
+  the JavaScript on a median page, which is the comparison the row underneath
+  actually makes.
+*/
+ck('JS is a small slice of the page (< 30 kB)', num(js) > 0 && num(js) < 30, js);
 ck('JS is counted as part of the page, not on top of it', num(js) < num(weight), `${js} < ${weight}`);
 
 // The claim is "measured in your browser" — so it must track reality, including

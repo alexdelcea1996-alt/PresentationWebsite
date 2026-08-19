@@ -10,6 +10,7 @@
  * scroll. Everything below the fold still animates.
  */
 import Icon from '../Icon.astro';
+import Constellation from '../Constellation.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 
 interface Props {
@@ -40,6 +41,22 @@ const t = getContent(locale).hero;
     aria-hidden="true"
   >
   </div>
+
+  {/*
+    The suite, behind the headline.
+
+    Decorative here — no pointer, no names, `aria-hidden` — because the hero has
+    one job and reading check names is not it. What it buys is an object: the
+    hero used to be text and two buttons on an ambient wash, which is the shape
+    of every developer landing page there is. This one is the site's own mark
+    drawn out of its own test count, so the thing you look at first is also the
+    argument. The interactive version, where the dots name themselves, lives on
+    the colophon where the number is the subject.
+
+    Absolutely positioned and `-z-10`, exactly like the grid below it, so it
+    adds nothing to layout and cannot shift a thing.
+  */}
+  <Constellation size={900} class="constellation-hero" />
 
   {/* Subtle grid, faded out towards the edges */}
   <div

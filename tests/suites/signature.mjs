@@ -338,6 +338,62 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
   await p.close();
 }
 
+/*
+ * --- The stamps may not lie ------------------------------------------------
+ *
+ * A stamp on this site means "a check backs this claim", and it carries the
+ * suite file and the check name that does. That contract is worth exactly as
+ * much as its enforcement: a stamp moved onto a claim nobody verified, or left
+ * behind after its check was renamed, would keep asserting something untrue in
+ * the most confident-looking element on the page.
+ *
+ * So every stamp is resolved back to source — the named file must exist, and it
+ * must contain a check declared with that exact name.
+ */
+{
+  const { readFileSync, existsSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const suitesDir = dirname(fileURLToPath(import.meta.url));
+
+  const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+  const stamps = [];
+  for (const path of ['/', '/en/']) {
+    await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    stamps.push(
+      ...(await p.$$eval('[data-stamp]', (nodes) =>
+        nodes.map((n) => ({
+          suite: n.getAttribute('data-stamp-suite') ?? '',
+          check: n.getAttribute('data-stamp-check') ?? '',
+          text: (n.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 40),
+        })),
+      )),
+    );
+  }
+  await p.close();
+
+  ck('the site carries at least one stamp', stamps.length > 0, `${stamps.length} found`);
+
+  const unbacked = [];
+  for (const stamp of stamps) {
+    const file = join(suitesDir, stamp.suite);
+    if (!stamp.suite || !existsSync(file)) {
+      unbacked.push(`${stamp.text}: no such suite "${stamp.suite}"`);
+      continue;
+    }
+    // The name as the suite declares it, not merely as a substring of the file:
+    // a check name only counts if it is the first argument of a ck()/check().
+    const source = readFileSync(file, 'utf8');
+    const declared = [...source.matchAll(/\b(?:ck|check)\(\s*(['"`])([^'"`\n]+)\1/g)].map(
+      (match) => match[2],
+    );
+    if (!declared.includes(stamp.check)) {
+      unbacked.push(`${stamp.text}: "${stamp.check}" is not declared in ${stamp.suite}`);
+    }
+  }
+  ck('every stamp names a check that actually exists', unbacked.length === 0, unbacked.join(' | '));
+}
+
 // --- The spine ------------------------------------------------------------------------
 {
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });

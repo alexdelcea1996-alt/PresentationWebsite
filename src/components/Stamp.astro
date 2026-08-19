@@ -1,0 +1,42 @@
+---
+/**
+ * A quality-control stamp, and a promise about when it may be used.
+ *
+ * The site makes two kinds of statement: things it has measured or had checked,
+ * and things it intends. Until now both were set in the same type, which quietly
+ * asks the reader to take the second kind on the same trust as the first.
+ *
+ * The stamp marks the first kind only. It carries the suite file and the exact
+ * check name that backs the claim, and `signature.mjs` refuses to pass unless
+ * that check really exists in that file — so a stamp cannot be moved onto a
+ * claim nobody verified without the build noticing. A stamp that could lie is
+ * worth less than no stamp at all.
+ *
+ * There is deliberately one on the site today. That is not restraint for its own
+ * sake; it is how many claims currently have a named check behind them. Writing
+ * the test is what earns the next one.
+ */
+interface Props {
+  /** The words in the stamp. */
+  label: string;
+  /** Small print inside the stamp — what was checked, in the reader's language. */
+  detail?: string;
+  /** Suite file that holds the backing check, e.g. `metrics.mjs`. */
+  suite: string;
+  /** The check's exact name, as written in that file. */
+  check: string;
+  class?: string;
+}
+
+const { label, detail, suite, check, class: className } = Astro.props;
+---
+
+<span
+  class:list={['stamp', className]}
+  data-stamp
+  data-stamp-suite={suite}
+  data-stamp-check={check}
+>
+  <span class="stamp-label">{label}</span>
+  {detail && <span class="stamp-detail">{detail}</span>}
+</span>

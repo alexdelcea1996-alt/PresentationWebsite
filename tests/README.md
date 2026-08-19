@@ -1,6 +1,6 @@
 # Teste
 
-1152 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1154 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -82,7 +82,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 77 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
-| `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării | 42 |
+| `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării și ștampilele numesc verificări care chiar există | 44 |
 | `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 55 |
 | `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 29 |
 

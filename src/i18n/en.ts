@@ -67,6 +67,8 @@ export const en: Content = {
     verdictPending: 'Measuring…',
     sourceLabel: 'median of the web, HTTP Archive, 2025',
     sourceHref: 'https://httparchive.org/reports/page-weight',
+    stampLabel: 'Measured, not promised',
+    stampDetail: 'by your browser',
   },
 
   services: {
@@ -625,15 +627,21 @@ export const en: Content = {
     checksNote:
       'It says "in the suite", not "passing", and the difference matters: the build that produced this page ran BEFORE the tests did. A page announcing its own tests as green would be asserting exactly the kind of thing the rest of this site argues against. If you want the result, run the suite — it is in the repository, with instructions.',
 
+    constellationLabel:
+      "The site's mark, drawn with one dot for every check in the suite.",
+    constellationHint:
+      'One dot per check. Hover one: the name that appears belongs to a real check in the suite — a sample of them, not the name of the dot you touched.',
+
     budgetsTitle: 'The budgets',
     budgetsBody:
       'Measuring on its own defends nothing: a slow creep upward passes green forever. The thresholds below are asserted, so going over fails the build. When something is exceeded on purpose, the threshold is raised in the same commit, with the reason written beside it.',
     budgetRows: [
-      { label: 'Inline JavaScript on the landing page', value: 'at most 15 kB' },
-      { label: 'The stylesheet, brotli-compressed', value: 'at most 10.5 kB' },
-      { label: 'All four font files together', value: 'at most 64 kB' },
-      { label: 'The landing page, compressed HTML', value: 'at most 25 kB' },
+      { key: 'homeInlineJs', label: 'Inline JavaScript on the landing page' },
+      { key: 'css', label: 'The stylesheet, brotli-compressed' },
+      { key: 'fonts', label: 'All four font files together' },
+      { key: 'homeBrotli', label: 'The landing page, compressed HTML' },
     ],
+    budgetAtMost: 'at most {value} kB',
 
     cspTitle: 'The security policy',
     cspBody:

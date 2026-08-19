@@ -868,6 +868,183 @@
     pointer and when the reader has not asked for reduced motion.
   */
   /*
+    The estimate slip.
+
+    A receipt, deliberately — the estimate is the peak moment of the visit and
+    it used to look like two more cards in a page made of cards. A torn-edge
+    slip reads as something produced FOR you and takeable away, which is exactly
+    what the WhatsApp and copy-link buttons under it do.
+
+    What it is NOT is an itemised bill. The lines inside carry no prices, and
+    that is not an oversight: the configurator gives a range for the whole job,
+    and printing a figure against each feature would imply a per-item quote the
+    site does not actually offer. The form is a receipt; the content stays the
+    honest thing it already was.
+
+    The tear is a `clip-path` on the panel rather than a background image, so it
+    costs no request and follows whatever colour the surface takes in either
+    theme.
+  */
+  .estimate-slip {
+    position: relative;
+    /*
+      The deep surface, not the raised one. The slip sits inside a card, and on
+      the card's own colour the torn edge is invisible — the shape is cut, but
+      there is nothing behind it to see through to. Against the other surface in
+      the scale the tear reads immediately, in both themes.
+    */
+    background-color: var(--color-surface-deep);
+    padding: 1.75rem 1.5rem 1.5rem;
+    clip-path: polygon(
+      0 8px, 4% 0, 8% 8px, 12% 0, 16% 8px, 20% 0, 24% 8px, 28% 0, 32% 8px, 36% 0,
+      40% 8px, 44% 0, 48% 8px, 52% 0, 56% 8px, 60% 0, 64% 8px, 68% 0, 72% 8px,
+      76% 0, 80% 8px, 84% 0, 88% 8px, 92% 0, 96% 8px, 100% 0,
+      100% calc(100% - 8px), 96% 100%, 92% calc(100% - 8px), 88% 100%,
+      84% calc(100% - 8px), 80% 100%, 76% calc(100% - 8px), 72% 100%,
+      68% calc(100% - 8px), 64% 100%, 60% calc(100% - 8px), 56% 100%,
+      52% calc(100% - 8px), 48% 100%, 44% calc(100% - 8px), 40% 100%,
+      36% calc(100% - 8px), 32% 100%, 28% calc(100% - 8px), 24% 100%,
+      20% calc(100% - 8px), 16% 100%, 12% calc(100% - 8px), 8% 100%,
+      4% calc(100% - 8px), 0 100%
+    );
+  }
+
+  /* The figures. Tabular, because two of them sit in a row and change together. */
+  .slip-figure {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.75rem;
+    line-height: 1.15;
+    color: var(--color-fg);
+  }
+
+  .slip-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-fg-subtle);
+  }
+
+  .slip-rule {
+    border: 0;
+    border-top: 1px dashed var(--color-border-strong);
+  }
+
+  /*
+    The stamp. See `Stamp.astro` for the rule about when one may be used.
+
+    Rotated a degree and a half and double-ruled, because the reference is a
+    control stamp on a drawing and a straight rounded pill would just read as
+    another badge. Small enough to sit beside a heading without becoming the
+    heading.
+  */
+  .stamp {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.3rem 0.6rem;
+    border: 2px solid var(--color-accent-alt);
+    border-radius: 0.45rem;
+    rotate: -1.5deg;
+    color: var(--color-accent-alt);
+    text-align: center;
+    /* The inner hairline is what makes it read as ink rather than as a chip. */
+    box-shadow:
+      inset 0 0 0 1px var(--color-surface),
+      inset 0 0 0 2.5px color-mix(in oklab, var(--color-accent-alt) 55%, transparent);
+  }
+
+  .stamp-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  /*
+    No `opacity` here, and the size is a floor rather than a preference.
+    Dimming the small print to 0.8 composited the jade down to #38846c against
+    the paper surface — 3.7:1, under AA for text this size, and axe caught it.
+    A stamp that certifies a claim is a poor place to have an unreadable line.
+  */
+  .stamp-detail {
+    font-size: 0.5625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  /*
+    The constellation: the suite, drawn as the mark.
+
+    The canvas is sized in CSS and drawn at device resolution by the script, so
+    the two must not fight — `width`/`height` attributes set the buffer, these
+    rules set the box. Squares, always.
+  */
+  .constellation {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+  }
+
+  .constellation-canvas {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  /*
+    The hover read-out. A `role="status"` line rather than a floating tooltip:
+    a tooltip pinned to the pointer is unreachable by keyboard and unreadable by
+    a screen reader, and this text is the whole point of the interaction. It
+    holds its height whether or not a dot is under the pointer, so naming one
+    cannot nudge the page.
+  */
+  .constellation-tip {
+    min-height: 2.6em;
+    margin: 0;
+    max-width: 34ch;
+    text-align: center;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    color: var(--color-fg-muted);
+  }
+
+  /*
+    Behind the hero: the same drawing, at rest, with no pointer and no name.
+
+    Sized against the viewport so it fills the space the headline sits in, and
+    faint enough to read as texture rather than as an illustration competing
+    with the words on top of it. `-z-10` puts it under the content; the grid
+    layer above it uses the same trick.
+  */
+  .constellation-hero {
+    position: absolute;
+    /*
+      Bigger than the text block and lifted above its centre, on purpose. Sized
+      to match the headline, the mark's dense middle sits exactly behind the
+      words and all a reader sees is grain in the gaps — texture, not an object.
+      Wider than the column, the silhouette reads: the arms clear the text and
+      the shape is recognisably the site's own mark.
+    */
+    top: 44%;
+    left: 50%;
+    z-index: -10;
+    width: min(64rem, 150vw);
+    translate: -50% -50%;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  /*
     The measurement band, and the one place the page stops being a column.
 
     Fourteen sections all sat in the same 72rem container, in the same rounded
