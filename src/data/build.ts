@@ -50,7 +50,7 @@ export const build = {
  * number appears in `tests/README.md` and the top-level `README.md`. A stale
  * figure fails the build's own test run.
  */
-export const SUITE_CHECKS = 1318;
+export const SUITE_CHECKS = 1335;
 
 /**
  * The budgets `tests/suites/weight.mjs` actually asserts, restated for the
@@ -58,7 +58,7 @@ export const SUITE_CHECKS = 1318;
  * `colophon.mjs` reads the thresholds out of that suite and compares.
  */
 export const BUDGETS = {
-  homeInlineJs: 19,
+  homeInlineJs: 21,
   css: 13,
   fonts: 80,
   homeBrotli: 25,

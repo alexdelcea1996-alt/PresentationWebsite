@@ -155,10 +155,19 @@ for (const file of pages.filter((f) => isExample(named(f)))) {
 // leaking into a shared component — and a bare `length === 4` would wave that
 // through as long as something else had shrunk. No DEMO bundle may load on the
 // landing page; the demo and store suites assert that directly.
-const EXPECTED_BUNDLES = ['Audit', 'BookingDemo', 'Configurator', 'StoreDemo'];
+//
+// Constellation is the fifth, and it is the first one on this list that loads
+// above the fold. It crossed the threshold when the mark became an object —
+// depth per dot, a rotation matrix, a perspective divide — and it was left
+// there rather than trimmed back under: the drawing is decorative and
+// `aria-hidden`, so nothing a reader needs waits on it, and moving it out took
+// its bytes off every landing-page response in exchange for one deferred,
+// cacheable request. If it ever stops being decorative, that trade stops being
+// free and this paragraph has to be rewritten before the list is.
+const EXPECTED_BUNDLES = ['Audit', 'BookingDemo', 'Configurator', 'Constellation', 'StoreDemo'];
 const bundles = pick((name) => name.endsWith('.js'));
 const bundleNames = bundles.map((f) => named(f).replace(/^\/_astro\//, '').replace(/\..*$/, ''));
-ck('exactly the four bundles we decided to ship',
+ck('exactly the five bundles we decided to ship',
   bundleNames.length === EXPECTED_BUNDLES.length &&
     EXPECTED_BUNDLES.every((name) => bundleNames.includes(name)),
   bundleNames.join(' ') || 'none');
@@ -198,8 +207,14 @@ async function inlineJs(page) {
 // samples the mark's own geometry rather than shipping a second copy of it, so
 // the cost is script and not data — and the hero instance ships no check names
 // at all, only the colophon's interactive one does.
+//
+// 19 -> 21 when that mark became an object: every dot given a depth from the
+// suite it belongs to, a rotation matrix and a perspective divide, and two ways
+// to turn it — the scroll on the hero, the pointer on the colophon. About 1 kB
+// of arithmetic, written out rather than imported, on a page that argues
+// against importing a hundred and fifty for it. Today: 19.1 kB.
 const homeJs = await inlineJs('index.html');
-ck('inline JS on the landing page is under budget', homeJs <= 19 * KB, `${kb(homeJs)} raw`);
+ck('inline JS on the landing page is under budget', homeJs <= 21 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));
 ck('inline JS on a demo page is under budget', demoJs <= 5.5 * KB, `${kb(demoJs)} raw`);
 const exampleJs = await inlineJs(join('demo', 'exemplu', 'atelier', 'index.html'));

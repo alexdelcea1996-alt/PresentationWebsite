@@ -64,9 +64,38 @@ function sample(all: string[], count: number): string[] {
   return Array.from({ length: count }, (_, i) => all[Math.floor(i * step)]!);
 }
 
+/**
+ * How many assertions each suite file declares, in the order they run.
+ *
+ * The constellation uses this to give every dot a depth: a dot belongs to the
+ * suite it came from, and the suites are stacked back to front, so the cloud
+ * turned side-on is the shape of the test suite rather than a slab of noise.
+ * Twenty-eight sheets, each as dense as that suite is large.
+ *
+ * These are `ck(` call sites, the same lower bound `SUITE_CHECKS` is guarded
+ * against — a suite that asserts inside a loop really runs more than it
+ * declares. Proportions are what the picture needs, and the proportions of the
+ * declarations are close enough to the proportions of the runs to be honest
+ * about it in the copy: this is the shape of the suite as written.
+ */
+function shape(): number[] {
+  const sizes: number[] = [];
+
+  for (const file of readdirSync(suiteDir).sort()) {
+    if (!file.endsWith('.mjs')) continue;
+    const source = readFileSync(join(suiteDir, file), 'utf8');
+    sizes.push([...source.matchAll(CALL)].length);
+  }
+
+  return sizes;
+}
+
 const all = collect();
 
 /** How many distinct literal names the suite declares — for the copy to cite. */
 export const CHECK_NAMES_FOUND = all.length;
+
+/** One number per suite file, in run order. Sums to the declared call sites. */
+export const SUITE_SHAPE: readonly number[] = shape();
 
 export const CHECK_SAMPLE: readonly string[] = sample(all, 40);

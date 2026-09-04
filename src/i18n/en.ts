@@ -642,9 +642,9 @@ export const en: Content = {
       'It says "in the suite", not "passing", and the difference matters: the build that produced this page ran BEFORE the tests did. A page announcing its own tests as green would be asserting exactly the kind of thing the rest of this site argues against. If you want the result, run the suite — it is in the repository, with instructions.',
 
     constellationLabel:
-      "The site's mark, drawn with one dot for every check in the suite.",
+      "The site's mark, drawn with one dot for every check in the suite, stacked in depth by the file each one comes from.",
     constellationHint:
-      'One dot per check. Hover one: the name that appears belongs to a real check in the suite — a sample of them, not the name of the dot you touched.',
+      'One dot per check, and its depth is the suite it belongs to: one sheet per test file, each as dense as that suite is large. Move the pointer to turn it and the stack comes apart. The name that appears when you hover a dot belongs to a real check in the suite — a sample of them, not the name of the dot you touched.',
 
     budgetsTitle: 'The budgets',
     budgetsBody:

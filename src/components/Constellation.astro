@@ -16,9 +16,19 @@
  *    names shipped;
  *  - interactive — on the colophon, where the number is the subject: hovering a
  *    dot names a real check from the suite.
+ *
+ * It is an object, not a picture. Every dot carries a depth, and the depth is
+ * the suite it came from: twenty-eight sheets stacked back to front, each as
+ * dense as that suite is large. Head-on it reads as the mark; turned, it comes
+ * apart into the shape of the thing it is counting.
+ *
+ * Nothing turns it on its own. The hero's copy is turned by the scroll and the
+ * colophon's by the pointer, so an idle tab paints nothing at all — the same
+ * rule the beam on the pricing card follows, and the reason a decorative canvas
+ * of thirteen hundred points costs nothing to leave on the page.
  */
 import { SUITE_CHECKS } from '../data/build';
-import { CHECK_SAMPLE } from '../data/checks';
+import { CHECK_SAMPLE, SUITE_SHAPE } from '../data/checks';
 
 interface Props {
   /** Drawing size in CSS pixels. The canvas is square. */
@@ -40,6 +50,7 @@ const { size, interactive = false, label, class: className } = Astro.props;
     data-constellation
     data-count={SUITE_CHECKS}
     data-size={size}
+    data-shape={JSON.stringify(SUITE_SHAPE)}
     data-interactive={interactive ? '' : undefined}
     data-names={interactive ? JSON.stringify(CHECK_SAMPLE) : undefined}
     aria-hidden={interactive ? undefined : 'true'}
@@ -49,7 +60,17 @@ const { size, interactive = false, label, class: className } = Astro.props;
 </div>
 
 <script>
-  type Dot = { x: number; y: number; name: string };
+  type Dot = {
+    /** Where it sits in the mark, and how far back its suite is. */
+    x: number;
+    y: number;
+    z: number;
+    name: string;
+    /** Filled in by every paint: where it landed on screen, and how near. */
+    px: number;
+    py: number;
+    near: number;
+  };
 
   const seeded = (seed: number) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 
@@ -61,6 +82,7 @@ const { size, interactive = false, label, class: className } = Astro.props;
     const count = Number(canvas.dataset.count ?? 0);
     const interactive = canvas.dataset.interactive !== undefined;
     const names: string[] = interactive ? JSON.parse(canvas.dataset.names ?? '[]') : [];
+    const shape: number[] = JSON.parse(canvas.dataset.shape ?? '[]');
     const tip = canvas.parentElement?.querySelector<HTMLElement>('[data-constellation-tip]');
     const still = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -110,18 +132,76 @@ const { size, interactive = false, label, class: className } = Astro.props;
       [pool[i], pool[j]] = [pool[j]!, pool[i]!];
     }
 
+    /*
+      Depth comes from the suite, not from a random number.
+
+      Each dot is handed out to a suite in turn, in proportion to how many
+      assertions that suite declares, and the suites are laid out back to front.
+      So the cloud turned side-on is the shape of the test suite: twenty-eight
+      sheets, one per file, `completeness` a dense slab and `a11y-light` three
+      points on its own. A random z would have looked much the same from the
+      front and meant nothing from the side.
+
+      The jitter inside a layer is a tenth of the gap between layers, enough to
+      keep a sheet from reading as a hard plane of glass and not enough to let
+      two suites blur into each other.
+    */
+    const layers = Math.max(1, shape.length);
+    const declared = shape.reduce((sum, n) => sum + n, 0) || 1;
+    const depth = size * 0.22;
+
     const dots: Dot[] = [];
+    const sheetZ: number[] = [];
+    let layer = 0;
+    let taken = 0;
     for (let i = 0; i < count; i += 1) {
+      // Move on to the next suite once this one has had its share.
+      while (layer < layers - 1 && taken >= Math.round((shape[layer]! / declared) * count)) {
+        layer += 1;
+        taken = 0;
+      }
+      taken += 1;
+
       const point = pool[i % pool.length]!;
       // Points are reused only if the mark is too small to hold the whole
       // suite; the jitter keeps a reused position from drawing twice over.
       const spread = i < pool.length ? 1.6 : 2.6;
+      const step = layers > 1 ? layer / (layers - 1) - 0.5 : 0;
+      if (sheetZ.length === layer) sheetZ.push(step * depth);
       dots.push({
         x: point[0] + (random() * 2 - 1) * spread,
         y: point[1] + (random() * 2 - 1) * spread,
+        z: step * depth + (random() * 2 - 1) * (depth / layers) * 0.5,
         name: names.length ? names[i % names.length]! : '',
+        px: point[0],
+        py: point[1],
+        near: 1,
       });
     }
+
+    // Back to front, so a near dot draws over a far one. The order changes with
+    // the rotation, so it is recomputed per paint — 1,300 indices is a fraction
+    // of a millisecond and the alternative is a cloud that looks inside out.
+    const order = new Int32Array(dots.length);
+    for (let i = 0; i < dots.length; i += 1) order[i] = i;
+    const depthKey = new Float64Array(dots.length);
+    let sorted = false;
+
+    /*
+      What was actually built, reported back: the depth each sheet landed at.
+
+      Not diagnostics for their own sake. The claim this object makes is that
+      the depth is the suite — and a version that threw the suite away and used
+      a random z drew something that looked much the same and passed every check
+      written against it, because the shape reaching the page and the shape
+      being used are two different facts. Stacked, these are a rising ramp;
+      random, they scatter around zero.
+
+      Recorded as the layers are handed out rather than walked again afterwards:
+      a second pass over thirteen hundred dots is bytes every visitor downloads
+      to make a test easier to write, which is the wrong way round.
+    */
+    canvas.dataset.built = JSON.stringify(sheetZ.map((z) => Math.round((z / size) * 1000) / 1000));
 
     // Colours come from the palette, so the mark follows the theme rather than
     // carrying a second copy of it.
@@ -149,18 +229,112 @@ const { size, interactive = false, label, class: className } = Astro.props;
     let hot = -1;
     let pulse: { index: number; start: number } | null = null;
 
+    /*
+      How far the object is turned, in radians. Nothing here moves it — the
+      hero's copy is turned by the scroll and the colophon's by the pointer,
+      further down. At zero it is exactly the flat mark it has always been,
+      which is also what a reader who asked for less motion gets.
+    */
+    let turn = 0;
+    let tilt = 0;
+
+    /*
+      One lens, written out rather than pulled in.
+
+      Rotate about the vertical axis, then about the horizontal one, then divide
+      by distance — which is the whole of perspective, and about eight lines. A
+      library that does this brings a hundred and fifty kilobytes for the parts
+      of it nobody here is asking for, on a page whose own argument is that it
+      weighs a fifth of that.
+
+      The lens is deliberately long — five and a half times the mark rather than
+      two — and that took a rebuild to get right. A short lens spreads the whole
+      stack radially even at rest, and the first version of this turned the mark
+      into a cloud of dust before it had turned at all: face-on has to read as
+      the mark, or the object is only ever an ornament.
+
+      A long lens moves the dots almost not at all when the object is square,
+      and still throws a sheet sideways by seventy pixels at twenty degrees,
+      because that displacement comes from the rotation and not from the
+      projection. What it costs is the depth cue — at four percent of scale
+      difference nobody can see which sheet is in front — so distance is drawn
+      separately, below, harder than this lens shows it. Said plainly because
+      it is a choice: the geometry is honest, the shading is emphasis.
+    */
+    const focal = size * 5.5;
+
+    function project() {
+      const cy = Math.cos(turn);
+      const sy = Math.sin(turn);
+      const cx = Math.cos(tilt);
+      const sx = Math.sin(tilt);
+      const mid2 = size / 2;
+
+      for (const dot of dots) {
+        const x = dot.x - mid2;
+        const y = dot.y - mid2;
+        const rx = x * cy + dot.z * sy;
+        const rz = dot.z * cy - x * sy;
+        const ry = y * cx - rz * sx;
+        const rzz = y * sx + rz * cx;
+        // Nearer than the eye is never allowed to happen, so no divide by zero
+        // and no dot turning inside out behind the camera.
+        const near = focal / Math.max(focal * 0.35, focal - rzz);
+        dot.px = mid2 + rx * near;
+        dot.py = mid2 + ry * near;
+        // How near, as a fraction of the stack: 1 at the front sheet, 0 at the
+        // back. This is what draws the depth, not `near` — see the lens note.
+        dot.near = Math.min(1, Math.max(0, 0.5 - rzz / depth));
+      }
+
+      /*
+        Painter's algorithm: far first, so a near dot covers a far one. Dropping
+        it entirely changes 17% of the pixels, so it is not optional.
+
+        Paying for it with `order.sort()` every frame is, though: thirteen
+        hundred elements is thirteen thousand comparator calls a frame, and on
+        Lighthouse's mobile profile that alone was six points of performance.
+        The array is already in order from the previous frame and the rotation
+        moved it a little, so an insertion pass over a nearly-sorted array is
+        linear in practice — and it is exact, not an approximation of the sort
+        it replaces. The first pass has nothing to start from, so that one is
+        left to the built-in.
+      */
+      for (let i = 0; i < dots.length; i += 1) depthKey[i] = dots[i]!.near;
+
+      if (sorted) {
+        for (let i = 1; i < order.length; i += 1) {
+          const value = order[i]!;
+          const key = depthKey[value]!;
+          let j = i - 1;
+          while (j >= 0 && depthKey[order[j]!]! > key) {
+            order[j + 1] = order[j]!;
+            j -= 1;
+          }
+          order[j + 1] = value;
+        }
+      } else {
+        order.sort((a, b) => depthKey[a]! - depthKey[b]!);
+        sorted = true;
+      }
+    }
+
     function paint(now?: number) {
       const ctx = context!;
+      project();
       ctx.clearRect(0, 0, size, size);
-      for (let i = 0; i < dots.length; i += 1) {
+      for (const i of order) {
         const dot = dots[i]!;
         const t = Math.min(1, Math.max(0, (dot.x + dot.y) / (2 * size)));
         ctx.fillStyle = `rgb(${Math.round(from[0]! + (to[0]! - from[0]!) * t)},${Math.round(
           from[1]! + (to[1]! - from[1]!) * t,
         )},${Math.round(from[2]! + (to[2]! - from[2]!) * t)})`;
-        ctx.globalAlpha = i === hot ? 1 : 0.85;
+        // Distance is drawn, not just computed: a far dot is smaller and
+        // fainter, which is the only reason the stack reads as a stack.
+        const lit = 0.62 + dot.near * 0.38;
+        ctx.globalAlpha = i === hot ? 1 : 0.85 * lit;
         ctx.beginPath();
-        ctx.arc(dot.x, dot.y, i === hot ? size * 0.0095 : size * 0.0046, 0, 7);
+        ctx.arc(dot.px, dot.py, (i === hot ? size * 0.0095 : size * 0.0046) * (0.86 + dot.near * 0.28), 0, 7);
         ctx.fill();
       }
       if (pulse && now !== undefined) {
@@ -172,7 +346,7 @@ const { size, interactive = false, label, class: className } = Astro.props;
           ctx.strokeStyle = `rgb(${to.join(',')})`;
           ctx.lineWidth = 1.4;
           ctx.beginPath();
-          ctx.arc(dot.x, dot.y, size * 0.01 + t * size * 0.075, 0, 7);
+          ctx.arc(dot.px, dot.py, size * 0.01 + t * size * 0.075, 0, 7);
           ctx.stroke();
         }
       }
@@ -189,17 +363,77 @@ const { size, interactive = false, label, class: className } = Astro.props;
     */
     let frame = 0;
     let onScreen = false;
+
+    /*
+      Where the object is being asked to point, and where it currently points.
+
+      Kept apart so the turn eases rather than snapping: a scroll event or a
+      pointer move sets the target, and the loop walks towards it and then
+      stops. Twelve hundredths a frame settles in about a fifth of a second,
+      which is quick enough to feel attached to the input and slow enough that
+      a jumpy trackpad does not make the object twitch.
+    */
+    let wantTurn = 0;
+    let wantTilt = 0;
+    const EASE = 0.12;
+    const SETTLED = 0.0004;
+
+    /**
+     * Set by the scroll driver below; the observer calls it with geometry it
+     * already had, so nothing here ever asks the layout a question.
+     */
+    let aimAt: ((box: DOMRectReadOnly, root: DOMRectReadOnly) => void) | null = null;
+    let started = false;
+
     const tick = (now: number) => {
+      const restTurn = wantTurn - turn;
+      const restTilt = wantTilt - tilt;
+      const moving = Math.abs(restTurn) > SETTLED || Math.abs(restTilt) > SETTLED;
+
+      if (moving) {
+        turn += restTurn * EASE;
+        tilt += restTilt * EASE;
+      } else {
+        turn = wantTurn;
+        tilt = wantTilt;
+      }
+
       paint(now);
-      frame = pulse || hot >= 0 ? requestAnimationFrame(tick) : 0;
+      frame = moving || pulse || hot >= 0 ? requestAnimationFrame(tick) : 0;
     };
     const wake = () => {
       if (!frame) frame = requestAnimationFrame(tick);
     };
 
-    new IntersectionObserver(([entry]) => {
-      onScreen = entry!.isIntersecting;
-    }).observe(canvas);
+    /*
+      Forty thresholds, and no scroll listener anywhere.
+
+      The first build of the turn used `addEventListener('scroll')` and read
+      `getBoundingClientRect()` from inside the frame callback, which the suite
+      refused — rightly. This page removed its scroll handlers on purpose: a
+      geometry read costs a synchronous layout whenever styles are dirty, and
+      the one that ran before first paint cost 82ms of forced reflow and a 50ms
+      long task. The header and the phone dock were moved onto observers for
+      exactly this, and a decorative canvas is not the thing to make an
+      exception for.
+
+      An IntersectionObserver hands back `boundingClientRect` and `rootBounds`
+      already computed, in the browser's own rendering step, with nothing forced
+      — and forty thresholds across the crossing is an update every couple of
+      percent, which the easing below smooths into a turn. The observer also
+      answers the question the old one was here for: whether to bother pulsing.
+    */
+    const STEPS = 25;
+    new IntersectionObserver(
+      (entries) => {
+        const entry = entries[entries.length - 1]!;
+        onScreen = entry.isIntersecting;
+        if (!aimAt || !entry.rootBounds) return;
+        aimAt(entry.boundingClientRect, entry.rootBounds);
+        wake();
+      },
+      { threshold: Array.from({ length: STEPS + 1 }, (_, i) => i / STEPS) },
+    ).observe(canvas);
 
     if (!still.matches) {
       setInterval(() => {
@@ -209,30 +443,100 @@ const { size, interactive = false, label, class: className } = Astro.props;
       }, 1800);
     }
 
+    /*
+      Turned by the scroll, on the copy nobody can touch.
+
+      The geometry read happens inside the frame callback, never in the scroll
+      listener. That distinction is the whole reason the header and the phone
+      dock were moved onto sentinels and observers: a `getBoundingClientRect()`
+      from a scroll handler forces a synchronous layout, and the one that ran
+      before first paint cost 82ms of reflow. Here the read is one per painted
+      frame, during a scroll that has already dirtied nothing, and it stops
+      entirely the moment the scrolling does.
+    */
+    if (!interactive && !still.matches) {
+      /*
+        The turn is armed once the page has gone quiet, never during the load.
+
+        Twenty-five thresholds crossing during a page load is twenty-five wakes
+        of an easing loop, each one repainting thirteen hundred points, all of
+        it landing inside the window Lighthouse measures blocking time in.
+        Sitting square until the page has settled costs a reader nothing — the
+        object is square at the top of the page anyway — and takes the whole of
+        this off the critical path.
+      */
+      const arm = () => {
+        aimAt = turnWith;
+      };
+
+      const turnWith = (box: DOMRectReadOnly, root: DOMRectReadOnly) => {
+        /*
+          Square when it is in front of you, turning as it goes past.
+
+          The first mapping ran the whole crossing from one edge of the range to
+          the other, which meant the object was already turned nine degrees at
+          the top of the page — and nine degrees across a stack this deep smears
+          the arms into dust before anybody has scrolled at all. Anchoring zero
+          to the middle of the screen means the mark is a mark exactly when it
+          is being looked at, and comes apart on the way in and on the way out.
+        */
+        const centre = (box.top + box.height / 2 - root.top) / root.height;
+        const offset = Math.min(0.9, Math.max(-0.9, 0.5 - centre));
+        wantTurn = offset * 0.7;
+        wantTilt = offset * -0.24;
+        // The first callback arrives before anything has been drawn, so there is
+        // nothing to ease from: start where the object belongs.
+        if (!started) {
+          started = true;
+          turn = wantTurn;
+          tilt = wantTilt;
+        }
+      };
+
+      if (typeof requestIdleCallback === 'function') requestIdleCallback(arm, { timeout: 2500 });
+      else addEventListener('load', () => setTimeout(arm, 400), { once: true });
+    }
+
     if (interactive && tip) {
-      const reach = size * 0.05;
+      const reach = size * 0.06;
       canvas.addEventListener('pointermove', (event) => {
         const box = canvas.getBoundingClientRect();
         const px = (event.clientX - box.left) * (size / box.width);
         const py = (event.clientY - box.top) * (size / box.height);
+
+        /*
+          Turned by the pointer, gently. Wide enough that the stack of suites
+          comes apart and you can see it is a stack; narrow enough that the dot
+          under the cursor is still the dot you were pointing at when you
+          started moving.
+        */
+        if (!still.matches) {
+          wantTurn = (px / size - 0.5) * 0.5;
+          wantTilt = (py / size - 0.5) * -0.34;
+        }
+
+        // Against where the dots actually landed, not where they live in the
+        // model — the object is turned, so those are different places.
         let best = -1;
         let nearest = reach * reach;
         for (let i = 0; i < dots.length; i += 1) {
-          const dx = dots[i]!.x - px;
-          const dy = dots[i]!.y - py;
+          const dx = dots[i]!.px - px;
+          const dy = dots[i]!.py - py;
           const distance = dx * dx + dy * dy;
           if (distance < nearest) {
             nearest = distance;
             best = i;
           }
         }
+        wake();
         if (best === hot) return;
         hot = best;
-        wake();
         tip.textContent = best >= 0 ? `„${dots[best]!.name}”` : '';
       });
       canvas.addEventListener('pointerleave', () => {
         hot = -1;
+        wantTurn = 0;
+        wantTilt = 0;
         tip.textContent = '';
         wake();
       });

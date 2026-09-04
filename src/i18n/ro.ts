@@ -642,9 +642,9 @@ export const ro: Content = {
       'Scrie „în suită”, nu „trecute”, și diferența contează: build-ul care a produs pagina asta a rulat ÎNAINTE de teste. O pagină care și-ar anunța propriile teste ca fiind verzi ar afirma exact genul de lucru pe care restul site-ului îl combate. Dacă vrei rezultatul, rulează suita — e în depozit, cu tot cu instrucțiuni.',
 
     constellationLabel:
-      'Marca site-ului, desenată din câte un punct pentru fiecare verificare din suită.',
+      'Marca site-ului, desenată din câte un punct pentru fiecare verificare din suită, așezate în adâncime după fișierul din care vin.',
     constellationHint:
-      'Un punct pentru fiecare verificare. Treci cu mouse-ul peste unul: numele care apare e al unei verificări reale din suită — un eșantion, nu numele punctului atins.',
+      'Un punct pentru fiecare verificare, iar adâncimea lui e suita din care face parte: câte un strat pentru fiecare fișier de teste, fiecare atât de dens cât e suita de mare. Mișcă mouse-ul ca să-l întorci și se desface în straturi. Numele care apare la trecerea peste un punct e al unei verificări reale din suită — un eșantion, nu numele punctului atins.',
 
     budgetsTitle: 'Bugetele',
     budgetsBody:
