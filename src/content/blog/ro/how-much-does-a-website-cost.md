@@ -70,7 +70,7 @@ Ca să nu rămâi cu „depinde": un [landing page](/servicii/landing-page/) por
 [magazin online](/servicii/magazin-online/) la 2.200 €. Sunt prețuri de pornire, nu prețuri finale —
 ce le mută în sus e lista de mai sus, nu inspirația de moment.
 
-Poți vedea unde te-ai încadra fără să vorbești cu mine: [estimarea de pe prima pagină](/#estimate)
+Poți vedea unde te-ai încadra fără să vorbești cu mine: [estimarea de pe site](/estimare/)
 îți dă un interval și un termen în câteva clicuri.
 
 ## Cele cinci întrebări cu care compari două oferte

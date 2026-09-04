@@ -1,0 +1,21 @@
+---
+/**
+ * Two ways to get a number without talking to anybody: price the thing you
+ * want, or measure the thing you already have.
+ */
+import CategoryPage from './CategoryPage.astro';
+import Configurator from './sections/Configurator.astro';
+import Audit from './sections/Audit.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<CategoryPage locale={locale} page="estimate">
+  <Configurator locale={locale} lead />
+  <Audit locale={locale} />
+</CategoryPage>

@@ -1,11 +1,11 @@
 ---
 import { render } from 'astro:content';
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
-import { getContent, sectionIds, type Locale } from '../i18n';
+import { getContent, type Locale } from '../i18n';
+import { estimatePath, servicesIndexPath } from '../data/pages';
 import { contactPath } from '../data/demo';
 import { getServiceTranslations, servicePath, type ServicePage } from '../data/services';
 import { demoForService } from '../data/demo';
@@ -29,8 +29,6 @@ const alternates = Object.fromEntries(
   ]),
 ) as Partial<Record<Locale, string>>;
 
-const home = getRelativeLocaleUrl(locale);
-const anchor = (id: string) => `${home}#${id}`.replace(/\/{2,}/g, '/');
 
 // The questions are already written and already on the page — this just states
 // them in the form search engines read. Built as an object and serialised by
@@ -69,7 +67,7 @@ const faqSchema = {
 
         <div class="container-page">
           <a
-            href={anchor(sectionIds.services)}
+            href={servicesIndexPath(locale)}
             class="inline-flex items-center gap-2 text-sm font-medium text-fg-muted transition-colors hover:text-accent-alt"
           >
             <Icon name="arrow-right" class="size-4 rotate-180" />
@@ -88,7 +86,7 @@ const faqSchema = {
                 {d.ctaButton}
                 <Icon name="arrow-right" class="size-4" />
               </a>
-              <a href={anchor(sectionIds.estimate)} class="btn btn-ghost text-sm">
+              <a href={estimatePath(locale)} class="btn btn-ghost text-sm">
                 {t.configurator.eyebrow}
               </a>
               {/* Only where a demo actually shows that offer — under "optimisation"

@@ -604,6 +604,66 @@ export const en: Content = {
     nav: 'Navigation',
   },
 
+  pages: {
+    services: {
+      metaTitle: 'Services — websites and web apps | Alex Delcea',
+      metaDescription:
+        'What I build, how a project runs from first message to launch, and why a site made by a person beats a template. Price and deadline in writing.',
+    },
+    projects: {
+      metaTitle: 'Projects and case studies | Alex Delcea',
+      metaDescription:
+        'Case studies with measured numbers rather than impressions, and a whole example site you can use right here on the page. What you see is what I ship.',
+    },
+    pricing: {
+      metaTitle: 'Pricing, packages and guarantees | Alex Delcea',
+      metaDescription:
+        'Three packages with the prices written on the page, what goes into each, what I guarantee in writing, and the questions that come before a quote.',
+    },
+    estimate: {
+      metaTitle: 'Free estimate in 30 seconds | Alex Delcea',
+      metaDescription:
+        'Pick what you need and see a price range and a timeline on the spot, without leaving an email address. Plus an instant audit of the site you have now.',
+    },
+    contact: {
+      metaTitle: 'Contact — ask for a free quote | Alex Delcea',
+      metaDescription:
+        'Tell me in three steps what you need and I reply within 24 hours with a price and a deadline. Or call directly — you get the person who builds it, not a form.',
+    },
+    next: {
+      title: 'The next step is a conversation, not a signature',
+      body: 'Tell me in two lines what you need. You get back a price, a deadline and exactly what is included — in writing, before anybody starts working.',
+      action: 'Ask for a quote',
+      secondary: 'Or see what it would cost first',
+    },
+  },
+
+  hub: {
+    servicesMore: 'See every service and how a project runs',
+    projectsMore: 'See every project and a working example site',
+    eyebrow: 'From here',
+    title: 'Three ways on — pick yours',
+    subtitle:
+      'You are not made to scroll through fourteen sections to reach the one you came for. Each has a page of its own, with everything needed to make a decision.',
+    cards: [
+      {
+        title: 'I want to know what it costs',
+        body: 'Three packages with the prices written on the page, what each includes, and what I guarantee in writing.',
+        action: 'See the prices',
+      },
+      {
+        title: 'I want a number for my case',
+        body: 'Pick what you need and see a price range and a timeline on the spot, without leaving an address.',
+        action: 'Make an estimate',
+      },
+      {
+        title: 'I want to see something that works',
+        body: 'Four demos you can use right now: a store, a bookings app and two complete websites.',
+        action: 'Open the demos',
+      },
+    ],
+  },
+
   blueprint: {
     show: 'See the construction',
     hide: 'Hide the construction',

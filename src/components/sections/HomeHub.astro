@@ -1,0 +1,65 @@
+---
+/**
+ * Three doors, on the page that used to be all of them.
+ *
+ * The landing page's job changed when the sections moved out to pages of their
+ * own: it is no longer the whole argument, it is the shortest honest route to
+ * the part of the argument you came for. A visitor arrives with one of three
+ * questions — what does it cost, what would MINE cost, does any of this
+ * actually work — and each of the three has a page that answers it properly.
+ *
+ * Server-rendered anchors, nothing else. This is a signpost; a signpost that
+ * needs JavaScript is a signpost that sometimes is not there.
+ */
+import Icon from '../Icon.astro';
+import SectionHeading from '../SectionHeading.astro';
+import { getContent, type Locale } from '../../i18n';
+import { demoPath } from '../../data/demo';
+import { estimatePath, pricingPath } from '../../data/pages';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).hub;
+
+// The copy is a list and the destinations are a list; zipped here rather than
+// carried in the translation files, because a URL is not a thing to translate.
+const hrefs = [pricingPath(locale), estimatePath(locale), demoPath(locale)];
+const cards = t.cards.map((card, index) => ({ ...card, href: hrefs[index]! }));
+---
+
+<section id="next" class="py-20 sm:py-28" data-home-hub>
+  <div class="container-page">
+    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+
+    <div class="mt-16 grid gap-6 sm:grid-cols-3">
+      {
+        cards.map((card, index) => (
+          <article
+            class="card card-hover flex flex-col"
+            data-reveal
+            data-reveal-delay={index * 80}
+            data-hub-card
+          >
+            <h3 class="text-lg font-semibold">
+              {/* Stretched over the whole card: the destination is the point of
+                  the card, so the whole card is the target. */}
+              <a href={card.href} class="after:absolute after:inset-0 hover:text-accent-alt">
+                {card.title}
+              </a>
+            </h3>
+
+            <p class="mt-3 flex-1 text-sm leading-relaxed text-fg-muted">{card.body}</p>
+
+            <p class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-alt">
+              {card.action}
+              <Icon name="arrow-right" class="size-4" />
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

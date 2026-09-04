@@ -121,6 +121,6 @@ perfect one that does not exist.
 
 ## If you are still stuck
 
-Send me what you have — even notes. In the [free audit](/en/#audit) I look at the words as well as the
+Send me what you have — even notes. In the [free audit](/en/estimate/#audit) I look at the words as well as the
 speed, and within 48 hours I tell you what is making visitors leave without contacting you. No
 obligation, and no call afterwards.

@@ -92,7 +92,7 @@ locală, aduce adesea mai multe telefoane decât site-ul în primul an.
 3. Social media, în ritmul pe care îl poți ține fără să te epuizeze.
 4. Restul site-ului, când ai nevoie de el.
 
-Dacă ești la pasul 2 și nu știi cu ce începi, [estimarea de pe prima pagină](/#estimate) îți dă un
+Dacă ești la pasul 2 și nu știi cu ce începi, [estimarea de pe site](/estimare/) îți dă un
 interval și un termen fără să vorbești cu nimeni. Iar dacă ai deja un site și te întrebi dacă își
 face treaba, trimite-mi adresa: în 48 de ore primești trei lucruri concrete care te costă clienți.
 Gratuit, și nu te sun după.

@@ -1,4 +1,5 @@
 import type { Locale } from '../i18n';
+import { contactPagePath } from './pages';
 
 const withBase = (path: string) => `${import.meta.env.BASE_URL}/${path}`.replace(/\/{2,}/g, '/');
 
@@ -48,14 +49,17 @@ export const exampleSitePath = (locale: Locale, page: 'home' | 'services' | 'con
  * `via` stamps the lead with its origin, so the email says which page did the
  * convincing. The form shows a visible note when it acts on these — context
  * should travel with the visitor, never change things behind their back.
+ *
+ * It used to be an anchor on the front page. Now that the form has a page of
+ * its own the anchor is gone, and because every call site in the repository
+ * goes through this one function, none of them had to know.
  */
 export const contactPath = (locale: Locale, from?: string, via?: string) => {
-  const home = withBase(locale === 'en' ? 'en/' : '');
   const params = new URLSearchParams();
   if (from) params.set('from', from);
   if (via) params.set('via', via);
   const query = params.toString();
-  return `${home}${query ? `?${query}` : ''}#contact`;
+  return `${contactPagePath(locale)}${query ? `?${query}` : ''}`;
 };
 
 /**

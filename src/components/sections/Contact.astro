@@ -2,6 +2,7 @@
 import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
+import { HANDOVER_KEY } from '../../data/handover';
 import { site, telHref, whatsappHref } from '../../data/site';
 import { getLegalPage, legalPath } from '../../data/legal';
 import { thankYouPath } from '../../data/demo';
@@ -9,9 +10,20 @@ import BookingCard from '../BookingCard.astro';
 
 interface Props {
   locale: Locale;
+  /** True when this section opens a page of its own and owns its `h1`. */
+  lead?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, lead = false } = Astro.props;
+/**
+ * Card headings sit one level under whatever this section's own heading is.
+ *
+ * The section is `h2` when it is one of several on a page and `h1` when it is
+ * what a page is about, so a hard-coded `h3` under it is a skipped level in
+ * exactly one of those two cases — which is what axe caught the first time
+ * these sections were reused as pages.
+ */
+const Sub = lead ? 'h2' : 'h3';
 const t = getContent(locale).contact;
 const legal = getContent(locale).legal;
 
@@ -31,7 +43,11 @@ const fieldClass =
 const labelClass = 'block text-sm font-medium text-fg';
 ---
 
-<section id={sectionIds.contact} class="relative overflow-hidden py-20 sm:py-28">
+<section
+  id={sectionIds.contact}
+  class="relative overflow-hidden py-20 sm:py-28"
+  data-handover-key={HANDOVER_KEY}
+>
   <div
     class="glow left-1/2 bottom-[-8rem] size-[34rem] -translate-x-1/2 bg-accent/18"
     aria-hidden="true"
@@ -39,7 +55,12 @@ const labelClass = 'block text-sm font-medium text-fg';
   </div>
 
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    <SectionHeading
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      level={lead ? 1 : 2}
+    />
 
     <div class="mx-auto mt-16 grid max-w-5xl gap-6 lg:grid-cols-[1.6fr_1fr] lg:items-start">
       <form
@@ -293,7 +314,7 @@ const labelClass = 'block text-sm font-medium text-fg';
       </form>
 
       <aside class="card" data-reveal data-reveal-delay="100">
-        <h3 class="font-display text-lg font-semibold">{t.directTitle}</h3>
+        <Sub class="font-display text-lg font-semibold">{t.directTitle}</Sub>
         <p class="mt-3 text-sm leading-relaxed text-fg-muted">{t.directBody}</p>
 
         <a href={`mailto:${site.email}`} class={`mt-6 ${contactRowClass}`}>
@@ -353,6 +374,8 @@ const labelClass = 'block text-sm font-medium text-fg';
 </section>
 
 <script>
+  // Type only — erased at build, so nothing is bundled for it.
+  import type { Handover } from '../../data/handover';
   const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
 
   if (form) {
@@ -396,6 +419,62 @@ const labelClass = 'block text-sm font-medium text-fg';
         stamp.name = 'origin';
         stamp.value = via;
         form.append(stamp);
+      }
+
+      /*
+        The half of the hand-over that could not travel in the address bar.
+
+        Read once and deleted as it is applied: an estimate is about the visit
+        it was made in, and a form that quietly refills itself with an hour-old
+        answer on the next visit would be worse than an empty one. Everything
+        applied here is visible on screen before anything is sent — the note
+        above says the form was filled in, and the fields show what with.
+      */
+      const key = form.closest<HTMLElement>('[data-handover-key]')?.dataset.handoverKey;
+      let handed: Handover = {};
+      try {
+        if (key) {
+          handed = JSON.parse(sessionStorage.getItem(key) ?? '{}');
+          sessionStorage.removeItem(key);
+        }
+      } catch {
+        // Nothing readable there; the form is simply empty, which is fine.
+      }
+
+      const pick = (select: HTMLSelectElement | null, id?: string) => {
+        if (!select || !id) return;
+        const option = [...select.options].find((candidate) => candidate.dataset.id === id);
+        if (option) select.value = option.value;
+      };
+
+      pick(typeSelect, handed.type);
+      pick(form.querySelector<HTMLSelectElement>('#field-budget'), handed.budget);
+
+      const website = form.querySelector<HTMLInputElement>('#field-website');
+      if (website && handed.website) website.value = handed.website;
+
+      const message = form.querySelector<HTMLTextAreaElement>('#field-message');
+      if (message && handed.message && !message.value.trim()) message.value = handed.message;
+
+      if (handed.type && note?.dataset.template) {
+        const label = [...(typeSelect?.options ?? [])].find(
+          (option) => option.dataset.id === handed.type,
+        )?.textContent;
+        if (label) {
+          note.textContent = note.dataset.template.replace('{label}', label);
+          note.classList.remove('hidden');
+        }
+      }
+
+      /*
+        Announced to the stepped form, which listens for this and opens on the
+        step it was handed. Queued rather than dispatched here: the stepped
+        form is built further down this same script and is not listening yet.
+      */
+      if (handed.step) {
+        queueMicrotask(() =>
+          form.dispatchEvent(new CustomEvent('contact:filled', { detail: { step: handed.step } })),
+        );
       }
     }
 

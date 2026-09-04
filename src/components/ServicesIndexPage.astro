@@ -1,0 +1,26 @@
+---
+/**
+ * What I build, how a project runs, and why it beats a template.
+ *
+ * The three sections were always next to each other on the landing page and
+ * they answer one question between them: is this person going to build the
+ * thing I need, and what is it like to work with them.
+ */
+import CategoryPage from './CategoryPage.astro';
+import Services from './sections/Services.astro';
+import Process from './sections/Process.astro';
+import Comparison from './sections/Comparison.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<CategoryPage locale={locale} page="services">
+  <Services locale={locale} lead />
+  <Process locale={locale} />
+  <Comparison locale={locale} />
+</CategoryPage>

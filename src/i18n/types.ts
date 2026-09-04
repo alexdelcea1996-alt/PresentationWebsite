@@ -118,6 +118,12 @@ export interface DemoProduct {
   variants: { label: string; price: number; stock: number }[];
 }
 
+/** Title and description for one page, as a search engine reads them. */
+interface PageMeta {
+  metaTitle: string;
+  metaDescription: string;
+}
+
 export interface Content {
   meta: {
     title: string;
@@ -495,6 +501,47 @@ export interface Content {
    * may not say how many passed. `checksNote` is where that distinction is
    * spelled out for the reader rather than hidden behind careful phrasing.
    */
+  /**
+   * The five pages the landing page used to be, and the band that closes each
+   * of them.
+   *
+   * Only the parts a page needs that its sections do not already carry: the
+   * title and description search engines read, and one call to action at the
+   * end so a reader who got to the bottom of a page is not left at a dead end.
+   * Everything else on these pages is the section copy that was always there.
+   */
+  pages: {
+    services: PageMeta;
+    projects: PageMeta;
+    pricing: PageMeta;
+    estimate: PageMeta;
+    contact: PageMeta;
+    /** The closing band. `next` because it answers "and now?". */
+    next: {
+      title: string;
+      body: string;
+      action: string;
+      /** Second, quieter way out, for a reader not ready to write yet. */
+      secondary: string;
+    };
+  };
+
+  /**
+   * The landing page's map of the site.
+   *
+   * The front page stopped being everything and became the shortest honest
+   * route to the part you want, so it needs words for the routes themselves.
+   */
+  hub: {
+    /** Links out of the two teaser sections that stayed on the front page. */
+    servicesMore: string;
+    projectsMore: string;
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    cards: { title: string; body: string; action: string }[];
+  };
+
   /** The blueprint overlay: the page's own technical drawing, on request. */
   blueprint: {
     show: string;

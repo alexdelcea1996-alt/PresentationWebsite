@@ -71,16 +71,20 @@ for (const page of pages) {
 }
 weighed.sort((a, b) => b.raw - a.raw);
 
-// The landing page is by far the heaviest document: every section of the site
-// is on it. Today: 22.0 kB brotli, 158 kB raw — up from 19.7/138.5 when the
-// portfolio gained a second framed example and the contact form became
-// stepped. Raised deliberately, in the commits that spent it.
+/*
+  The landing page used to be by far the heaviest document, because every
+  section of the site was on it: 22.0 kB brotli and 158 kB raw, raised twice as
+  it grew. Splitting it into five pages halved it — 12.4 kB brotli, 59.8 kB raw
+  — so the ceiling comes down with it. A budget of 25 kB over a 12 kB page
+  asserts nothing; the point of these numbers is that the next kilobyte has to
+  be argued for.
+*/
 const home = weighed.find((page) => page.name === '/index.html');
-ck('the landing page compresses under budget', home.br <= 25 * KB, `${kb(home.br)} brotli`);
-ck('and its markup stays under budget', home.raw <= 175 * KB, `${kb(home.raw)} raw`);
+ck('the landing page compresses under budget', home.br <= 16 * KB, `${kb(home.br)} brotli`);
+ck('and its markup stays under budget', home.raw <= 75 * KB, `${kb(home.raw)} raw`);
 
 // No page may quietly become a second landing page. Today the largest after the
-// two home pages is a service page at 45.4 kB raw / 8.4 kB brotli.
+// two home pages is the colophon at 41.8 kB raw / 9.9 kB brotli.
 const inner = weighed.filter((page) => !/^\/(en\/)?index\.html$/.test(page.name));
 const heaviestInner = inner[0];
 ck('no sub-page approaches the landing page in weight',
@@ -152,7 +156,7 @@ for (const file of pages.filter((f) => isExample(named(f)))) {
 //
 // The check is an allowlist rather than a count: the regression worth catching
 // is a bundle nobody decided to ship — a stray framework import, a demo
-// leaking into a shared component — and a bare `length === 4` would wave that
+// leaking into a shared component — and a bare `length === 6` would wave that
 // through as long as something else had shrunk. No DEMO bundle may load on the
 // landing page; the demo and store suites assert that directly.
 //
@@ -164,10 +168,17 @@ for (const file of pages.filter((f) => isExample(named(f)))) {
 // its bytes off every landing-page response in exchange for one deferred,
 // cacheable request. If it ever stops being decorative, that trade stops being
 // free and this paragraph has to be rewritten before the list is.
-const EXPECTED_BUNDLES = ['Audit', 'BookingDemo', 'Configurator', 'Constellation', 'StoreDemo'];
+// Contact is the sixth, and it arrived with the split rather than with a
+// feature. While the form lived on the landing page its script was inline —
+// under Astro's threshold, and paid for by every visitor to the front page.
+// Handing an estimate across a navigation instead of writing into a form three
+// sections down pushed it over that threshold, so it became a file: fetched
+// only on the page that has a form, and cached for the next visit to it. The
+// landing page's inline JavaScript fell by roughly a third in the same move.
+const EXPECTED_BUNDLES = ['Audit', 'BookingDemo', 'Configurator', 'Constellation', 'Contact', 'StoreDemo'];
 const bundles = pick((name) => name.endsWith('.js'));
 const bundleNames = bundles.map((f) => named(f).replace(/^\/_astro\//, '').replace(/\..*$/, ''));
-ck('exactly the five bundles we decided to ship',
+ck('exactly the six bundles we decided to ship',
   bundleNames.length === EXPECTED_BUNDLES.length &&
     EXPECTED_BUNDLES.every((name) => bundleNames.includes(name)),
   bundleNames.join(' ') || 'none');
@@ -208,13 +219,18 @@ async function inlineJs(page) {
 // the cost is script and not data — and the hero instance ships no check names
 // at all, only the colophon's interactive one does.
 //
-// 19 -> 21 when that mark became an object: every dot given a depth from the
-// suite it belongs to, a rotation matrix and a perspective divide, and two ways
-// to turn it — the scroll on the hero, the pointer on the colophon. About 1 kB
-// of arithmetic, written out rather than imported, on a page that argues
-// against importing a hundred and fifty for it. Today: 19.1 kB.
+/*
+  Inline JavaScript on the landing page, which is what every first-time visitor
+  pays before anything can be read.
+
+  It went 19 -> 21 kB when the mark became an object, and then 16.1 -> 10.1 when
+  the sections moved out to pages of their own: the contact form, the
+  configurator and the audit band are three of the four biggest scripts on the
+  site, and none of them is on the front page any more. The ceiling follows the
+  page down. Today: 10.1 kB.
+*/
 const homeJs = await inlineJs('index.html');
-ck('inline JS on the landing page is under budget', homeJs <= 21 * KB, `${kb(homeJs)} raw`);
+ck('inline JS on the landing page is under budget', homeJs <= 13 * KB, `${kb(homeJs)} raw`);
 const demoJs = await inlineJs(join('demo', 'index.html'));
 ck('inline JS on a demo page is under budget', demoJs <= 5.5 * KB, `${kb(demoJs)} raw`);
 const exampleJs = await inlineJs(join('demo', 'exemplu', 'atelier', 'index.html'));

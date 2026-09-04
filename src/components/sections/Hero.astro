@@ -11,7 +11,9 @@
  */
 import Icon from '../Icon.astro';
 import Constellation from '../Constellation.astro';
-import { getContent, sectionIds, type Locale } from '../../i18n';
+import { getContent, type Locale } from '../../i18n';
+import { contactPath } from '../../data/demo';
+import { servicesIndexPath } from '../../data/pages';
 
 interface Props {
   locale: Locale;
@@ -158,11 +160,11 @@ for (const piece of pieces) {
       </p>
 
       <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <a href={`#${sectionIds.contact}`} class="btn btn-primary w-full sm:w-auto">
+        <a href={contactPath(locale, undefined, 'hero')} class="btn btn-primary w-full sm:w-auto">
           {t.ctaPrimary}
           <Icon name="arrow-right" class="size-4" />
         </a>
-        <a href={`#${sectionIds.process}`} class="btn btn-ghost w-full sm:w-auto">
+        <a href={`${servicesIndexPath(locale)}#process`} class="btn btn-ghost w-full sm:w-auto">
           {t.ctaSecondary}
         </a>
       </div>

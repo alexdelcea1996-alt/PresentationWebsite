@@ -1,6 +1,6 @@
 # Teste
 
-1371 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1509 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -62,7 +62,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 |---|---|---|
 | `a11y` | axe-core (WCAG 2.1 AA) pe 30 de pagini, temă întunecată, plus greutatea paginii și inelul de focus de pe cardurile configuratorului — pe care axe nu-l poate vedea, fiindcă input-ul e decupat de `sr-only` împreună cu inelul lui | 58 |
 | `a11y-light` | aceleași reguli pe 11 pagini în tema luminoasă | 28 |
-| `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 11 |
+| `csp` | zero violări CSP pe 6 pagini, cu header-ele reale aplicate | 16 |
 | `interact` | meniu mobil, comutator de limbă, ancore, formularul în pași, ambele căi de trimitere, și starea de scroll fără să citească poziția de scroll (niciun listener de `scroll` pe pagină, santinelele la locul lor) | 53 |
 | `channels` | e-mail, telefon și WhatsApp în card, footer și date structurate | 39 |
 | `metrics` | banda care măsoară pagina: cifrele afișate = ce raportează browserul, plus rândul-verdict și sursa lui | 29 |
@@ -71,8 +71,9 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
 | `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; că pagina care pleacă e chiar decupată în forma mărcii — citită din stilul calculat al pseudo-elementului și din pixelii de la mijlocul ecranului, în ambele teme; plus că hero-ul nu pornește ascuns | 39 |
+| `pages` | site-ul nu mai e o singură pagină: fiecare dintre cele cinci categorii există în ambele limbi, e legată din header și se marchează ca pagină curentă, are titlu, descriere, hreflang și breadcrumb proprii; nicio secțiune nu apare de două ori la lungime întreagă (rezumatul de pe prima pagină e măsurat față de pagina lui); linkurile publicate înainte de despărțire ajung tot acolo, cu tot cu parametri; iar estimarea și auditul își duc contextul peste navigare și formularul îl uită după ce l-a folosit | 108 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt` (inclusiv expirarea recalculată la fiecare build), niciun hostname scris de mână în `src/` sau `tests/`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine", fiecare link intern din fiecare articol, și pagina pe care o vede un om când deschide adresa fluxului RSS | 168 |
-| `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 16 |
+| `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 18 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer, și declară ce cere Regulamentul — temeiul legal, transferul în afara SEE, ce se scrie în browser | 52 |
 | `share-images` | fiecare dintre cele 41 de pagini are propria imagine OG, la dimensiunea declarată, în culorile din foaia de stil | 17 |
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
@@ -82,13 +83,13 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 103 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
-| `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării și ștampilele numesc verificări care chiar există | 44 |
+| `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării și ștampilele numesc verificări care chiar există | 46 |
 | `motion` | cele două mișcări mici: titlul se culege o singură dată și nu mișcă nimic din layout (CLS 0), virgula nu ajunge niciodată la început de rând, cifrele din banda de măsurători se întorc doar când au și valoare și sunt și pe ecran — iar sub reduced-motion niciuna nu e prinsă vreodată în poziția de start | 40 |
 | `depth` | adâncimea: hero-ul clipește fără să devină container de scroll (altfel toate animațiile dinăuntru se leagă de un scroll care nu se mișcă), straturile derivă exact proporțional cu distanța declarată, cardurile ajung drepte înainte să fie citite, rama demo aterizează exact plată ca iframe-ul să rămână clar, nimic nu mută layoutul și nimic nu costă cadre | 25 |
 | `constellation` | marca desenată din suită, ca obiect: forma pe care o primește pagina e chiar forma suitei (renumărată aici, nu importată), straturile chiar sunt stivuite în adâncime și nu împrăștiate, obiectul e drept când e în mijlocul ecranului, se întoarce la scroll și la mouse, nu se rotește singur când nu-l atinge nimeni, iar sub reduced-motion stă nemișcat | 16 |
 | `blueprint` | modul planșă: e oprit până îl ceri, cifrele din panou sunt cele pe care le raportează browserul (nu constante), fiecare secțiune e etichetată cu dimensiunea ei reală, închiderea nu lasă nimic în urmă, și nu apare pe paginile care nu l-au cerut; iar planșa explodată desface straturile chiar în ordinea în care le pictează browserul — rangul fiecăruia verificat față de `z-index`-ul citit de pe element, eticheta la fel — se rotește din ambele cadrane, nu lățește pagina la niciunul dintre capetele celor două cadrane, și pleacă odată cu desenul | 56 |
 | `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 55 |
-| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 31 |
+| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 32 |
 
 **Suitele urmăresc starea build-ului.** `audit` detectează dacă e configurată o
 cheie PageSpeed și verifică varianta care chiar e livrată: 18 verificări fără

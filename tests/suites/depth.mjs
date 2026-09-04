@@ -62,10 +62,22 @@ const OFF_IDENTITY = `(t) => {
 {
   ck('the hero parallax survives minification', sheet.includes('@keyframes plane-drift'));
   ck('the card arrival survives minification', sheet.includes('@keyframes card-arrive'));
-  // The frame's rule is a component-scoped style, inlined into the page rather
-  // than bundled with the site stylesheet.
-  const home = readFileSync(join(root, 'dist', 'index.html'), 'utf8');
-  ck('the frame turning ships too', home.includes('frame-face'));
+  /*
+    The frame's rule is a component-scoped style, inlined into the page rather
+    than bundled with the site stylesheet — so it ships with the page that has
+    a frame on it. That used to be the landing page; since the sections moved
+    out to pages of their own, the framed example lives with the case studies.
+
+    Measured while writing this: it also still ships to the landing page, which
+    imports the portfolio section and therefore the frame component, even though
+    a prop stops the frame from rendering there. Astro collects a page's styles
+    from its module graph, not from what it ends up drawing — so a component
+    that is imported and not used still costs its CSS. Four hundred bytes here,
+    and not worth contorting the components over, but worth knowing before
+    somebody writes a check asserting the opposite and cannot make it pass.
+  */
+  const projects = readFileSync(join(root, 'dist', 'proiecte', 'index.html'), 'utf8');
+  ck('the frame turning ships too', projects.includes('frame-face'));
   ck('all of it is gated on scroll-driven support',
     /@supports\s*\(animation-timeline:\s*view\(\)\)/.test(sheet));
 
@@ -157,9 +169,16 @@ const OFF_IDENTITY = `(t) => {
   says something stronger than any single sample could: somewhere in the scroll
   this element was genuinely turned, and somewhere else it was exactly flat.
 */
-{
+/**
+ * Walk a page top to bottom and keep, per selector, how far from identity its
+ * transform ever got and how close to identity it ever came.
+ *
+ * Takes a path because the two things swept no longer live together: cards are
+ * on every page, and the framed example is on the one about proof.
+ */
+const sweepPage = async (path, selectors) => {
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
-  await p.goto(`${BASE}/`, { waitUntil: 'load' });
+  await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
 
   /*
     One pass down first, unmeasured. The page has a lazy iframe and a screenful
@@ -211,8 +230,14 @@ const OFF_IDENTITY = `(t) => {
       }
     }
     return seen;
-  }, [OFF_IDENTITY, ['.card', '.demo-frame-shell']]);
+  }, [OFF_IDENTITY, selectors]);
 
+  await p.close();
+  return sweep;
+};
+
+{
+  const sweep = await sweepPage('/', ['.card']);
   const card = sweep['.card'];
   ck('a card is genuinely tilted somewhere on the way in', card.max > 0.02, `${card.max.toFixed(2)}`);
   ck('and is exactly square by the time it is being read', card.min < 1e-6, `${card.min}`);
@@ -234,12 +259,10 @@ const OFF_IDENTITY = `(t) => {
     also the check that catches `entry` being used on an element taller than the
     viewport, where the range never completes and the frame never straightens.
   */
-  const frame = sweep['.demo-frame-shell'];
+  const frame = (await sweepPage('/proiecte/', ['.demo-frame-shell']))['.demo-frame-shell'];
   ck('the example frame is turned away as you come to it', frame.max > 0.05, `${frame.max.toFixed(2)}`);
   ck('and lands exactly square, so the live page inside stays sharp',
     frame.min < 1e-6, `${frame.min}`);
-
-  await p.close();
 }
 
 // --- The card arrival stays off the phone ------------------------------------

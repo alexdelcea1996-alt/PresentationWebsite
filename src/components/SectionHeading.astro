@@ -4,10 +4,21 @@ interface Props {
   title: string;
   subtitle?: string;
   align?: 'left' | 'center';
+  /**
+   * `1` when this section is the first one on a page of its own.
+   *
+   * The same sections are used twice now: stacked on a category page, and one
+   * at a time as the thing a page is about. A page needs exactly one `h1` and
+   * a document outline that does not skip a level, so the section that opens a
+   * page says so and gets the `h1` — rather than the page growing a title of
+   * its own above a section heading that repeats it.
+   */
+  level?: 1 | 2;
 }
 
-const { eyebrow, title, subtitle, align = 'center' } = Astro.props;
+const { eyebrow, title, subtitle, align = 'center', level = 2 } = Astro.props;
 const centered = align === 'center';
+const Title = `h${level}` as 'h1' | 'h2';
 ---
 
 <div
@@ -18,8 +29,8 @@ const centered = align === 'center';
   data-reveal
 >
   <p class="eyebrow">{eyebrow}</p>
-  <h2 class="mt-4 text-3xl font-semibold sm:text-4xl md:text-[2.75rem] md:leading-[1.1]">
+  <Title class="mt-4 text-3xl font-semibold sm:text-4xl md:text-[2.75rem] md:leading-[1.1]">
     {title}
-  </h2>
+  </Title>
   {subtitle && <p class="mt-5 text-base leading-relaxed text-fg-muted sm:text-lg">{subtitle}</p>}
 </div>

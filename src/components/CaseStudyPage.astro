@@ -1,13 +1,13 @@
 ---
 import { render } from 'astro:content';
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
 import DeviceShowcase from './DeviceShowcase.astro';
 import ScoreGauge from './ScoreGauge.astro';
-import { getContent, sectionIds, type Locale } from '../i18n';
+import { getContent, type Locale } from '../i18n';
+import { projectsPath } from '../data/pages';
 import { contactPath } from '../data/demo';
 import { caseStudyPath, getTranslations, type CaseStudy } from '../data/case-studies';
 
@@ -29,10 +29,7 @@ const alternates = Object.fromEntries(
   ]),
 ) as Partial<Record<Locale, string>>;
 
-const portfolioAnchor = `${getRelativeLocaleUrl(locale)}#${sectionIds.portfolio}`.replace(
-  /\/{2,}/g,
-  '/',
-);
+const portfolioAnchor = projectsPath(locale);
 // Stamped with its origin, but no preselect: a reader's intent is unknown.
 const contactAnchor = contactPath(locale, undefined, 'case-study');
 

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launch, BASE, axePath, runAxe, settleAnimations, PRODUCTION_URL, PRODUCTION_HOST } from '../harness.mjs';
+import { launch, BASE, PAGE, axePath, runAxe, settleAnimations, PRODUCTION_URL, PRODUCTION_HOST } from '../harness.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const dist = join(root, 'dist');
@@ -301,10 +301,14 @@ ck('a translated slug pairs across languages',
   optim?.links.some((l) => l.href.endsWith('/en/services/site-optimisation/')),
   optim?.links.map((l) => `${l.tag}=${new URL(l.href).pathname}`).join(' '));
 
-// --- The landing page answers its own questions ---------------------------------
+// --- The pricing page answers the questions that come before a quote ------------
 // Kept apart from the service-page FAQ counts below: those assert 7 per page and
-// 70 in total, and folding the home page into them would make both meaningless.
-for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+// 70 in total, and folding this one into them would make both meaningless.
+//
+// It used to be on the landing page and moved with the prices, which is where
+// the questions were always aimed — they are the last objections somebody has
+// while looking at a number.
+for (const [label, path] of [['RO', PAGE.pricing.ro], ['EN', PAGE.pricing.en]]) {
   const f = await b.newPage();
   await f.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
 
@@ -314,8 +318,8 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
       answer: n.querySelector('p')?.textContent.trim() ?? '',
     })),
   );
-  ck(`${label} home: the FAQ is on the page`, onPage.length === 6, `${onPage.length}`);
-  ck(`${label} home: every answer says something`,
+  ck(`${label} pricing: the FAQ is on the page`, onPage.length === 6, `${onPage.length}`);
+  ck(`${label} pricing: every answer says something`,
     onPage.every((item) => item.answer.length > 80),
     `shortest ${Math.min(...onPage.map((item) => item.answer.length))}`);
 
@@ -323,22 +327,22 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
     nodes.map((n) => JSON.parse(n.textContent)),
   );
   const faq = blocks.find((entry) => entry['@type'] === 'FAQPage');
-  ck(`${label} home: FAQPage is emitted`, Boolean(faq));
-  ck(`${label} home: the schema matches what is rendered`,
+  ck(`${label} pricing: FAQPage is emitted`, Boolean(faq));
+  ck(`${label} pricing: the schema matches what is rendered`,
     faq?.mainEntity?.length === onPage.length &&
       faq.mainEntity.every((q, i) => onPage[i].question.startsWith(q.name)),
     `${faq?.mainEntity?.length} vs ${onPage.length}`);
   // Two documents describing two different things — not merged into the business.
-  ck(`${label} home: it is its own block, not folded into the business entity`,
+  ck(`${label} pricing: it is its own block, not folded into the business entity`,
     blocks.filter((entry) => entry['@type'] === 'FAQPage').length === 1 &&
       !('mainEntity' in (blocks.find((e) => e['@type'] === 'ProfessionalService') ?? {})));
 
   // The "what do I need to prepare" answer promises an article; it has to exist.
   const prep = f.locator('[data-faq-prep-link]');
-  ck(`${label} home: the preparation answer links a real article`, (await prep.count()) === 1);
+  ck(`${label} pricing: the preparation answer links a real article`, (await prep.count()) === 1);
   const href = await prep.getAttribute('href');
   const res = await f.goto(`${BASE}${href}`, { waitUntil: 'domcontentloaded' });
-  ck(`${label} home: and that article is served`, res?.status() === 200, `${href} → ${res?.status()}`);
+  ck(`${label} pricing: and that article is served`, res?.status() === 200, `${href} → ${res?.status()}`);
   await f.close();
 }
 
@@ -348,7 +352,8 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
 // number check below is the guard: the only figures allowed are the two the
 // site already publishes everywhere (24 hours, 30 minutes). A line like "10
 // years of experience" or "200 projects delivered" fails here.
-for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+// Printed under the form, where somebody about to write wants to know who reads it.
+for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) {
   const a = await b.newPage();
   await a.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
 
@@ -391,11 +396,18 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   ck(`${label} about: the section leads to the form`,
     href?.endsWith('#contact') && (await a.locator('#contact').count()) === 1, String(href));
 
-  // Placement is the argument: promises first, then the person making them.
+  /*
+    Placement is the argument, and the argument changed with the structure.
+
+    On the long landing page this section stood between the guarantees and the
+    form: promises first, then the person making them. On a page of its own the
+    form comes first and this sits directly under it, which answers the question
+    somebody actually has at that moment — not "who is this" before they have
+    decided to write, but "who reads this" as they are writing it.
+  */
   const order = await a.$$eval('main section[id]', (n) => n.map((node) => node.id));
-  ck(`${label} about: it stands between the guarantees and the form`,
-    order.indexOf('about') > order.indexOf('guarantees') &&
-      order.indexOf('about') < order.indexOf('contact'),
+  ck(`${label} about: it stands directly under the form`,
+    order.indexOf('about') === order.indexOf('contact') + 1 && order.indexOf('contact') === 0,
     order.join(' → '));
 
   await a.close();
@@ -429,7 +441,7 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
 
   // The form must carry the address, and only the confirmed branch may use it.
   const f = await b.newPage();
-  await f.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await f.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'domcontentloaded' });
   ck('the form knows where to send a confirmed submission',
     (await f.locator('[data-contact-form]').getAttribute('data-thanks')) === '/multumesc/');
   await f.close();
@@ -440,7 +452,7 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
 // The 48-hour figure belongs to one thing only — the written audit — and must
 // never leak into the contact section, where it would read as a slower promise
 // sitting right next to the faster one.
-for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) {
   const r = await b.newPage();
   await r.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
   // textContent, not innerText: the stepped form keeps the note on the last

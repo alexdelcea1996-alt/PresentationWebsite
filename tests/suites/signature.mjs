@@ -22,7 +22,7 @@
  *      scrollport, so the spine measured its progress through a box that never
  *      scrolls and froze. Nothing about that looks wrong in the CSS.
  */
-import { launch, BASE, AXE_RULES, axePath, settleAnimations } from '../harness.mjs';
+import { launch, BASE, PAGE, AXE_RULES, axePath, settleAnimations } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -229,7 +229,7 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 // --- The beam ----------------------------------------------------------------------
 {
   const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
-  await p.goto(`${BASE}/`, { waitUntil: 'load' });
+  await p.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'load' });
 
   // Without the typed registration the angle is an uninterpolatable string and
   // the gradient simply swaps between two identical frames.
@@ -304,11 +304,21 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 
     Both halves are checked because either one alone is satisfied by a bug. A
     ring that never runs passes "it is paused off screen"; a ring that never
-    pauses passes "it travels". The pair is also the reason the check below
-    scrolls first: this suite used to read the angle at the top of the page,
-    where the beam is now correctly frozen.
+    pauses passes "it travels".
+
+    Scrolled AWAY from rather than towards. On the landing page the price list
+    was nine sections down, so a freshly loaded page had the card off screen
+    and the first reading was the idle one for free. On the pricing page the
+    cards are the first thing there — so the off-screen state has to be made
+    rather than waited for, and the bottom of the page is where it is.
   */
-  ck('the ring is idle while the card is far below the fold',
+  const away = async () => {
+    await p.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }));
+    await p.waitForTimeout(400);
+  };
+
+  await away();
+  ck('the ring is idle while the card is off screen',
     (await playState()) === 'paused' && (await beams.first().getAttribute('data-beam-idle')) !== null,
     await playState());
 
@@ -327,8 +337,7 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 
   // And freezes where it stood, rather than snapping back to zero — scrolling
   // away and back should not restart the cycle.
-  await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
-  await p.waitForTimeout(250);
+  await away();
   const parked = await angleAt();
   await p.waitForTimeout(700);
   ck('and stops again when it leaves, holding its angle',
@@ -397,7 +406,7 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 // --- The spine ------------------------------------------------------------------------
 {
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
-  await p.goto(`${BASE}/`, { waitUntil: 'load' });
+  await p.goto(`${BASE}${PAGE.services.ro}`, { waitUntil: 'load' });
 
   const links = p.locator('.spine-link');
   const steps = await p.locator('#process ol > li').count();
@@ -449,9 +458,10 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 }
 
 // --- Somebody who asked for less motion gets less --------------------------------------
+// Two pages, because the beam and the spine no longer share one.
 {
   const p = await b.newPage({ viewport: { width: 1280, height: 1000 }, reducedMotion: 'reduce' });
-  await p.goto(`${BASE}/`, { waitUntil: 'load' });
+  await p.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'load' });
 
   const beam = await p.locator('.beam').first().evaluate((el) =>
     getComputedStyle(el, '::before').display);
@@ -463,6 +473,7 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 
   // The spine must not be left half-drawn — the enhancement starts it at zero,
   // so switching the enhancement off has to give the finished line back.
+  await p.goto(`${BASE}${PAGE.services.ro}`, { waitUntil: 'load' });
   const scales = await p.$$eval('.spine-link', (els) =>
     els.map((el) => {
       const s = getComputedStyle(el).scale;
@@ -476,17 +487,22 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
 
 // --- None of it costs accessibility -----------------------------------------------------
 for (const [name, theme] of [['dark', 'dark'], ['light', 'light']]) {
-  const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
-  await p.addInitScript((t) => localStorage.setItem('theme', t), theme);
-  await p.addInitScript({ path: axePath });
-  await p.goto(`${BASE}/`, { waitUntil: 'load' });
-  await settleAnimations(p);
-  const res = await p.evaluate(async (rules) =>
-    // @ts-ignore
-    axe.run('#process, #pricing', { runOnly: rules }), AXE_RULES);
-  ck(`${name}: the beam and the spine leave the page axe-clean`, res.violations.length === 0,
-    res.violations.map((v) => `${v.id} x${v.nodes.length}`).join(', '));
-  await p.close();
+  for (const [where, path, selector] of [
+    ['spine', PAGE.services.ro, '#process'],
+    ['beam', PAGE.pricing.ro, '#pricing'],
+  ]) {
+    const p = await b.newPage({ viewport: { width: 1280, height: 1000 } });
+    await p.addInitScript((t) => localStorage.setItem('theme', t), theme);
+    await p.addInitScript({ path: axePath });
+    await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
+    await settleAnimations(p);
+    const res = await p.evaluate(async ([sel, rules]) =>
+      // @ts-ignore
+      axe.run(sel, { runOnly: rules }), [selector, AXE_RULES]);
+    ck(`${name}: the ${where} leaves its page axe-clean`, res.violations.length === 0,
+      res.violations.map((v) => `${v.id} x${v.nodes.length}`).join(', '));
+    await p.close();
+  }
 }
 
 console.log(R.join('\n'));

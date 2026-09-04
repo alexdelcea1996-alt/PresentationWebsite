@@ -61,7 +61,7 @@ Four sentences. They fit in an email.
    user.** Not the other way round.
 
 Nobody serious takes offence at that list. Somebody who works properly offers it before you ask. I
-have it written into the [guarantees published on the front page](/en/#guarantees), precisely so it
+have it written into the [guarantees published beside the prices](/en/pricing/#guarantees), precisely so it
 does not depend on my memory.
 
 ## "But if they do not pay, I do not want them walking off with the site"

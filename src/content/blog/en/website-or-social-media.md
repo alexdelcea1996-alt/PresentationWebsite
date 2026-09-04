@@ -93,7 +93,7 @@ business it often brings in more calls in the first year than the website does.
 3. Social media, at a pace you can hold without burning out.
 4. The rest of the site, when you need it.
 
-If you are at step 2 and do not know where to start, the [estimate on the front page](/en/#estimate)
+If you are at step 2 and do not know where to start, the [estimate on the site](/en/estimate/)
 gives you a range and a timeline without speaking to anyone. And if you already have a site and
 wonder whether it earns its keep, send me the address: within 48 hours you get three concrete things
 costing you customers. Free, and I will not call you afterwards.

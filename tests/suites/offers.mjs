@@ -13,7 +13,7 @@
  * in more than one place must carry the same number in all of them, and must
  * not vanish from one of them.
  */
-import { launch, BASE } from '../harness.mjs';
+import { launch, BASE, PAGE } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -27,10 +27,19 @@ const amount = (text) => {
   return match ? Number(match[0]) : null;
 };
 
-for (const [label, home, priceLabel, services] of [
+/*
+  Four surfaces, and they no longer share a page.
+
+  The packages, the configurator and the contact form used to sit one under the
+  other on the landing page, so one `goto` reached all three. They now live on
+  the pricing page, the estimate page and the contact page — which is the whole
+  reason this suite matters more than before: three documents can disagree in
+  ways one document could not.
+*/
+for (const [label, locale, priceLabel, services] of [
   [
     'RO',
-    '/',
+    'ro',
     'preț',
     [
       ['landing page', '/servicii/landing-page/'],
@@ -42,7 +51,7 @@ for (const [label, home, priceLabel, services] of [
   ],
   [
     'EN',
-    '/en/',
+    'en',
     'price',
     [
       ['landing page', '/en/services/landing-page/'],
@@ -54,14 +63,17 @@ for (const [label, home, priceLabel, services] of [
   ],
 ]) {
   const p = await b.newPage(VIEWPORT);
-  await p.goto(`${BASE}${home}`, { waitUntil: 'domcontentloaded' });
+  await p.goto(`${BASE}${PAGE.pricing[locale]}`, { waitUntil: 'domcontentloaded' });
 
   // --- The pricing cards ------------------------------------------------------
+  // Read by name rather than by heading level: the section wears an `h1` on its
+  // own page and an `h2` when it is one of several, and a check that hard-coded
+  // `h3` would fail for a reason that has nothing to do with prices.
   const cards = await p.$$eval('#pricing article', (nodes) =>
     nodes.map((card) => ({
-      name: card.querySelector('h3').textContent.trim(),
-      price: card.querySelector('h3 + p').textContent.trim(),
-      note: card.querySelector('h3 + p + p').textContent.trim(),
+      name: card.querySelector('[data-plan-name]').textContent.trim(),
+      price: card.querySelector('[data-plan-price]').textContent.trim(),
+      note: card.querySelector('[data-plan-note]').textContent.trim(),
       bullets: card.querySelectorAll('li').length,
       featured: card.querySelector('.btn-primary') !== null,
     })),
@@ -115,19 +127,23 @@ for (const [label, home, priceLabel, services] of [
     }
   }
 
+  await p.close();
+
   // --- Against the configurator ------------------------------------------------
   // With no add-ons ticked the estimate's lower bound is the base price, so it
   // must land on a package. This is the check the missing store card failed.
-  const types = await p.$$eval('input[data-type-input]', (inputs) => inputs.map((i) => i.value));
+  const cfgPage = await b.newPage(VIEWPORT);
+  await cfgPage.goto(`${BASE}${PAGE.estimate[locale]}`, { waitUntil: 'domcontentloaded' });
+  const types = await cfgPage.$$eval('input[data-type-input]', (inputs) => inputs.map((i) => i.value));
   ck(`${label}: the configurator offers four project types`, types.length === 4, types.join(','));
 
   for (const type of types) {
-    const cfg = p.locator('[data-configurator]');
-    await p.locator(`input[data-type-input][value="${type}"]`).check({ force: true });
+    const cfg = cfgPage.locator('[data-configurator]');
+    await cfgPage.locator(`input[data-type-input][value="${type}"]`).check({ force: true });
     await cfg.locator('[data-action="next"]').click();
-    await p.waitForTimeout(150);
+    await cfgPage.waitForTimeout(150);
     await cfg.locator('[data-action="next"]').click();
-    await p.waitForTimeout(200);
+    await cfgPage.waitForTimeout(200);
 
     const base = amount((await cfg.locator('[data-result-price]').textContent()).split('–')[0]);
     ck(
@@ -137,13 +153,16 @@ for (const [label, home, priceLabel, services] of [
     );
 
     await cfg.locator('[data-action="restart"]').click();
-    await p.waitForTimeout(150);
+    await cfgPage.waitForTimeout(150);
   }
+  await cfgPage.close();
 
   // --- Against the contact form -------------------------------------------------
   // The form may offer more than the cards do (an audit, "not sure"), but every
   // package has to be pickable — otherwise the button under it leads nowhere useful.
-  const options = await p.$$eval('#contact select[name="project_type"] option', (nodes) =>
+  const formPage = await b.newPage(VIEWPORT);
+  await formPage.goto(`${BASE}${PAGE.contact[locale]}`, { waitUntil: 'domcontentloaded' });
+  const options = await formPage.$$eval('#contact select[name="project_type"] option', (nodes) =>
     nodes.map((n) => n.textContent.trim().toLocaleLowerCase('ro')),
   );
   for (const name of priced.keys()) {
@@ -154,7 +173,7 @@ for (const [label, home, priceLabel, services] of [
     );
   }
 
-  await p.close();
+  await formPage.close();
 }
 
 // --- A fifth surface: the articles ---------------------------------------------
@@ -164,10 +183,10 @@ for (const [label, home, priceLabel, services] of [
 // article has to be a price the site actually offers.
 {
   const p = await b.newPage(VIEWPORT);
-  await p.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await p.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'domcontentloaded' });
   const published = new Set(
     (await p.$$eval('#pricing article', (nodes) =>
-      nodes.map((card) => card.querySelector('h3 + p').textContent.trim()),
+      nodes.map((card) => card.querySelector('[data-plan-price]').textContent.trim()),
     ))
       .map(amount)
       .filter(Boolean),

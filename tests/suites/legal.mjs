@@ -10,7 +10,7 @@
  * names the third parties by name, and it is reachable from the two places
  * where someone would look for it — under the form, and in the footer.
  */
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, PAGE, axePath, runAxe, settleAnimations } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -18,9 +18,11 @@ const b = await launch();
 
 const VIEWPORT = { viewport: { width: 1280, height: 1000 } };
 
+// `home` is where the contact form is — the page whose small print has to link
+// the policy. It stopped being the landing page when the form got one of its own.
 for (const [label, home, path, other, heading] of [
-  ['RO', '/', '/confidentialitate/', '/en/privacy/', 'confidențialitate'],
-  ['EN', '/en/', '/en/privacy/', '/confidentialitate/', 'privacy'],
+  ['RO', PAGE.contact.ro, '/confidentialitate/', '/en/privacy/', 'confidențialitate'],
+  ['EN', PAGE.contact.en, '/en/privacy/', '/confidentialitate/', 'privacy'],
 ]) {
   const p = await b.newPage(VIEWPORT);
   const res = await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });

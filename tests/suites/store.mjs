@@ -9,7 +9,7 @@
  * wrong is worse than no demo: it is a live illustration of the opposite of
  * what the service page promises.
  */
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, PAGE, axePath, runAxe, settleAnimations } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -202,10 +202,13 @@ for (const [label, path, currency, freeWord] of [
   const peak = p.locator('[data-store-cta]');
   ck('the confirmation screen asks for the business', await peak.isVisible());
   const peakHref = await peak.getAttribute('href');
+  // The form is a page now rather than an anchor on the landing page, so what
+  // this must carry is the page's address plus the two parameters — not a hash.
   ck('and it carries type and origin to the form',
-    (peakHref ?? '').includes('from=shop') &&
+    (peakHref ?? '').startsWith(PAGE.contact.ro) &&
+      (peakHref ?? '').includes('from=shop') &&
       (peakHref ?? '').includes('via=demo-store') &&
-      (peakHref ?? '').endsWith('#contact'),
+      !(peakHref ?? '').includes('#'),
     String(peakHref));
   ck(
     'focus moves to the confirmation',

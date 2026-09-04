@@ -15,7 +15,6 @@
  */
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
@@ -35,7 +34,8 @@ const portraits = import.meta.glob<{ default: ImageMetadata }>(
 );
 const portrait = Object.values(portraits)[0]?.default;
 
-const contactHref = `${getRelativeLocaleUrl(locale)}#${sectionIds.contact}`.replace(/\/{2,}/g, '/');
+// Same page now: the form is directly above this section.
+const contactHref = `#${sectionIds.contact}`;
 ---
 
 <section id={sectionIds.about} class="relative overflow-hidden py-20 sm:py-28">

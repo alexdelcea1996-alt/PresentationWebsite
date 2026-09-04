@@ -9,22 +9,65 @@ import { contactPath, exampleSitePath } from '../../data/demo';
 
 interface Props {
   locale: Locale;
+  /**
+   * Where to read the rest, when this section is standing in for a page.
+   *
+   * The landing page shows the cards and stops; the page they summarise is one
+   * link away. Absent when the section IS the page, because a page that links
+   * to itself at the bottom is a page that has run out of things to say.
+   */
+  more?: { href: string; label: string };
+  /** True when this section opens a page of its own and owns its `h1`. */
+  lead?: boolean;
+  /** Summary rather than the whole thing — see `Services.astro` for why. */
+  compact?: boolean;
+  /**
+   * Whether to frame a whole working example under the case studies.
+   *
+   * On its own page it belongs there: it is the strongest proof the section
+   * has. On the landing page, which is now a short route to the pages rather
+   * than the pages themselves, it would be the heaviest thing on a page whose
+   * job is to be light.
+   */
+  example?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, lead = false, compact = false, example = true, more } = Astro.props;
+/**
+ * Card headings sit one level under whatever this section's own heading is.
+ *
+ * The section is `h2` when it is one of several on a page and `h1` when it is
+ * what a page is about, so a hard-coded `h3` under it is a skipped level in
+ * exactly one of those two cases — which is what axe caught the first time
+ * these sections were reused as pages.
+ */
+const Sub = lead ? 'h2' : 'h3';
 const t = getContent(locale).portfolio;
 
 // Real case studies come from `src/content/case-studies/`. Until one exists for
 // this locale the section shows honest empty slots rather than invented work.
 const caseStudies = await getCaseStudies(locale);
 const placeholderSlots = 2;
+
+/*
+  One case study in a two-column grid is a card with a hole beside it. On the
+  page of its own that hole is filled by the framed example underneath; on the
+  landing page, where the example does not come along, the single card is
+  centred instead of stranded. Two or more, and the grid does its job.
+*/
+const single = caseStudies.length === 1 && !example;
 ---
 
 <section id={sectionIds.portfolio} class="py-20 sm:py-28">
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    <SectionHeading
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      level={lead ? 1 : 2}
+    />
 
-    <div class="mt-16 grid gap-6 lg:grid-cols-2">
+    <div class:list={['mt-16 grid gap-6', single ? 'mx-auto max-w-2xl' : 'lg:grid-cols-2']}>
       {
         caseStudies.length > 0
           ? caseStudies.map((entry, index) => (
@@ -45,18 +88,18 @@ const placeholderSlots = 2;
 
                 <p class="eyebrow text-xs">{entry.data.category}</p>
 
-                <h3 class="mt-3 text-xl font-semibold">
+                <Sub class="mt-3 text-xl font-semibold">
                   <a
                     href={caseStudyPath(locale, entry.data.urlSlug)}
                     class="after:absolute after:inset-0 hover:text-accent-alt"
                   >
                     {entry.data.title}
                   </a>
-                </h3>
+                </Sub>
 
                 <p class="mt-3 text-sm leading-relaxed text-fg-muted">{entry.data.summary}</p>
 
-                {entry.data.metrics.length > 0 && (
+                {entry.data.metrics.length > 0 && !compact && (
                   <dl class="mt-6 grid grid-cols-2 gap-3">
                     {entry.data.metrics.slice(0, 4).map((metric) => (
                       <div class="rounded-lg border border-border bg-surface/50 px-3 py-2.5">
@@ -69,13 +112,15 @@ const placeholderSlots = 2;
                   </dl>
                 )}
 
-                <ul class="mt-6 flex flex-wrap gap-2 border-t border-border pt-6">
-                  {entry.data.tech.map((tech) => (
-                    <li class="rounded-md border border-border bg-surface-hover px-2.5 py-1 text-xs text-fg-muted">
-                      {tech}
-                    </li>
-                  ))}
-                </ul>
+                {!compact && (
+                  <ul class="mt-6 flex flex-wrap gap-2 border-t border-border pt-6">
+                    {entry.data.tech.map((tech) => (
+                      <li class="rounded-md border border-border bg-surface-hover px-2.5 py-1 text-xs text-fg-muted">
+                        {tech}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 <p class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-alt">
                   {t.readMore}
@@ -106,22 +151,40 @@ const placeholderSlots = 2;
       labelled as invented right above it, because fiction standing unlabelled
       among proof is the one thing this site will not do.
 
-      Below the fold and lazily framed, so it costs the landing page nothing
-      until somebody scrolls this far. The frame's controller is per-instance,
-      which is what makes a second frame on this page safe at all.
+      Below the fold and lazily framed, so it costs the page nothing until
+      somebody scrolls this far. The frame's controller is per-instance, which
+      is what makes a second frame on the same page safe at all.
     */}
-    <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example>
-      <h3 class="font-display text-xl font-semibold">{t.exampleTitle}</h3>
-      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.exampleBody}</p>
+    {
+      example && (
+        <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example>
+          <Sub class="font-display text-xl font-semibold">{t.exampleTitle}</Sub>
+          <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.exampleBody}</p>
 
-      <div class="mt-8">
-        <DemoFrame
-          locale={locale}
-          src={exampleSitePath(locale)}
-          displayUrl="termoflux.example"
-          ctaHref={contactPath(locale, 'presentation', 'portfolio-example')}
-        />
-      </div>
-    </div>
+          <div class="mt-8">
+            <DemoFrame
+              locale={locale}
+              src={exampleSitePath(locale)}
+              displayUrl="termoflux.example"
+              ctaHref={contactPath(locale, 'presentation', 'portfolio-example')}
+            />
+          </div>
+        </div>
+      )
+    }
+
+    {
+      more && (
+        <p class="mt-12 text-center" data-reveal data-section-more>
+          <a
+            href={more.href}
+            class="text-sm font-semibold text-accent-alt underline underline-offset-4 hover:no-underline"
+          >
+            {more.label}
+            <Icon name="arrow-right" class="inline size-4 align-[-3px]" />
+          </a>
+        </p>
+      )
+    }
   </div>
 </section>

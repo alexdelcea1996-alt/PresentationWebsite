@@ -69,8 +69,8 @@ So you are not left with "it depends": a [landing page](/en/services/landing-pag
 store](/en/services/online-store/) at €2,200. These are starting prices, not final ones — what moves
 them is the list above, not the mood of the day.
 
-You can see roughly where you would land without talking to me at all: the [estimate on the front
-page](/en/#estimate) gives you a range and a timeline in a few clicks.
+You can see roughly where you would land without talking to me at all: the [estimate on the
+site](/en/estimate/) gives you a range and a timeline in a few clicks.
 
 ## Five questions that make two quotes comparable
 

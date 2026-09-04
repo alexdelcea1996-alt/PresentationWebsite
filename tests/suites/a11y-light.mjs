@@ -5,6 +5,11 @@ const browser = await launch();
 
 for (const [label, path] of [
   ['home', '/'],
+  ['services', '/servicii/'],
+  ['projects', '/proiecte/'],
+  ['pricing', '/preturi/'],
+  ['estimate', '/estimare/'],
+  ['contact', '/contact/'],
   ['service', '/servicii/site-de-prezentare/'],
   ['blog index', '/blog/'],
   ['post', '/blog/de-ce-se-incarca-greu-site-ul-tau/'],

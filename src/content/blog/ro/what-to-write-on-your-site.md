@@ -119,6 +119,6 @@ care nu există.
 
 ## Dacă tot te blochezi
 
-Trimite-mi ce ai — chiar și notițe. La [auditul gratuit](/#audit) mă uit și la text, nu doar la
+Trimite-mi ce ai — chiar și notițe. La [auditul gratuit](/estimare/#audit) mă uit și la text, nu doar la
 viteză, și îți spun în 48 de ore ce anume îi face pe vizitatori să plece fără să te contacteze. Fără
 obligații și fără să te sun după.

@@ -11,7 +11,7 @@
  * `frame-ancestors 'self'` and `X-Frame-Options: SAMEORIGIN` — because those
  * are a deliberate, narrow relaxation and must not quietly widen further.
  */
-import { launch, BASE } from '../harness.mjs';
+import { launch, BASE, PAGE } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -407,24 +407,28 @@ for (const [label, service, demo] of [
   await p.close();
 }
 
-// --- A second frame, on the landing page ------------------------------------------
+// --- A second frame, beside the case studies --------------------------------------
 // Two frames on one page is the case the original controller could not have
 // handled: it reached for the document rather than its own root, so the
 // portfolio's frame would have driven the demo page's. Nothing here is about
 // looks — it is about the two being independent.
-for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
+//
+// It used to sit on the landing page. It moved to the projects page with the
+// rest of the portfolio, which is also where it belongs: the heaviest thing on
+// the site, on the page that exists to show proof.
+for (const [label, path] of [['RO', PAGE.projects.ro], ['EN', PAGE.projects.en]]) {
   const p = await b.newPage(VIEWPORT);
   await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
 
   const block = p.locator('[data-portfolio-example]');
-  ck(`${label} home: the portfolio carries a working example`, (await block.count()) === 1);
+  ck(`${label} projects: the portfolio carries a working example`, (await block.count()) === 1);
   // Fiction standing unlabelled among proof is the one thing this section
   // must not do — and this is the section where somebody looks for proof.
-  ck(`${label} home: labelled as invented before you reach it`,
+  ck(`${label} projects: labelled as invented before you reach it`,
     /invent/i.test(await block.innerText()));
 
   const iframe = block.locator('iframe');
-  ck(`${label} home: framed lazily, so it costs nothing above the fold`,
+  ck(`${label} projects: framed lazily, so it costs nothing above the fold`,
     (await iframe.getAttribute('loading')) === 'lazy');
 
   // Independence: driving this one must not be driving anything else.
@@ -433,12 +437,12 @@ for (const [label, path] of [['RO', '/'], ['EN', '/en/']]) {
   await block.locator('[data-brand-input]').fill('Croitoria Ana');
   await p.waitForTimeout(500);
   const inside = p.frameLocator('[data-portfolio-example] iframe');
-  ck(`${label} home: personalising it works here too`,
+  ck(`${label} projects: personalising it works here too`,
     (await inside.locator('[data-ex-brand]').first().innerText()) === 'Croitoria Ana');
 
   await block.locator('[data-frame-width="mobile"]').click();
   await p.waitForTimeout(500);
-  ck(`${label} home: and its own width switch answers`,
+  ck(`${label} projects: and its own width switch answers`,
     (await block.locator('[data-demo-frame]').getAttribute('data-width')) === 'mobile' ||
       (await p.locator('[data-portfolio-example] [data-demo-frame]').getAttribute('data-width')) ===
         'mobile');

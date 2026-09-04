@@ -94,6 +94,6 @@ on security, and no obligatory monthly cost.
 Daily publishing, a shop with hundreds of products and variants, community features: WordPress or a
 dedicated platform, no regrets.
 
-If you are not sure where you sit, the [estimate on the front page](/en/#estimate) gives you a range
+If you are not sure where you sit, the [estimate on the site](/en/estimate/) gives you a range
 in a few clicks — and if you write to me with what you publish and how often, I will tell you
 honestly whether you need me or a well-built WordPress.

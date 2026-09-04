@@ -1,4 +1,4 @@
-import { launch, BASE, axePath, checks, settleAnimations } from '../harness.mjs';
+import { launch, BASE, PAGE, axePath, checks, settleAnimations } from '../harness.mjs';
 
 const check = checks();
 const browser = await launch();
@@ -6,6 +6,17 @@ const browser = await launch();
 for (const [label, path] of [
   ['RO', '/'],
   ['EN', '/en/'],
+  // The five pages the landing page used to be, in both languages.
+  ['RO services', '/servicii/'],
+  ['EN services', '/en/services/'],
+  ['RO projects', '/proiecte/'],
+  ['EN projects', '/en/projects/'],
+  ['RO pricing', '/preturi/'],
+  ['EN pricing', '/en/pricing/'],
+  ['RO estimate', '/estimare/'],
+  ['EN estimate', '/en/estimate/'],
+  ['RO contact', '/contact/'],
+  ['EN contact', '/en/contact/'],
   ['RO case study', '/studii-de-caz/acest-site/'],
   ['EN case study', '/en/case-studies/this-site/'],
   ['RO svc landing', '/servicii/landing-page/'],
@@ -118,7 +129,9 @@ for (const [label, path] of [
   for (const theme of ['dark', 'light']) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
-    await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+    // The wizard has a page of its own now; tabbing to it from the landing page
+    // would be tabbing through a page that no longer contains it.
+    await page.goto(`${BASE}${PAGE.estimate.ro}`, { waitUntil: 'networkidle' });
 
     const tabTo = async (kind) => {
       for (let i = 0; i < 320; i += 1) {

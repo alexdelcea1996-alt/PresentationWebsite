@@ -1,0 +1,77 @@
+---
+/**
+ * The shell every category page wears.
+ *
+ * The landing page used to be all of them at once. Splitting it up could have
+ * meant five near-identical page files, and five places for a breadcrumb or an
+ * hreflang link to be forgotten in one of them — so the parts that are the same
+ * for all five live here, and each page is left holding only the sections it is
+ * actually about.
+ *
+ * The closing band is part of the shell for a reason of its own: a reader who
+ * has come to the end of the price list has finished reading and has nothing to
+ * do. Every page except the contact page ends with somewhere to go. The contact
+ * page ends with the form, which is the somewhere.
+ */
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import NextStep from './NextStep.astro';
+import { getContent, type Locale } from '../i18n';
+import {
+  contactPagePath,
+  estimatePath,
+  pricingPath,
+  projectsPath,
+  servicesIndexPath,
+} from '../data/pages';
+
+type PageKey = 'services' | 'projects' | 'pricing' | 'estimate' | 'contact';
+
+interface Props {
+  locale: Locale;
+  page: PageKey;
+  /** Extra JSON-LD, for the page that carries the questions. */
+  extraSchema?: unknown;
+}
+
+const { locale, page, extraSchema } = Astro.props;
+const t = getContent(locale);
+
+/**
+ * One table, so a page's address, its name in the breadcrumb and the label it
+ * wears in the header can never describe different pages. The names are the
+ * navigation's own — a crumb that reads differently from the link that got you
+ * there is a crumb that makes you doubt you arrived.
+ */
+const pages = {
+  services: { path: servicesIndexPath, name: t.nav.services },
+  projects: { path: projectsPath, name: t.nav.portfolio },
+  pricing: { path: pricingPath, name: t.nav.pricing },
+  estimate: { path: estimatePath, name: t.nav.estimate },
+  contact: { path: contactPagePath, name: t.nav.contact },
+} as const;
+
+const { path, name } = pages[page];
+const meta = t.pages[page];
+---
+
+<Base
+  locale={locale}
+  title={meta.metaTitle}
+  description={meta.metaDescription}
+  alternates={{ ro: path('ro'), en: path('en') }}
+  breadcrumb={[{ name, href: path(locale) }]}
+  extraSchema={extraSchema}
+>
+  <Header locale={locale} />
+
+  <main id="main">
+    <slot />
+
+    {page !== 'contact' && <NextStep locale={locale} via={`page-${page}`} secondary={page !== 'estimate'} />}
+
+  </main>
+
+  <Footer locale={locale} />
+</Base>

@@ -7,9 +7,37 @@ import { demoForService } from '../../data/demo';
 
 interface Props {
   locale: Locale;
+  /**
+   * Where to read the rest, when this section is standing in for a page.
+   *
+   * The landing page shows the cards and stops; the page they summarise is one
+   * link away. Absent when the section IS the page, because a page that links
+   * to itself at the bottom is a page that has run out of things to say.
+   */
+  more?: { href: string; label: string };
+  /** True when this section opens a page of its own and owns its `h1`. */
+  lead?: boolean;
+  /**
+   * Summary rather than the whole thing.
+   *
+   * The landing page shows these cards and the services page shows them too,
+   * which is the shape of an SEO problem: two indexable pages competing on the
+   * same words. Compact drops the feature lists and the demo buttons — what is
+   * left is a name, a sentence and a way through, which is what a summary is.
+   */
+  compact?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, lead = false, compact = false, more } = Astro.props;
+/**
+ * Card headings sit one level under whatever this section's own heading is.
+ *
+ * The section is `h2` when it is one of several on a page and `h1` when it is
+ * what a page is about, so a hard-coded `h3` under it is a skipped level in
+ * exactly one of those two cases — which is what axe caught the first time
+ * these sections were reused as pages.
+ */
+const Sub = lead ? 'h2' : 'h3';
 const t = getContent(locale).services;
 
 // A card links through only when a landing page exists for that service yet.
@@ -24,7 +52,12 @@ const spanLast = t.items.length % 2 === 1;
 
 <section id={sectionIds.services} class="py-20 sm:py-28">
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    <SectionHeading
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      level={lead ? 1 : 2}
+    />
 
     <div class="mt-16 grid gap-6 sm:grid-cols-2">
       {
@@ -38,6 +71,7 @@ const spanLast = t.items.length % 2 === 1;
           <article
             class:list={[
               'card card-hover flex flex-col',
+              !compact && 'grow',
               spanLast && index === t.items.length - 1 && 'sm:col-span-2',
             ]}
             data-reveal
@@ -47,7 +81,7 @@ const spanLast = t.items.length % 2 === 1;
               <Icon name={service.icon} class="size-5" />
             </span>
 
-            <h3 class="mt-5 text-xl font-semibold">
+            <Sub class="mt-5 text-xl font-semibold">
               {
                 href ? (
                   <a href={href} class="after:absolute after:inset-0 hover:text-accent-alt">
@@ -57,17 +91,19 @@ const spanLast = t.items.length % 2 === 1;
                   service.title
                 )
               }
-            </h3>
+            </Sub>
             <p class="mt-3 text-sm leading-relaxed text-fg-muted">{service.description}</p>
 
-            <ul class="mt-6 grow space-y-2.5 border-t border-border pt-6">
-              {service.features.map((feature) => (
-                <li class="flex items-start gap-2.5 text-sm text-fg-muted">
-                  <Icon name="check" class="mt-0.5 size-4 shrink-0 text-accent-alt" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+            {!compact && (
+              <ul class="mt-6 grow space-y-2.5 border-t border-border pt-6">
+                {service.features.map((feature) => (
+                  <li class="flex items-start gap-2.5 text-sm text-fg-muted">
+                    <Icon name="check" class="mt-0.5 size-4 shrink-0 text-accent-alt" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {(href || demoHref) && (
               <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
@@ -97,5 +133,19 @@ const spanLast = t.items.length % 2 === 1;
         })
       }
     </div>
+
+    {
+      more && (
+        <p class="mt-12 text-center" data-reveal data-section-more>
+          <a
+            href={more.href}
+            class="text-sm font-semibold text-accent-alt underline underline-offset-4 hover:no-underline"
+          >
+            {more.label}
+            <Icon name="arrow-right" class="inline size-4 align-[-3px]" />
+          </a>
+        </p>
+      )
+    }
   </div>
 </section>

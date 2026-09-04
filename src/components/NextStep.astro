@@ -1,0 +1,61 @@
+---
+/**
+ * The band that closes a page: somewhere to go once you have finished reading.
+ *
+ * One component rather than one per page, because it carries a promise about
+ * what happens after you write — and a promise copied into six files is a
+ * promise that ends up worded six ways.
+ */
+import Icon from './Icon.astro';
+import { getContent, type Locale } from '../i18n';
+import { contactPath } from '../data/demo';
+import { estimatePath } from '../data/pages';
+
+interface Props {
+  locale: Locale;
+  /** Stamped on the lead, so the email says which page did the convincing. */
+  via: string;
+  /** The quieter second way out. Pointless on the page that already is it. */
+  secondary?: boolean;
+}
+
+const { locale, via, secondary = true } = Astro.props;
+const t = getContent(locale).pages.next;
+---
+
+<section class="pb-20 sm:pb-28">
+  <div class="container-page">
+    <aside
+      class="relative overflow-hidden rounded-3xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
+      data-reveal
+      data-next-step
+    >
+      <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent/20" aria-hidden="true"></div>
+
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="font-display text-2xl font-semibold">{t.title}</h2>
+          <p class="mt-3 max-w-lg text-sm leading-relaxed text-fg-muted">{t.body}</p>
+        </div>
+
+        <div class="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+          <a href={contactPath(locale, undefined, via)} class="btn btn-primary">
+            {t.action}
+            <Icon name="arrow-right" class="size-4" />
+          </a>
+
+          {
+            secondary && (
+              <a
+                href={estimatePath(locale)}
+                class="text-sm text-accent-alt underline underline-offset-4 hover:no-underline"
+              >
+                {t.secondary}
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>

@@ -2,18 +2,35 @@
 import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
+import { contactPath } from '../../data/demo';
 
 interface Props {
   locale: Locale;
+  /** True when this section opens a page of its own and owns its `h1`. */
+  lead?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, lead = false } = Astro.props;
+/**
+ * Card headings sit one level under whatever this section's own heading is.
+ *
+ * The section is `h2` when it is one of several on a page and `h1` when it is
+ * what a page is about, so a hard-coded `h3` under it is a skipped level in
+ * exactly one of those two cases — which is what axe caught the first time
+ * these sections were reused as pages.
+ */
+const Sub = lead ? 'h2' : 'h3';
 const t = getContent(locale).pricing;
 ---
 
 <section id={sectionIds.pricing} class="py-20 sm:py-28">
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    <SectionHeading
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      level={lead ? 1 : 2}
+    />
 
     <div class="mt-16 grid items-start gap-6 sm:grid-cols-2 xl:grid-cols-4">
       {
@@ -37,10 +54,14 @@ const t = getContent(locale).pricing;
               </p>
             )}
 
-            <h3 class="font-display text-lg font-semibold">{plan.name}</h3>
+            {/* Named parts, so a check can find the price without depending on
+                which heading level this section happens to be wearing. */}
+            <Sub class="font-display text-lg font-semibold" data-plan-name>{plan.name}</Sub>
 
-            <p class="mt-4 font-display text-3xl font-semibold text-fg">{plan.price}</p>
-            <p class="mt-1.5 text-xs text-fg-subtle">{plan.priceNote}</p>
+            <p class="mt-4 font-display text-3xl font-semibold text-fg" data-plan-price>
+              {plan.price}
+            </p>
+            <p class="mt-1.5 text-xs text-fg-subtle" data-plan-note>{plan.priceNote}</p>
 
             <p class="mt-5 text-sm leading-relaxed text-fg-muted">{plan.description}</p>
 
@@ -54,7 +75,7 @@ const t = getContent(locale).pricing;
             </ul>
 
             <a
-              href={`#${sectionIds.contact}`}
+              href={contactPath(locale, undefined, 'pricing')}
               class:list={['btn mt-8 w-full', plan.featured ? 'btn-primary' : 'btn-ghost']}
             >
               {plan.cta}

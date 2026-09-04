@@ -1,26 +1,35 @@
 ---
 /**
- * The full landing page. Both locale routes render this with a different
- * `locale`, so the two languages can never drift apart structurally.
+ * The landing page. Both locale routes render this with a different `locale`,
+ * so the two languages can never drift apart structurally.
+ *
+ * It used to be the whole site: fourteen sections, and a header whose links
+ * were anchors into them. That is a fine page for somebody who arrives at the
+ * top and reads downwards, and a poor one for everybody else — the price list
+ * was nine sections down, a link sent to a colleague carried the whole page
+ * rather than the part worth sending, and one document was trying to rank for
+ * nine different questions at once.
+ *
+ * So the sections moved out to the pages the header always implied, and what
+ * stayed here is what a first screen owes a stranger: who this is, proof that
+ * the claim is true, what I build, what I have built, and three clearly marked
+ * ways on. Five sections instead of fourteen, and every one of them still the
+ * real section rather than a summary written about it.
+ *
+ * What left, and where it went, is written down once in `movedSections` — the
+ * same table the forwarder below reads.
  */
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
+import NextStep from './NextStep.astro';
 import Hero from './sections/Hero.astro';
 import LiveMetrics from './sections/LiveMetrics.astro';
 import Services from './sections/Services.astro';
-import Process from './sections/Process.astro';
-import Comparison from './sections/Comparison.astro';
 import Portfolio from './sections/Portfolio.astro';
-import Guarantees from './sections/Guarantees.astro';
-import About from './sections/About.astro';
-import Testimonials from './sections/Testimonials.astro';
-import Pricing from './sections/Pricing.astro';
-import Configurator from './sections/Configurator.astro';
-import Audit from './sections/Audit.astro';
-import HomeFaq from './sections/HomeFaq.astro';
-import Contact from './sections/Contact.astro';
+import HomeHub from './sections/HomeHub.astro';
 import { getContent, type Locale } from '../i18n';
+import { movedSections, projectsPath, servicesIndexPath } from '../data/pages';
 
 interface Props {
   locale: Locale;
@@ -29,49 +38,62 @@ interface Props {
 const { locale } = Astro.props;
 const t = getContent(locale);
 
-/**
- * The landing page's own questions, in the form search engines read. Emitted as
- * a separate block from the business entity rather than folded into it — two
- * documents describing two different things.
- *
- * Built as an object and serialised, because the answers contain both „…" and
- * "…" quotes and a hand-written JSON string would break on them.
- */
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: t.homeFaq.items.map((item) => ({
-    '@type': 'Question',
-    name: item.question,
-    acceptedAnswer: { '@type': 'Answer', text: item.answer },
-  })),
-};
+/** Section id -> the page that holds it now, resolved for this language. */
+const moved = Object.fromEntries(
+  Object.entries(movedSections).map(([id, path]) => [id, path(locale)]),
+);
 ---
 
-<Base locale={locale} extraSchema={faqSchema}>
+<Base locale={locale}>
   <Header locale={locale} />
 
-  <main id="main">
+  <main id="main" data-moved-sections={JSON.stringify(moved)}>
     <Hero locale={locale} />
     {/* Directly under the hero's "95+ Lighthouse" claim, so the proof sits next to it. */}
     <LiveMetrics locale={locale} />
-    <Services locale={locale} />
-    <Process locale={locale} />
-    {/* Objection handling before the proof, so the price list lands on a convinced reader. */}
-    <Comparison locale={locale} />
-    <Portfolio locale={locale} />
-    <Guarantees locale={locale} />
-    {/* Directly after the promises: who is making them. */}
-    <About locale={locale} />
-    {/* Renders nothing until a real testimonial exists — it self-checks. */}
-    <Testimonials locale={locale} />
-    <Pricing locale={locale} />
-    <Configurator locale={locale} />
-    <Audit locale={locale} />
-    {/* Last objections before the form — answers only, no new promises. */}
-    <HomeFaq locale={locale} />
-    <Contact locale={locale} />
+    <Services
+      locale={locale}
+      compact
+      more={{ href: servicesIndexPath(locale), label: t.hub.servicesMore }}
+    />
+    {/* The case studies, without the framed example: that one is the heaviest
+        thing on the site and belongs on the page that is about proof. */}
+    <Portfolio
+      locale={locale}
+      compact
+      example={false}
+      more={{ href: projectsPath(locale), label: t.hub.projectsMore }}
+    />
+    <HomeHub locale={locale} />
+    <NextStep locale={locale} via="home" />
   </main>
 
   <Footer locale={locale} blueprint />
 </Base>
+
+<script>
+  /**
+   * Old anchors, forwarded to the pages that now hold them.
+   *
+   * For a long time the whole site was this page, and every link to a part of
+   * it was `/#pricing` or `/?from=store#contact`. Those links are in published
+   * articles, in sent emails and in people's bookmarks, and they cannot be
+   * edited. Arriving at the top of a page that no longer contains what was
+   * asked for is the worst possible outcome — it looks like the thing was
+   * deleted.
+   *
+   * So: only when a hash arrives, only when it names a section that actually
+   * moved, and only when nothing on this page answers to that id. The query
+   * string travels along, because `?from=` and `?via=` are what the form reads
+   * to preselect a project type and stamp the lead with where it came from.
+   *
+   * `replace`, not `assign`: the address that no longer resolves should not
+   * become a step in the reader's back button.
+   */
+  const id = location.hash.slice(1);
+  if (id && !document.getElementById(id)) {
+    const main = document.getElementById('main');
+    const moved: Record<string, string> = JSON.parse(main?.dataset.movedSections ?? '{}');
+    if (moved[id]) location.replace(`${moved[id]}${location.search}`);
+  }
+</script>

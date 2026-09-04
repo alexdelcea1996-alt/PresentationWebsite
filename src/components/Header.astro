@@ -3,10 +3,11 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icon from './Icon.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import { getContent, sectionIds, type Locale } from '../i18n';
+import { getContent, type Locale } from '../i18n';
 import { site } from '../data/site';
 import { blogIndexPath } from '../data/blog';
-import { demoPath } from '../data/demo';
+import { contactPath, demoPath } from '../data/demo';
+import { estimatePath, pricingPath, projectsPath, servicesIndexPath } from '../data/pages';
 
 interface Props {
   locale: Locale;
@@ -14,18 +15,40 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = getContent(locale);
-// Also used to build the section anchors, so they resolve from sub-pages too.
 const home = getRelativeLocaleUrl(locale);
 
+/**
+ * Seven links, seven pages.
+ *
+ * These used to be anchors into one very long front page, which meant the menu
+ * described a document rather than a site: nothing was ever "the current page",
+ * every entry led to the same address, and a reader who wanted the price list
+ * arrived at the top of it. Now each entry goes where it says it goes, and the
+ * one you are on can say so.
+ */
 const links = [
-  { href: `${home}#${sectionIds.services}`, label: t.nav.services },
-  { href: `${home}#${sectionIds.portfolio}`, label: t.nav.portfolio },
-  { href: `${home}#${sectionIds.pricing}`, label: t.nav.pricing },
-  { href: `${home}#${sectionIds.estimate}`, label: t.nav.estimate },
+  { href: servicesIndexPath(locale), label: t.nav.services },
+  { href: projectsPath(locale), label: t.nav.portfolio },
+  { href: pricingPath(locale), label: t.nav.pricing },
+  { href: estimatePath(locale), label: t.nav.estimate },
   { href: demoPath(locale), label: t.nav.demo },
   { href: blogIndexPath(locale), label: t.nav.blog },
-  { href: `${home}#${sectionIds.contact}`, label: t.nav.contact },
+  { href: contactPath(locale, undefined, 'nav'), label: t.nav.contact },
 ];
+
+/**
+ * Which entry, if any, is the page being read.
+ *
+ * Compared on the path alone: the contact link carries `?via=nav`, and a
+ * comparison that included the query would never match the page it points at.
+ * Prefix rather than equality, so a single service page still lights up
+ * "Services" — a reader deep in a section has not left it.
+ */
+const here = Astro.url.pathname.replace(/\/+$/, '');
+const current = (href: string) => {
+  const path = href.split(/[?#]/)[0]!.replace(/\/+$/, '');
+  return here === path || here.startsWith(`${path}/`);
+};
 ---
 
 {/*
@@ -62,7 +85,8 @@ const links = [
           links.map((link) => (
             <a
               href={link.href}
-              class="rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg"
+              aria-current={current(link.href) ? 'page' : undefined}
+              class="rounded-lg px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg aria-[current]:bg-surface-hover aria-[current]:text-fg"
             >
               {link.label}
             </a>
@@ -73,7 +97,7 @@ const links = [
       <div class="flex items-center gap-2">
         <ThemeToggle locale={locale} class="hidden sm:grid" />
         <LanguageSwitcher locale={locale} class="hidden sm:flex" />
-        <a href={`${home}#${sectionIds.contact}`} class="btn btn-primary hidden text-sm sm:inline-flex">
+        <a href={contactPath(locale, undefined, 'nav')} class="btn btn-primary hidden text-sm sm:inline-flex">
           {t.nav.cta}
         </a>
 
@@ -104,7 +128,8 @@ const links = [
         links.map((link) => (
           <a
             href={link.href}
-            class="rounded-lg px-3 py-2.5 text-base font-medium text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg"
+            aria-current={current(link.href) ? 'page' : undefined}
+            class="rounded-lg px-3 py-2.5 text-base font-medium text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg aria-[current]:bg-surface-hover aria-[current]:text-fg"
             data-menu-link
           >
             {link.label}
@@ -116,7 +141,7 @@ const links = [
           <ThemeToggle locale={locale} />
           <LanguageSwitcher locale={locale} />
         </div>
-        <a href={`${home}#${sectionIds.contact}`} class="btn btn-primary text-sm" data-menu-link>
+        <a href={contactPath(locale, undefined, 'nav')} class="btn btn-primary text-sm" data-menu-link>
           {t.nav.cta}
         </a>
       </div>

@@ -604,6 +604,66 @@ export const ro: Content = {
     nav: 'Navigare',
   },
 
+  pages: {
+    services: {
+      metaTitle: 'Servicii — site-uri și aplicații web | Alex Delcea',
+      metaDescription:
+        'Ce construiesc, cum decurge un proiect de la primul mesaj până la lansare, și de ce un site făcut de om bate un șablon. Preț și termen în scris.',
+    },
+    projects: {
+      metaTitle: 'Proiecte și studii de caz | Alex Delcea',
+      metaDescription:
+        'Studii de caz cu cifre măsurate, nu impresii, și un site-exemplu întreg pe care îl poți folosi chiar aici, în pagină. Ce vezi e ce livrez.',
+    },
+    pricing: {
+      metaTitle: 'Prețuri, pachete și garanții | Alex Delcea',
+      metaDescription:
+        'Trei pachete cu prețuri scrise pe pagină, ce intră în fiecare, ce garantez în scris și răspunsuri la întrebările care apar înainte de a cere o ofertă.',
+    },
+    estimate: {
+      metaTitle: 'Estimare gratuită în 30 de secunde | Alex Delcea',
+      metaDescription:
+        'Alege ce ai nevoie și vezi un interval de preț și un termen, pe loc, fără să lași o adresă de e-mail. Plus un audit instant al site-ului pe care îl ai acum.',
+    },
+    contact: {
+      metaTitle: 'Contact — cere o ofertă gratuită | Alex Delcea',
+      metaDescription:
+        'Spune-mi în trei pași ce ai nevoie și îți răspund în cel mult 24 de ore cu un preț și un termen. Sau sună direct — vorbești cu omul care construiește.',
+    },
+    next: {
+      title: 'Următorul pas e o discuție, nu o semnătură',
+      body: 'Spune-mi în două rânduri ce ai nevoie. Primești înapoi un preț, un termen și ce anume conține — în scris, înainte să se apuce cineva de lucru.',
+      action: 'Cere ofertă',
+      secondary: 'Sau vezi întâi cât ar costa',
+    },
+  },
+
+  hub: {
+    servicesMore: 'Vezi toate serviciile și cum decurge un proiect',
+    projectsMore: 'Vezi toate proiectele și un site-exemplu funcțional',
+    eyebrow: 'De aici încolo',
+    title: 'Trei drumuri, alege-l pe al tău',
+    subtitle:
+      'Nu te pun să derulezi paisprezece secțiuni ca să ajungi la ce te interesează. Fiecare are pagina ei, cu tot ce trebuie ca să iei o decizie.',
+    cards: [
+      {
+        title: 'Vreau să știu cât costă',
+        body: 'Trei pachete cu prețurile scrise pe pagină, ce include fiecare și ce garantez în scris.',
+        action: 'Vezi prețurile',
+      },
+      {
+        title: 'Vreau o cifră pentru cazul meu',
+        body: 'Alegi ce ai nevoie și vezi un interval de preț și un termen pe loc, fără să lași o adresă.',
+        action: 'Fă o estimare',
+      },
+      {
+        title: 'Vreau să văd ceva care merge',
+        body: 'Patru demo-uri pe care le poți folosi chiar acum: un magazin, o aplicație de programări și două site-uri întregi.',
+        action: 'Deschide demo-urile',
+      },
+    ],
+  },
+
   blueprint: {
     show: 'Vezi construcția',
     hide: 'Ascunde construcția',

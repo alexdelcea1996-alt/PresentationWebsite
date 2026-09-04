@@ -1,12 +1,14 @@
-import { launch, BASE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+import { launch, BASE, PAGE, axePath, runAxe, settleAnimations } from '../harness.mjs';
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 const b = await launch();
 
+// Printed beside the prices, where somebody deciding whether to ask for a quote
+// is actually standing — not eight sections down a landing page.
 for (const [label, path, yes, no] of [
-  ['RO', '/', 'Îți garantez', 'Nu îți garantez'],
-  ['EN', '/en/', 'I guarantee', 'I do not guarantee'],
+  ['RO', PAGE.pricing.ro, 'Îți garantez', 'Nu îți garantez'],
+  ['EN', PAGE.pricing.en, 'I guarantee', 'I do not guarantee'],
 ]) {
   const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
   await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
@@ -39,19 +41,24 @@ for (const [label, path, yes, no] of [
 }
 
 // --- The empty testimonial boxes are gone ------------------------------------
+for (const [label, path] of [['landing page', PAGE.home.ro], ['contact page', PAGE.contact.ro]]) {
+  const page = await b.newPage({ viewport: { width: 1440, height: 1000 } });
+  await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+  ck(`no empty dashed slots left on the ${label}`,
+    (await page.locator('.card-placeholder').count()) === 0);
+  ck(`the testimonials section is absent on the ${label} while there are none`,
+    (await page.locator('#testimonials').count()) === 0);
+  await page.close();
+}
 const home = await b.newPage({ viewport: { width: 1440, height: 1000 } });
-await home.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
-ck('no empty dashed slots left on the landing page',
-  (await home.locator('.card-placeholder').count()) === 0);
-ck('the testimonials section is absent while there are none',
-  (await home.locator('#testimonials').count()) === 0);
+await home.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'domcontentloaded' });
 ck('the guarantees section took its place',
   (await home.locator('#guarantees').count()) === 1);
 
 // --- Accessibility -----------------------------------------------------------
 const a = await b.newPage({ viewport: { width: 1440, height: 1000 } });
 await a.addInitScript({ path: axePath });
-await a.goto(`${BASE}/`, { waitUntil: 'load' });
+await a.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'load' });
 await a.locator('#guarantees').scrollIntoViewIfNeeded();
 await settleAnimations(a);
 const axeResult = await runAxe(a, '#guarantees');

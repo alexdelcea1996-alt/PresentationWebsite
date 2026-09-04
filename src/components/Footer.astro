@@ -3,10 +3,11 @@ import Blueprint from './Blueprint.astro';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icon from './Icon.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
-import { getContent, sectionIds, type Locale } from '../i18n';
+import { getContent, type Locale } from '../i18n';
 import { site, telHref, whatsappHref } from '../data/site';
 import { blogIndexPath } from '../data/blog';
-import { colophonPath, checklistPath, demoPath } from '../data/demo';
+import { colophonPath, checklistPath, contactPath, demoPath } from '../data/demo';
+import { estimatePath, pricingPath, projectsPath, servicesIndexPath } from '../data/pages';
 import { build } from '../data/build';
 import { getLegalPage, legalPath } from '../data/legal';
 
@@ -26,16 +27,16 @@ const year = new Date().getFullYear();
 const privacy = await getLegalPage(locale, 'privacy');
 const privacyHref = legalPath(locale, privacy.data.urlSlug);
 // Anchors are absolute so they also work from case-study pages.
-const home = getRelativeLocaleUrl(locale);
 
 const links = [
-  { href: `${home}#${sectionIds.services}`, label: t.nav.services },
-  { href: `${home}#${sectionIds.process}`, label: t.nav.process },
-  { href: `${home}#${sectionIds.portfolio}`, label: t.nav.portfolio },
-  { href: `${home}#${sectionIds.pricing}`, label: t.nav.pricing },
+  { href: servicesIndexPath(locale), label: t.nav.services },
+  { href: `${servicesIndexPath(locale)}#process`, label: t.nav.process },
+  { href: projectsPath(locale), label: t.nav.portfolio },
+  { href: pricingPath(locale), label: t.nav.pricing },
+  { href: estimatePath(locale), label: t.nav.estimate },
   { href: demoPath(locale), label: t.nav.demo },
   { href: blogIndexPath(locale), label: t.nav.blog },
-  { href: `${home}#${sectionIds.contact}`, label: t.nav.contact },
+  { href: contactPath(locale, undefined, 'footer'), label: t.nav.contact },
   { href: checklistPath(locale), label: t.checklist.eyebrow },
   { href: colophonPath(locale), label: t.colophon.eyebrow },
 ];

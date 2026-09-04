@@ -43,6 +43,26 @@ const VIEWPORT = { viewport: { width: 1280, height: 900 } };
   const p = await b.newPage(VIEWPORT);
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
   await settleAnimations(p);
+
+  /*
+    Read the page to the bottom before opening the drawing, and let what that
+    pulls in finish arriving.
+
+    The control is in the footer, so reaching it scrolls past a lazily loaded
+    screenshot — five kilobytes that land AFTER the panel has taken its
+    measurement and BEFORE this suite recomputes it. The overlay was right both
+    times; the check was comparing two different moments. A reader who presses
+    the control has scrolled there too, so this is also the honest state to
+    measure in.
+  */
+  await p.evaluate(async () => {
+    for (let y = 0; y < document.documentElement.scrollHeight; y += 700) {
+      window.scrollTo({ top: y, behavior: 'instant' });
+      await new Promise((r) => setTimeout(r, 40));
+    }
+  });
+  await p.waitForLoadState('networkidle');
+
   await p.locator('[data-blueprint-toggle]').click();
   await p.waitForTimeout(400);
 
@@ -50,22 +70,22 @@ const VIEWPORT = { viewport: { width: 1280, height: 900 } };
   ck('the panel is announced as open',
     (await p.locator('[data-blueprint-toggle]').getAttribute('aria-expanded')) === 'true');
 
-  const read = async (key) =>
-    (await p.locator(`[data-blueprint="${key}"]`).innerText()).trim();
   const rows = ['nodes', 'page', 'styles', 'scripts', 'fonts', 'shift', 'contrast', 'layers'];
-  const values = {};
-  for (const key of rows) values[key] = await read(key);
-  ck('every row is filled in', Object.values(values).every((v) => v && v !== '—'),
-    JSON.stringify(values));
-
-  const num = (s) => Number(String(s).replace(/[^\d]/g, ''));
 
   /*
-    The guard against a frozen figure. Each of these is recomputed here from a
-    source the panel does not touch, so a number typed into the markup — or one
-    that stopped being recalculated — cannot match by luck.
+    The guard against a frozen figure: every number is recomputed from a source
+    the panel does not touch, so one typed into the markup — or one that stopped
+    being recalculated — cannot match by luck.
+
+    Both halves are taken in ONE pass through the page, and that is not tidiness.
+    Read separately, a resource that arrives between the two reads lands in the
+    recomputed figure and not in the panel's, and the check fails by five
+    kilobytes for a reason that has nothing to do with the overlay.
   */
-  const truth = await p.evaluate(() => {
+  const { values, truth } = await p.evaluate((keys) => {
+    const values = Object.fromEntries(
+      keys.map((key) => [key, (document.querySelector(`[data-blueprint="${key}"]`)?.textContent ?? '').trim()]),
+    );
     const nav = performance.getEntriesByType('navigation')[0];
     let total = nav.decodedBodySize;
     let styles = 0;
@@ -77,12 +97,20 @@ const VIEWPORT = { viewport: { width: 1280, height: 900 } };
       else if (/\.woff2?($|\?)/.test(r.name)) fonts += size;
     }
     return {
-      nodes: document.querySelectorAll('*').length,
-      page: Math.round(total / 1024),
-      styles: Math.round(styles / 1024),
-      fonts: Math.round(fonts / 1024),
+      values,
+      truth: {
+        nodes: document.querySelectorAll('*').length,
+        page: Math.round(total / 1024),
+        styles: Math.round(styles / 1024),
+        fonts: Math.round(fonts / 1024),
+      },
     };
-  });
+  }, rows);
+
+  ck('every row is filled in', Object.values(values).every((v) => v && v !== '—'),
+    JSON.stringify(values));
+
+  const num = (s) => Number(String(s).replace(/[^\d]/g, ''));
 
   ck('the element count is the real one', num(values.nodes) === truth.nodes,
     `${values.nodes} vs ${truth.nodes}`);

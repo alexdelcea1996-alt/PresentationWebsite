@@ -96,6 +96,6 @@ viteză, liniște la securitate și zero cheltuieli lunare obligatorii.
 Publicare zilnică, magazin cu sute de produse și variații, funcții de comunitate: WordPress sau o
 platformă dedicată, fără regrete.
 
-Dacă nu ești sigur unde te încadrezi, [estimarea de pe prima pagină](/#estimate) îți dă un interval
+Dacă nu ești sigur unde te încadrezi, [estimarea de pe site](/estimare/) îți dă un interval
 în câteva clicuri, iar dacă îmi scrii ce publici și cât de des, îți spun sincer dacă ai nevoie de
 mine sau de un WordPress bine făcut.

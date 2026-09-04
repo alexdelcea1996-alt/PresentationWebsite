@@ -1,6 +1,8 @@
 ---
 import Icon from '../Icon.astro';
 import { getContent, localeTags, sectionIds, type Locale } from '../../i18n';
+import { HANDOVER_KEY } from '../../data/handover';
+import { contactPath } from '../../data/demo';
 import { site } from '../../data/site';
 
 interface Props {
@@ -24,6 +26,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
 <section
   id={sectionIds.audit}
   class="py-10 sm:py-14"
+  data-handover-key={HANDOVER_KEY}
   data-psi-endpoint={live ? PSI_ENDPOINT : undefined}
   data-psi-key={live ? site.pageSpeedKey : undefined}
   data-psi-locale={live ? localeTags[locale] : undefined}
@@ -142,7 +145,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
               </form>
             ) : (
               <>
-                <a href={`#${sectionIds.contact}`} class="btn btn-primary w-full" data-audit-cta>
+                <a href={contactPath(locale, 'audit', 'audit')} class="btn btn-primary w-full" data-audit-cta>
                   {t.cta}
                   <Icon name="arrow-right" class="size-4" />
                 </a>
@@ -185,7 +188,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
 
             <div class="mt-6 flex flex-wrap items-center gap-4 border-t border-border pt-6">
               <p class="text-sm font-medium text-fg">{tool.ctaTitle}</p>
-              <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm" data-audit-cta>
+              <a href={contactPath(locale, 'audit', 'audit')} class="btn btn-primary text-sm" data-audit-cta>
                 {tool.cta}
                 <Icon name="arrow-right" class="size-4" />
               </a>
@@ -316,34 +319,25 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
     });
   }
 
-  /** Carry an address over to the contact form and select the audit option. */
+  /**
+   * Carry the audited address over to the contact form, which now lives on a
+   * page of its own.
+   *
+   * The offer itself rides in the link's own `?from=audit`, visible in the
+   * address bar. Only the address the visitor typed goes through storage, and
+   * only because it is theirs rather than ours to put in a URL. Step 2 is where
+   * the address and the contact details are — landing on step 1 would make them
+   * click past the question they have already answered.
+   */
   const handOverToForm = (url?: string) => {
-    const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');
-    const auditOption = typeSelect
-      ? Array.from(typeSelect.options).find((option) => option.dataset.id === 'audit')
-      : undefined;
-
-    if (typeSelect && auditOption) {
-      typeSelect.value = auditOption.value;
-      typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    const key = document.querySelector<HTMLElement>('[data-handover-key]')?.dataset.handoverKey;
+    if (!key) return;
+    try {
+      sessionStorage.setItem(key, JSON.stringify({ website: url, step: url ? 2 : 1 }));
+    } catch {
+      // Storage refused (private mode, blocked cookies). The link still works
+      // and the form still preselects the offer; only the address is retyped.
     }
-
-    const website = document.querySelector<HTMLInputElement>('#field-website');
-    if (website && url) website.value = url;
-
-    // Step 2 is where the address and the contact details live; that is where
-    // the visitor should arrive, not on the offer question they just answered.
-    typeSelect
-      ?.closest('form')
-      ?.dispatchEvent(new CustomEvent('contact:filled', { detail: { step: url ? 2 : 1 } }));
-
-    window.setTimeout(() => {
-      // Focus the first thing still empty, not always the same box.
-      const target = url
-        ? document.querySelector<HTMLInputElement>('#field-name')
-        : website;
-      target?.focus({ preventScroll: true });
-    }, 600);
   };
 
   // Jumping to the form from here means one thing: the visitor wants the audit.

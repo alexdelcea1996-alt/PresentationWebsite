@@ -1,9 +1,10 @@
-import { launch, BASE } from '../harness.mjs';
+import { launch, BASE, PAGE } from '../harness.mjs';
 const b = await launch();
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
 
-const pages = ['/', '/en/', '/servicii/site-de-prezentare/', '/blog/',
+const pages = ['/', '/en/', '/servicii/', '/proiecte/', '/preturi/', '/estimare/', '/contact/',
+  '/servicii/site-de-prezentare/', '/blog/',
   '/blog/de-ce-se-incarca-greu-site-ul-tau/', '/studii-de-caz/acest-site/'];
 
 let totalViolations = 0;
@@ -26,7 +27,7 @@ for (const path of pages) {
 
 // The scripts that CSP would most plausibly have broken must still work.
 const p = await b.newPage({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
-await p.goto(BASE + '/', { waitUntil: 'networkidle' });
+await p.goto(BASE + PAGE.estimate.ro, { waitUntil: 'networkidle' });
 ck('pre-paint theme script ran', (await p.evaluate(() => document.documentElement.dataset.theme)) === 'dark');
 await p.locator('[data-theme-toggle]').first().click();
 await p.waitForTimeout(200);
@@ -55,7 +56,7 @@ ck('fonts loaded from own origin',
 // observer sets `transition-delay` through CSSOM, and CSSOM writes from script
 // are not covered by style-src. Those are fine; authored attributes are not.
 const withInlineStyle = [];
-for (const path of ['/', '/en/', '/servicii/site-de-prezentare/', '/blog/', '/studii-de-caz/acest-site/']) {
+for (const path of ['/', '/en/', '/estimare/', '/contact/', '/servicii/site-de-prezentare/', '/blog/', '/studii-de-caz/acest-site/']) {
   const html = await (await fetch(`${BASE}${path}`)).text();
   const found = [...html.matchAll(/<[a-z-]+[^>]*\sstyle="([^"]*)"/g)].map((m) => m[1]);
   if (found.length) withInlineStyle.push(`${path}: ${found.join(' ')}`);

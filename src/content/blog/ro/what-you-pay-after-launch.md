@@ -89,7 +89,7 @@ sunt cheltuieli de site, dar sunt cheltuieli.
 
 După perioada de suport inclusă nu ai nimic de plătit către mine. Modificările ulterioare le facem la
 oră sau pe contract lunar — alegi tu, în funcție de câte sunt. E scris în
-[garanțiile de pe prima pagină](/#guarantees), ca să nu depindă de ce ne amintim fiecare.
+[garanțiile publicate lângă prețuri](/preturi/#guarantees), ca să nu depindă de ce ne amintim fiecare.
 
 Dacă ai deja un site și plătești abonamente despre care nu ești sigur, trimite-mi adresa. La auditul
 gratuit îți spun în 48 de ore ce văd că se întâmplă cu el — inclusiv dacă acele cheltuieli fac ceva.

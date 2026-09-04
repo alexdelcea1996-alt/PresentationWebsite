@@ -2,6 +2,9 @@
 import Icon from '../Icon.astro';
 import SectionHeading from '../SectionHeading.astro';
 import { getContent, localeTags, sectionIds, type Locale } from '../../i18n';
+import { HANDOVER_KEY } from '../../data/handover';
+import { pricingPath } from '../../data/pages';
+import { contactPath } from '../../data/demo';
 import { site } from '../../data/site';
 import {
   features,
@@ -12,9 +15,11 @@ import {
 
 interface Props {
   locale: Locale;
+  /** True when this section opens a page of its own and owns its `h1`. */
+  lead?: boolean;
 }
 
-const { locale } = Astro.props;
+const { locale, lead = false } = Astro.props;
 const content = getContent(locale);
 const t = content.configurator;
 
@@ -67,16 +72,25 @@ const optionCardClass =
   'group relative flex cursor-pointer flex-col rounded-xl border border-border bg-surface/60 p-4 transition-colors hover:border-accent/50 has-checked:border-accent has-checked:bg-accent/10 has-focus-visible:outline has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent';
 ---
 
-<section id={sectionIds.estimate} class="relative overflow-hidden py-20 sm:py-28">
+<section
+  id={sectionIds.estimate}
+  class="relative overflow-hidden py-20 sm:py-28"
+  data-handover-key={HANDOVER_KEY}
+>
   <div class="glow left-1/2 top-1/4 size-[30rem] -translate-x-1/2 bg-accent/12" aria-hidden="true">
   </div>
 
   <div class="container-page">
-    <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
+    <SectionHeading
+      eyebrow={t.eyebrow}
+      title={t.title}
+      subtitle={t.subtitle}
+      level={lead ? 1 : 2}
+    />
 
     {/* Without JavaScript the wizard cannot work, so point at the price list instead. */}
     <p class="no-js-only mx-auto mt-10 max-w-xl text-center text-sm text-fg-muted">
-      <a href={`#${sectionIds.pricing}`} class="text-accent-alt underline">
+      <a href={pricingPath(locale)} class="text-accent-alt underline">
         {content.pricing.title}
       </a>
     </p>
@@ -264,7 +278,12 @@ const optionCardClass =
             {t.next}
             <Icon name="arrow-right" class="size-4" />
           </button>
-          <a href={`#${sectionIds.contact}`} class="btn btn-primary text-sm sm:ml-auto" data-action="send" hidden>
+          <a
+            href={contactPath(locale, undefined, 'configurator')}
+            class="btn btn-primary text-sm sm:ml-auto"
+            data-action="send"
+            hidden
+          >
             {t.cta}
             <Icon name="arrow-right" class="size-4" />
           </a>
@@ -552,24 +571,19 @@ const optionCardClass =
       showStep(0);
     });
 
-    // Carry the estimate into the contact form so nothing has to be retyped.
+    /*
+      Carry the estimate to the contact form, which is a page away now.
+
+      The itemised summary is a paragraph, so it travels in storage rather than
+      in the address bar — see `src/data/handover.ts` for why. The offer, the
+      budget bracket and the message are worked out here, where the numbers
+      are, and the form applies exactly what it is handed.
+    */
     sendLink.addEventListener('click', () => {
       const result = estimate();
       if (!result) return;
 
-      const typeSelect = document.querySelector<HTMLSelectElement>('#field-type');
-      const budgetSelect = document.querySelector<HTMLSelectElement>('#field-budget');
-      const message = document.querySelector<HTMLTextAreaElement>('#field-message');
-
-      const optionByStableId = (select: HTMLSelectElement | null, id: string) =>
-        select
-          ? Array.from(select.options).find((option) => option.dataset.id === id)
-          : undefined;
-
-      const typeOption = optionByStableId(typeSelect, result.type.id);
-      if (typeSelect && typeOption) typeSelect.value = typeOption.value;
-
-      const budgetId =
+      const budget =
         result.priceLow < 500
           ? 'lt500'
           : result.priceLow < 1500
@@ -577,25 +591,32 @@ const optionCardClass =
             : result.priceLow < 3000
               ? '1500-3000'
               : 'gt3000';
-      const budgetOption = optionByStableId(budgetSelect, budgetId);
-      if (budgetSelect && budgetOption) budgetSelect.value = budgetOption.value;
 
-      if (message && !message.value.trim()) {
-        const details = [
-          `• ${result.type.label}`,
-          ...result.picked.map((feature) => `• ${feature.label}`),
-          '',
-          `${data.strings.priceLabel}: ${money.format(result.priceLow)} – ${money.format(result.priceHigh)}`,
-          `${data.strings.timeLabel}: ${result.weeksLow}–${result.weeksHigh} ${data.strings.weeks}`,
-        ].join('\n');
-        message.value = data.strings.messageTemplate.replace('{details}', details);
+      const details = [
+        `• ${result.type.label}`,
+        ...result.picked.map((feature) => `• ${feature.label}`),
+        '',
+        `${data.strings.priceLabel}: ${money.format(result.priceLow)} – ${money.format(result.priceHigh)}`,
+        `${data.strings.timeLabel}: ${result.weeksLow}–${result.weeksHigh} ${data.strings.weeks}`,
+      ].join('\n');
+
+      const key = root.dataset.handoverKey ?? root.closest<HTMLElement>('[data-handover-key]')?.dataset.handoverKey;
+      if (!key) return;
+      try {
+        sessionStorage.setItem(
+          key,
+          JSON.stringify({
+            type: result.type.id,
+            budget,
+            message: data.strings.messageTemplate.replace('{details}', details),
+            // Step 3 is the message that was just written for them.
+            step: 3,
+          }),
+        );
+      } catch {
+        // Storage refused. The link still carries the visitor to the form; the
+        // estimate is on screen behind them and can be retyped.
       }
-
-      // The stepped form listens for this and jumps to the message it was just
-      // handed, instead of leaving the visitor on step 1 to hunt for it.
-      message
-        ?.closest('form')
-        ?.dispatchEvent(new CustomEvent('contact:filled', { detail: { step: 3 } }));
     });
 
     syncFeatureVisibility();

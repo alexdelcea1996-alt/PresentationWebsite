@@ -1,0 +1,19 @@
+---
+/**
+ * The proof: case studies with measured numbers, and a whole example site that
+ * works inside the page.
+ */
+import CategoryPage from './CategoryPage.astro';
+import Portfolio from './sections/Portfolio.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<CategoryPage locale={locale} page="projects">
+  <Portfolio locale={locale} lead />
+</CategoryPage>

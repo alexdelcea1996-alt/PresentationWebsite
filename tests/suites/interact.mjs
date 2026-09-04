@@ -1,4 +1,4 @@
-import { launch, BASE } from '../harness.mjs';
+import { launch, BASE, PAGE } from '../harness.mjs';
 import { mkdirSync } from 'node:fs';
 // Debug screenshots, handy when a check fails. Gitignored.
 const out = new URL('../screenshots/', import.meta.url).pathname;
@@ -135,8 +135,18 @@ await mobile.keyboard.press('Escape');
   check('the WhatsApp exit rides along',
     (await dock.locator('a[href*="wa.me"]').count()) === 1);
 
-  // The page scrolls smoothly (scroll-behavior: smooth), so the jump itself
-  // takes ~half a second before the observer can even notice the arrival.
+  /*
+    Stepping aside where a way to act is already on screen. The form is on its
+    own page now, so this is checked there — the landing page has no `#contact`
+    to step aside for, and asking it to would be asking the dock to hide from
+    something that is not there.
+
+    The page scrolls smoothly (`scroll-behavior: smooth`), so the jump itself
+    takes about half a second before the observer can even notice the arrival.
+  */
+  await dockPage.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
+  await dockPage.evaluate(() => window.scrollTo(0, window.innerHeight * 2));
+  await dockPage.waitForTimeout(600);
   await dockPage.evaluate(() => document.querySelector('#contact')?.scrollIntoView());
   await dockPage.waitForTimeout(1400);
   check('dock steps aside at the form', !(await dock.isVisible()));
@@ -163,18 +173,19 @@ await mobile.keyboard.press('Escape');
 
 // --- Language switcher carries the hash ---
 const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-await desktop.goto(`${BASE}/#pricing`, { waitUntil: 'networkidle' });
+await desktop.goto(`${BASE}${PAGE.pricing.ro}`, { waitUntil: 'networkidle' });
 await desktop.waitForTimeout(400);
 const enHref = await desktop
   .locator('[data-lang-switcher] a:not([aria-current])')
   .first()
   .getAttribute('href');
-check('language switch keeps the anchor', enHref?.endsWith('/en/#pricing') ?? false, String(enHref));
+check('language switch lands on the same page in the other language',
+  enHref?.endsWith(PAGE.pricing.en) ?? false, String(enHref));
 
 // --- Anchor navigation actually lands on the section ---
 await desktop.goto(`${BASE}/`, { waitUntil: 'networkidle' });
-// Header anchors are absolute (`/#pricing`) so they also work from sub-pages.
-await desktop.locator('header nav a[href$="#pricing"]').first().click();
+// The header links pages now, so a click from anywhere goes to the page itself.
+await desktop.locator(`header nav a[href="${PAGE.pricing.ro}"]`).first().click();
 await desktop.waitForTimeout(900);
 const pricingTop = await desktop.evaluate(
   () => document.getElementById('pricing')?.getBoundingClientRect().top ?? -999,
@@ -187,7 +198,7 @@ check('anchor clears the sticky header', pricingTop >= 0 && pricingTop < 140, `t
 // exists. It used to claim "message received" anyway — a false success that
 // silently lost every lead on a machine with no mail client. The honest ending
 // is a rescue panel; the false claim must never come back.
-await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+await desktop.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
 const accessKey = await desktop.locator('[data-contact-form]').getAttribute('data-access-key');
 check('no form key configured yet (mailto fallback path)', accessKey === '', `key="${accessKey}"`);
 
@@ -250,7 +261,7 @@ if (rescueShown) {
 // none of the machinery leaks into the no-JavaScript page.
 {
   const stepped = await browser.newPage({ viewport: { width: 900, height: 1000 } });
-  await stepped.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+  await stepped.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
   await stepped.waitForTimeout(400);
 
   const shown = (selector) => stepped.locator(selector).isVisible();
@@ -317,7 +328,7 @@ if (rescueShown) {
   // plain one — every field at once, no progress line claiming otherwise.
   const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 900, height: 1000 } });
   const plain = await noJs.newPage();
-  await plain.goto(`${BASE}/#contact`, { waitUntil: 'domcontentloaded' });
+  await plain.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'domcontentloaded' });
   check('no JavaScript: every field is on screen at once',
     (await plain.locator('#field-type').isVisible()) &&
       (await plain.locator('#field-name').isVisible()) &&
@@ -334,7 +345,7 @@ if (rescueShown) {
 // lead email saying nothing about where it came from is free analytics thrown
 // away. The prefill must be transparent — a visible note, not a silent change.
 {
-  await desktop.goto(`${BASE}/?from=shop&via=demo-store#contact`, { waitUntil: 'networkidle' });
+  await desktop.goto(`${BASE}${PAGE.contact.ro}?from=shop&via=demo-store`, { waitUntil: 'networkidle' });
   const picked = await desktop
     .locator('#field-type')
     .evaluate((el) => el.options[el.selectedIndex].dataset.id);
@@ -369,7 +380,7 @@ if (rescueShown) {
   await desktop.unroute('https://api.web3forms.com/submit');
 
   // A plain visit stays plain: no note, no phantom origin.
-  await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+  await desktop.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
   check(
     'no note and no origin without the parameter',
     (await desktop.locator('[data-prefill-note]').isHidden()) &&
@@ -378,7 +389,7 @@ if (rescueShown) {
 }
 
 // --- Contact form: the real Web3Forms path, once a key is configured ---
-await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+await desktop.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
 let posted = null;
 await desktop.route('https://api.web3forms.com/submit', async (route) => {
   posted = route.request().postData();
@@ -415,7 +426,7 @@ check(
 // --- An empty form cannot even reach the submit button ---
 // Stepping moved this guard earlier: validation now stops the visitor at the
 // step that is missing something, so submit is never on screen to be pressed.
-await desktop.goto(`${BASE}/#contact`, { waitUntil: 'networkidle' });
+await desktop.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
 await desktop.waitForTimeout(300);
 await desktop.locator('[data-step-next]').click();
 await desktop.locator('[data-step-next]').click();

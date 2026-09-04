@@ -1,0 +1,38 @@
+---
+/**
+ * The prices, what is guaranteed alongside them, and the questions that come
+ * up between reading a number and asking for a quote.
+ *
+ * The questions carry their `FAQPage` schema here with them: it describes the
+ * page they are printed on, and leaving it behind on the landing page would
+ * have been a document about questions that are no longer there.
+ */
+import CategoryPage from './CategoryPage.astro';
+import Pricing from './sections/Pricing.astro';
+import Guarantees from './sections/Guarantees.astro';
+import HomeFaq from './sections/HomeFaq.astro';
+import { getContent, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale);
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.homeFaq.items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+---
+
+<CategoryPage locale={locale} page="pricing" extraSchema={faqSchema}>
+  <Pricing locale={locale} lead />
+  <Guarantees locale={locale} />
+  <HomeFaq locale={locale} />
+</CategoryPage>

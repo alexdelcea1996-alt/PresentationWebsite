@@ -42,6 +42,28 @@ export const PRODUCTION_URL = (() => {
 /** Same, as a bare hostname — what a fake address bar would show. */
 export const PRODUCTION_HOST = PRODUCTION_URL ? new URL(PRODUCTION_URL).host : null;
 
+/**
+ * Where each part of the site lives, per language.
+ *
+ * The landing page used to be all of it, so a suite that wanted the price list
+ * or the contact form simply went to `/`. When those moved out to pages of
+ * their own, every one of those suites went looking for an element that was no
+ * longer there — eight of them died in the same run. One table here means the
+ * next move like that is one edit, and it means a suite reads as "go to the
+ * pricing page" rather than as a path somebody has to keep in their head.
+ *
+ * Kept honest by `completeness.mjs`, which checks each of these is a page that
+ * actually built and that the header links to it.
+ */
+export const PAGE = {
+  home: { ro: '/', en: '/en/' },
+  services: { ro: '/servicii/', en: '/en/services/' },
+  projects: { ro: '/proiecte/', en: '/en/projects/' },
+  pricing: { ro: '/preturi/', en: '/en/pricing/' },
+  estimate: { ro: '/estimare/', en: '/en/estimate/' },
+  contact: { ro: '/contact/', en: '/en/contact/' },
+};
+
 export const axePath = require.resolve('axe-core/axe.min.js');
 
 /** Where the WCAG rule sets we care about live, in one place. */

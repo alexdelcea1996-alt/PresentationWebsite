@@ -62,7 +62,7 @@ Patru propoziții. Pot sta într-un e-mail.
    ca utilizator.** Nu invers.
 
 Nimeni serios nu se supără la lista asta. Un om care lucrează corect ți-o oferă înainte să o ceri.
-Eu o am scrisă în [garanțiile publicate pe prima pagină](/#guarantees), tocmai ca să nu depindă de
+Eu o am scrisă în [garanțiile publicate lângă prețuri](/preturi/#guarantees), tocmai ca să nu depindă de
 memoria mea.
 
 ## „Dar dacă nu plătesc, nu vreau să plece cu site-ul"

@@ -86,8 +86,8 @@ they are costs.
 ## How I work, as a reference point
 
 After the included support period you owe me nothing. Later changes are hourly or on a monthly
-contract — you choose, depending on how many there are. It is written into the [guarantees on the
-front page](/en/#guarantees) so it does not depend on what either of us remembers.
+contract — you choose, depending on how many there are. It is written into the [guarantees published beside the
+prices](/en/pricing/#guarantees) so it does not depend on what either of us remembers.
 
 If you already have a site and are paying for subscriptions you are unsure about, send me the address.
 In the free audit I will tell you within 48 hours what I can see happening to it — including whether

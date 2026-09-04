@@ -1,0 +1,28 @@
+---
+/**
+ * The form, and immediately under it the person who answers it.
+ *
+ * That order is the point. "About me" was the eighth section of a long page,
+ * which is to say it was read by almost nobody; here it sits where somebody has
+ * just decided whether to write, and answers the question they are actually
+ * asking at that moment — who am I sending this to.
+ */
+import CategoryPage from './CategoryPage.astro';
+import Contact from './sections/Contact.astro';
+import About from './sections/About.astro';
+import Testimonials from './sections/Testimonials.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<CategoryPage locale={locale} page="contact">
+  <Contact locale={locale} lead />
+  <About locale={locale} />
+  {/* Renders nothing until a real testimonial exists — it self-checks. */}
+  <Testimonials locale={locale} />
+</CategoryPage>

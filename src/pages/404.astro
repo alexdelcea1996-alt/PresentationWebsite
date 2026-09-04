@@ -9,18 +9,19 @@ import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
-import { getContent, sectionIds } from '../i18n';
+import { getContent } from '../i18n';
 import { blogIndexPath } from '../data/blog';
+import { contactPagePath, pricingPath, servicesIndexPath } from '../data/pages';
 
 const t = getContent('ro');
 const en = getContent('en');
 const home = getRelativeLocaleUrl('ro');
 
 const links = [
-  { href: `${home}#${sectionIds.services}`, label: t.nav.services },
-  { href: `${home}#${sectionIds.pricing}`, label: t.nav.pricing },
+  { href: servicesIndexPath('ro'), label: t.nav.services },
+  { href: pricingPath('ro'), label: t.nav.pricing },
   { href: blogIndexPath('ro'), label: t.nav.blog },
-  { href: `${home}#${sectionIds.contact}`, label: t.nav.contact },
+  { href: contactPagePath('ro'), label: t.nav.contact },
 ];
 ---
 
