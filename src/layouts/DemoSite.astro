@@ -57,27 +57,68 @@ const offer = theme === 'workshop' ? 'landing' : 'presentation';
 
     <slot />
 
+    {/*
+      What the block below does, and why almost none of it is written in there.
+
+      `is:inline` means exactly that: Astro emits that script byte for byte,
+      comments and indentation included, into every example page — and the
+      weight suite holds those pages to almost no JavaScript at all. A
+      paragraph of reasoning up here costs nothing; the same paragraph four
+      lines lower is shipped to every visitor of every example, forever. It was
+      written down there once, and it was quietly the largest thing on the
+      page after the markup.
+
+      THE MESSAGES. Everything the framing page can ask of this one arrives by
+      `postMessage`, and the origin is checked before a byte of it is read:
+      these pages open directly as well as framed, so a message can come from
+      anywhere, and only this site may drive them.
+
+      THE NAME AND THE COLOUR. Written through the CSSOM rather than a `style`
+      attribute, because the policy this site serves has no `unsafe-inline` and
+      drops style attributes silently.
+
+      THE WALK. As the framing page is scrolled past, the host works out how far
+      along the frame is and posts the fraction here; this page steps to the
+      section that fraction lands in and scrolls its OWN window there. It uses
+      `window.scrollTo` and not `scrollIntoView` because an element scrolled
+      into view inside a frame drags the parent page along with it — the reader
+      would find their own scroll being driven by a demo. See `DemoFrame.astro`
+      for the observer that measures the frame, and for why a reader who asked
+      for less motion is never sent one of these at all.
+
+      TAKING IT OVER. One wheel, touch or key inside the frame and this page
+      stops listening for the rest of its life. A demo that keeps hauling
+      itself back to where the host thinks it should be is a demo nobody gets
+      to read, and the whole point of framing a live page is that it can be
+      used.
+    */}
     <script is:inline>
-      /**
-       * The visitor's own name and colour, handed in from the demo page.
-       *
-       * Tiny on purpose: this ships inside every example page, which the weight
-       * suite holds under 2 kB of inline JavaScript. Written as a CSSOM
-       * property write because the CSP drops `style` attributes.
-       *
-       * The origin is checked before anything is read. These pages can be
-       * opened directly as well as framed, so a message could come from
-       * anywhere; only this site may repaint them.
-       */
-      // Top-level only. `window.self === window.top` is false inside the frame,
+      // Top-level only: `window.self === window.top` is false inside the frame,
       // where the host page already carries the label and the call to action.
       if (window.self === window.top) {
         document.querySelector('[data-exit-ribbon]')?.classList.remove('ex-hidden');
       }
 
+      // Scroll it yourself and it is yours; the host is not obeyed again.
+      let taken = false;
+      for (const kind of ['wheel', 'touchstart', 'keydown'])
+        addEventListener(kind, () => { taken = true; }, { passive: true, once: true });
+
       window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) return;
         const data = event.data;
+
+        // Walked through its own sections by the page framing this one.
+        if (data && data.type === 'demo-walk' && !taken) {
+          const stops = document.querySelectorAll('section');
+          const stop = stops[Math.min(stops.length - 1, Math.floor(data.at * stops.length))];
+          if (stop) {
+            const top = stop.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: Math.max(0, top - 40), behavior: 'smooth' });
+          }
+          return;
+        }
+
         if (!data || data.type !== 'demo-brand') return;
 
         if (data.accent) document.documentElement.style.setProperty('--ex-accent', data.accent);

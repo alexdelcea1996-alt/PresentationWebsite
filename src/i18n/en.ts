@@ -616,6 +616,15 @@ export const en: Content = {
     fonts: 'Of which fonts',
     shift: 'Layout shift',
     contrast: 'Text / background contrast',
+    layers: 'Stacked layers',
+    explode: 'Pull the layers apart',
+    collapse: 'Put the layers back',
+    turn: 'Turn',
+    tilt: 'Tilt',
+    layerContent: 'Content',
+    layerDock: 'Action bar',
+    layerChrome: 'Fixed header',
+    layerGrid: 'Drawing grid',
   },
 
   colophon: {

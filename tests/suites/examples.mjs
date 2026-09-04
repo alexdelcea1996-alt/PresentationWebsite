@@ -112,6 +112,97 @@ for (const c of CASES) {
   await p.close();
 }
 
+// --- The example walks its own page as you go past it ----------------------------
+/*
+  The framed site is not a picture: as the host page scrolls by, the site inside
+  moves through its own sections, driven from the outside.
+
+  Two things have to be true at once here, and only one of them is the feature.
+  The example must really move — a `postMessage` that lands nowhere looks
+  identical to one that was never sent — and the READER'S OWN SCROLL must not
+  be touched. `scrollIntoView` inside a frame drags the parent page with it, so
+  a version of this that "worked" would have quietly taken the visitor's scroll
+  away from them. The host's scroll position is therefore checked against the
+  position it was put at, every step of the way.
+
+  And the moment somebody scrolls the example themselves it stops obeying, for
+  good. That is not politeness; it is the difference between a demo you can use
+  and a demo that fights you.
+*/
+for (const c of [CASES[0], CASES[2]]) {
+  const p = await b.newPage(VIEWPORT);
+  await p.goto(`${BASE}${c.host}`, { waitUntil: 'networkidle' });
+  const shell = p.locator('[data-frame-shell]');
+  await shell.scrollIntoViewIfNeeded();
+  await p.waitForTimeout(500);
+
+  const inner = p.frames().find((f) => f.url().includes(c.example));
+  const box = await shell.boundingBox();
+  const top = (await p.evaluate(() => window.scrollY)) + (box?.y ?? 0);
+  const height = box?.height ?? 0;
+
+  const at = (step) =>
+    Math.max(0, Math.round(top - VIEWPORT.viewport.height + (step / 14) * (VIEWPORT.viewport.height + height)));
+
+  // A warm-up pass to the start. Getting the frame on screen at all needed a
+  // scroll, and the example is still where that scroll put it; recording from
+  // there would count the way back to the beginning as a step backwards.
+  await p.evaluate((v) => window.scrollTo({ top: v, behavior: 'instant' }), at(0));
+  await p.waitForTimeout(500);
+
+  const inside = [];
+  const drift = [];
+  for (let step = 0; step <= 14; step++) {
+    const y = at(step);
+    // `instant`: the site sets `scroll-behavior: smooth`, and a measuring loop
+    // that animates measures the way there instead of the destination.
+    await p.evaluate((v) => window.scrollTo({ top: v, behavior: 'instant' }), y);
+    await p.waitForTimeout(320);
+    inside.push(await inner.evaluate(() => Math.round(window.scrollY)));
+    drift.push(Math.abs((await p.evaluate(() => Math.round(window.scrollY))) - y));
+  }
+
+  const travelled = Math.max(...inside) - Math.min(...inside);
+  ck(`${c.label}: the example walks its own page as you pass it`, travelled > 400,
+    `${travelled}px through ${await inner.evaluate(() => document.documentElement.scrollHeight)}px of document`);
+  ck(`${c.label}: it walks forwards, not at random`,
+    inside.slice(1).every((v, i) => v >= inside[i] - 8), inside.join(' '));
+  ck(`${c.label}: and it never moves the reader's own scroll`,
+    Math.max(...drift) <= 2, `off by ${Math.max(...drift)}px`);
+
+  // Taking it over: one wheel event inside the frame and the host is done.
+  await inner.evaluate(() => window.dispatchEvent(new WheelEvent('wheel', { bubbles: true })));
+  const held = await inner.evaluate(() => window.scrollY);
+  await p.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await p.waitForTimeout(600);
+  ck(`${c.label}: scroll it yourself and it stops being driven`,
+    (await inner.evaluate(() => window.scrollY)) === held, `${held} -> ${await inner.evaluate(() => window.scrollY)}`);
+  await p.close();
+}
+
+// Asked for less motion, nothing is driven at all.
+{
+  const c = CASES[0];
+  const p = await b.newPage({ ...VIEWPORT, reducedMotion: 'reduce' });
+  await p.goto(`${BASE}${c.host}`, { waitUntil: 'networkidle' });
+  const shell = p.locator('[data-frame-shell]');
+  await shell.scrollIntoViewIfNeeded();
+  await p.waitForTimeout(500);
+  const inner = p.frames().find((f) => f.url().includes(c.example));
+  const before = await inner.evaluate(() => window.scrollY);
+  const box = await shell.boundingBox();
+  const top = (await p.evaluate(() => window.scrollY)) + (box?.y ?? 0);
+  for (const at of [0.2, 0.5, 0.8]) {
+    await p.evaluate((v) => window.scrollTo({ top: v, behavior: 'instant' }),
+      Math.round(top - VIEWPORT.viewport.height + at * (VIEWPORT.viewport.height + (box?.height ?? 0))));
+    await p.waitForTimeout(320);
+  }
+  ck('reduced motion: the example is left where it was',
+    (await inner.evaluate(() => window.scrollY)) === before,
+    `${before} -> ${await inner.evaluate(() => window.scrollY)}`);
+  await p.close();
+}
+
 // --- Inside the frame -----------------------------------------------------------
 // Reached through the host page, not opened directly: if the iframe were ever
 // blocked by a header, everything below would fail rather than quietly pass.

@@ -160,6 +160,66 @@ const t = getContent(locale).demoFrame;
       });
     }
 
+    /*
+      --- The example walks its own page as this one is scrolled past it.
+
+      A screenshot of a website proves nothing; a website being used proves
+      quite a lot. So the frame is not a picture that turns — as the reader
+      goes by, the site inside moves through its own sections, and what they
+      watch is a real page being read.
+
+      Driven by an IntersectionObserver rather than a scroll listener. Twenty-
+      four thresholds hand back `boundingClientRect` and `rootBounds` on each
+      crossing, which is the frame's position without a single geometry read,
+      and this site does not put geometry reads on the scroll path.
+
+      The reader's own scroll is never touched. The host tells the example
+      WHERE in its own document to be, and the example scrolls its own window;
+      `scrollIntoView` was the obvious call and is the wrong one, because an
+      element scrolled into view inside an iframe drags the parent page along
+      with it.
+
+      Off entirely for a reader who asked for less motion, and off the moment
+      the visitor scrolls the example themselves — see `DemoSite.astro`. A demo
+      that keeps yanking the page back is a demo nobody gets to look at.
+    */
+    const shell = frame.querySelector<HTMLElement>('[data-frame-shell]');
+    if (shell && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const STEPS = 24;
+      let sent = -1;
+
+      // A frame that has just loaded knows nothing; the next crossing has to
+      // be allowed to say the same thing again.
+      iframe.addEventListener('load', () => {
+        sent = -1;
+      });
+
+      new IntersectionObserver(
+        (entries) => {
+          const entry = entries[entries.length - 1]!;
+          if (!entry.rootBounds) return;
+          const view = entry.rootBounds.height;
+          const box = entry.boundingClientRect;
+
+          // 0 as the frame's top touches the bottom of the screen, 1 as its
+          // bottom leaves the top. Squeezed into the middle of that travel, so
+          // the walk happens while the frame is actually worth looking at
+          // rather than while a sliver of it is showing.
+          const travel = (view - box.top) / (view + box.height);
+          const at = Math.min(1, Math.max(0, (travel - 0.15) / 0.7));
+
+          const stop = Math.round(at * 100);
+          if (stop === sent) return;
+          sent = stop;
+          iframe.contentWindow?.postMessage(
+            { type: 'demo-walk', at: stop / 100 },
+            window.location.origin,
+          );
+        },
+        { threshold: Array.from({ length: STEPS + 1 }, (_, index) => index / STEPS) },
+      ).observe(shell);
+    }
+
     // --- Personalisation
     const brandInput = frame.querySelector<HTMLInputElement>('[data-brand-input]');
     if (!brandInput) continue;

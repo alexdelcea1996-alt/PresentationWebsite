@@ -1,6 +1,6 @@
 # Teste
 
-1335 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1371 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -78,7 +78,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 91 |
 | `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 94 |
-| `examples` | cele două demo-uri cu site întreg: rama, personalizarea prin `postMessage`, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex` și headerele de încadrare | 166 |
+| `examples` | cele două demo-uri cu site întreg: rama, personalizarea prin `postMessage`, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex` și headerele de încadrare; plus că exemplul își parcurge singur secțiunile pe măsură ce treci pe lângă ramă — înainte, niciodată înapoi — fără să atingă scrollul cititorului, că se oprește definitiv din clipa în care omul scrollează el în ramă, și că sub reduced-motion nu e mișcat deloc | 175 |
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 103 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
@@ -86,9 +86,9 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `motion` | cele două mișcări mici: titlul se culege o singură dată și nu mișcă nimic din layout (CLS 0), virgula nu ajunge niciodată la început de rând, cifrele din banda de măsurători se întorc doar când au și valoare și sunt și pe ecran — iar sub reduced-motion niciuna nu e prinsă vreodată în poziția de start | 40 |
 | `depth` | adâncimea: hero-ul clipește fără să devină container de scroll (altfel toate animațiile dinăuntru se leagă de un scroll care nu se mișcă), straturile derivă exact proporțional cu distanța declarată, cardurile ajung drepte înainte să fie citite, rama demo aterizează exact plată ca iframe-ul să rămână clar, nimic nu mută layoutul și nimic nu costă cadre | 25 |
 | `constellation` | marca desenată din suită, ca obiect: forma pe care o primește pagina e chiar forma suitei (renumărată aici, nu importată), straturile chiar sunt stivuite în adâncime și nu împrăștiate, obiectul e drept când e în mijlocul ecranului, se întoarce la scroll și la mouse, nu se rotește singur când nu-l atinge nimeni, iar sub reduced-motion stă nemișcat | 16 |
-| `blueprint` | modul planșă: e oprit până îl ceri, cifrele din panou sunt cele pe care le raportează browserul (nu constante), fiecare secțiune e etichetată cu dimensiunea ei reală, închiderea nu lasă nimic în urmă, și nu apare pe paginile care nu l-au cerut | 29 |
+| `blueprint` | modul planșă: e oprit până îl ceri, cifrele din panou sunt cele pe care le raportează browserul (nu constante), fiecare secțiune e etichetată cu dimensiunea ei reală, închiderea nu lasă nimic în urmă, și nu apare pe paginile care nu l-au cerut; iar planșa explodată desface straturile chiar în ordinea în care le pictează browserul — rangul fiecăruia verificat față de `z-index`-ul citit de pe element, eticheta la fel — se rotește din ambele cadrane, nu lățește pagina la niciunul dintre capetele celor două cadrane, și pleacă odată cu desenul | 56 |
 | `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 55 |
-| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 30 |
+| `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 31 |
 
 **Suitele urmăresc starea build-ului.** `audit` detectează dacă e configurată o
 cheie PageSpeed și verifică varianta care chiar e livrată: 18 verificări fără

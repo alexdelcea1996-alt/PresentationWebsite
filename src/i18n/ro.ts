@@ -616,6 +616,15 @@ export const ro: Content = {
     fonts: 'Din care fonturi',
     shift: 'Deplasare de layout',
     contrast: 'Contrast text/fundal',
+    layers: 'Straturi suprapuse',
+    explode: 'Desfă straturile',
+    collapse: 'Strânge straturile',
+    turn: 'Rotire',
+    tilt: 'Înclinare',
+    layerContent: 'Conținut',
+    layerDock: 'Bara de acțiune',
+    layerChrome: 'Antetul fix',
+    layerGrid: 'Grila planșei',
   },
 
   colophon: {

@@ -41,6 +41,28 @@ const rows = [
   ['fonts', t.fonts],
   ['shift', t.shift],
   ['contrast', t.contrast],
+  ['layers', t.layers],
+] as const;
+
+/**
+ * The planes the exploded view pulls apart, and what each one is called.
+ *
+ * One list, in the component rather than the stylesheet, because the drawing
+ * has to be able to tell the truth about the stack: the script reads each
+ * plane's REAL `z-index` off the painted element, sorts the planes by it and
+ * spaces them in that order. A second copy of this list in CSS would be a
+ * second opinion about the page's stacking order, and the first thing to
+ * drift.
+ *
+ * The cursor glow is a fixed, body-level layer too and is deliberately not
+ * here: it has a script writing `transform` on it sixty times a second, and
+ * two authors of one property is a fight, not a drawing.
+ */
+const planes = [
+  ['main > section', t.layerContent, true],
+  ['[data-sticky-cta]', t.layerDock, false],
+  ['header', t.layerChrome, false],
+  ['[data-blueprint-grid]', t.layerGrid, false],
 ] as const;
 ---
 
@@ -66,7 +88,15 @@ const rows = [
 {/* Rendered but empty until asked; `hidden` keeps it out of the a11y tree too. */}
 <div class="blueprint-grid" data-blueprint-grid aria-hidden="true" hidden></div>
 
-<aside class="blueprint-panel" id="blueprint-panel" data-blueprint-panel hidden>
+{/* The plane list rides on the panel as data: one copy of it, and no inline
+    script block to hash. */}
+<aside
+  class="blueprint-panel"
+  id="blueprint-panel"
+  data-blueprint-panel
+  data-blueprint-planes={JSON.stringify(planes)}
+  hidden
+>
   <p class="blueprint-panel-title">{t.title}</p>
   <dl class="blueprint-rows">
     {
@@ -78,6 +108,38 @@ const rows = [
       ))
     }
   </dl>
+
+  <div class="blueprint-explode">
+    <button
+      type="button"
+      class="blueprint-explode-toggle"
+      data-explode-toggle
+      data-label-explode={t.explode}
+      data-label-collapse={t.collapse}
+      aria-pressed="false"
+    >
+      {t.explode}
+    </button>
+
+    {/*
+      Two dials rather than only a drag, because a drawing you can only turn
+      with a mouse is a drawing half the readers cannot turn at all. These are
+      real range inputs: arrow keys, Home and End, and a screen reader saying
+      the angle out loud all come for free. Dragging the page turns the same
+      two dials — it never becomes a second, hidden source of truth.
+    */}
+    <div class="blueprint-dials">
+      <label class="blueprint-dial">
+        <span>{t.turn}</span>
+        <input type="range" min="-45" max="45" step="1" value="-24" data-explode-turn />
+      </label>
+      <label class="blueprint-dial">
+        <span>{t.tilt}</span>
+        <input type="range" min="-10" max="55" step="1" value="16" data-explode-tilt />
+      </label>
+    </div>
+  </div>
+
   <p class="blueprint-note">{t.note}</p>
 </aside>
 
@@ -180,13 +242,146 @@ const rows = [
         const name = section.id ? `#${section.id}` : 'section';
         section.dataset.blueprintNote = `${name} · ${Math.round(box.width)} × ${Math.round(box.height)}`;
       }
+
+      stack();
+    };
+
+    /**
+     * Find the page's stacking layers and put them in the order the browser
+     * paints them.
+     *
+     * The order is READ, never assumed: every plane's `z-index` comes off the
+     * painted element, the planes are sorted by it, and the rank that falls out
+     * of that sort is what spaces them apart. Writing the distances by hand
+     * would make the drawing a diagram of what somebody believed the stacking
+     * order to be — which is exactly the kind of claim this overlay exists to
+     * stop the site from making.
+     *
+     * A plane with nothing on screen is skipped rather than drawn empty: the
+     * action bar is phones-only, and a labelled plane with no box behind it
+     * would be a layer the reader is being told about but cannot see.
+     */
+    const stack = () => {
+      let list: [string, string, boolean][] = [];
+      try {
+        list = JSON.parse(panel.dataset.blueprintPlanes ?? '[]');
+      } catch {
+        // Malformed data attribute: no exploded view, everything else intact.
+      }
+
+      const found = [];
+      for (const [selector, name, isBase] of list) {
+        const nodes = [...document.querySelectorAll<HTMLElement>(selector)].filter(
+          (node) => node.getClientRects().length > 0,
+        );
+        if (!nodes.length) continue;
+        found.push({ nodes, name, isBase, z: Number(getComputedStyle(nodes[0]!).zIndex) || 0 });
+      }
+      found.sort((a, b) => a.z - b.z);
+
+      // Distances are measured from the content, not from the bottom of the
+      // stack, so the page you are reading stays where you left it and the
+      // chrome is what lifts off it.
+      const base = Math.max(0, found.findIndex((plane) => plane.isBase));
+      for (const [index, plane] of found.entries()) {
+        for (const node of plane.nodes) {
+          node.dataset.bpPlane = '';
+          node.style.setProperty('--bp-z', String(index - base));
+        }
+        plane.nodes[0]!.dataset.blueprintLayer = `${plane.name} · z-index ${plane.z}`;
+      }
+      set('layers', String(found.length));
     };
 
     const clear = () => {
       for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
         delete section.dataset.blueprintNote;
       }
+      for (const node of document.querySelectorAll<HTMLElement>('[data-bp-plane]')) {
+        delete node.dataset.bpPlane;
+        delete node.dataset.blueprintLayer;
+        node.style.removeProperty('--bp-z');
+      }
+      root.removeAttribute('data-explode');
+      exploded(false);
     };
+
+    // --- Pulling the layers apart ------------------------------------------
+    const explodeToggle = panel.querySelector<HTMLButtonElement>('[data-explode-toggle]');
+    const turnDial = panel.querySelector<HTMLInputElement>('[data-explode-turn]');
+    const tiltDial = panel.querySelector<HTMLInputElement>('[data-explode-tilt]');
+
+    /** The dials are the single source of the two angles; this publishes them. */
+    const aim = () => {
+      root.style.setProperty('--bp-turn', `${turnDial?.value ?? 0}deg`);
+      root.style.setProperty('--bp-tilt', `${tiltDial?.value ?? 0}deg`);
+    };
+
+    const exploded = (on: boolean) => {
+      if (on) root.dataset.explode = '';
+      else root.removeAttribute('data-explode');
+      explodeToggle?.setAttribute('aria-pressed', String(on));
+      if (explodeToggle) {
+        explodeToggle.textContent =
+          (on ? explodeToggle.dataset.labelCollapse : explodeToggle.dataset.labelExplode) ?? '';
+      }
+    };
+
+    explodeToggle?.addEventListener('click', () => {
+      aim();
+      exploded(!root.hasAttribute('data-explode'));
+    });
+
+    for (const dial of [turnDial, tiltDial]) {
+      // Moving a dial while the page is flat pulls it apart rather than doing
+      // nothing visible: a control that appears dead is a control that gets
+      // pressed twice and then abandoned.
+      dial?.addEventListener('input', () => {
+        aim();
+        exploded(true);
+      });
+    }
+
+    /*
+      Dragging the drawing turns the same two dials.
+
+      Mouse only, and that is not a shortcut. On a touch screen a drag across
+      the page IS the scroll, and there is no way to take one without taking
+      the other; the dials stay reachable by finger, so nothing is lost. Links
+      and controls under the pointer keep their clicks — the drag starts on the
+      drawing, not on the page's furniture.
+    */
+    let from: { x: number; y: number; turn: number; tilt: number } | null = null;
+    const clamp = (value: number, low: number, high: number) =>
+      Math.min(high, Math.max(low, value));
+
+    const drag = (event: PointerEvent) => {
+      if (!from || !turnDial || !tiltDial) return;
+      turnDial.value = String(clamp(from.turn + (event.clientX - from.x) * 0.22, -45, 45));
+      tiltDial.value = String(clamp(from.tilt - (event.clientY - from.y) * 0.16, -10, 55));
+      aim();
+    };
+
+    const drop = () => {
+      from = null;
+      root.dataset.explode = '';
+      window.removeEventListener('pointermove', drag);
+    };
+
+    document.addEventListener('pointerdown', (event) => {
+      if (!root.hasAttribute('data-explode') || event.pointerType !== 'mouse') return;
+      const target = event.target;
+      if (
+        !(target instanceof Element) ||
+        target.closest('a, button, input, select, textarea, summary, [data-blueprint-panel]')
+      ) {
+        return;
+      }
+      from = { x: event.clientX, y: event.clientY, turn: Number(turnDial?.value ?? 0), tilt: Number(tiltDial?.value ?? 0) };
+      root.dataset.explode = 'drag';
+      window.addEventListener('pointermove', drag);
+      window.addEventListener('pointerup', drop, { once: true });
+    });
 
     toggle.addEventListener('click', () => {
       const on = root.toggleAttribute('data-blueprint');

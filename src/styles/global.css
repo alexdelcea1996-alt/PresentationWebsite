@@ -1209,6 +1209,16 @@
     background-color: var(--color-surface-deep);
     /* Readable over whatever the grid is drawing behind it. */
     box-shadow: 0 18px 50px -20px rgb(0 0 0 / 0.6);
+    /*
+      The read-out is an instrument sitting on top of the drawing, so it may
+      never grow into the drawing. On a short screen — a phone held sideways —
+      the rows plus the two dials would otherwise reach the top of the viewport
+      and there would be nothing left to look at. `contain` keeps a scroll
+      inside the panel from carrying on into the page underneath it.
+    */
+    max-height: min(64vh, 34rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .blueprint-panel-title {
@@ -1284,8 +1294,148 @@
     pointer-events: none;
   }
 
+  /*
+    --- The exploded plate ---
+
+    Pressed once more, the drawing comes apart: the page's stacking layers
+    separate along Z and the whole assembly can be turned, the way an architect
+    draws an assembly they want you to understand rather than admire.
+
+    It is a PARALLEL projection — no `perspective()` anywhere below — and that
+    is the load-bearing decision, not a stylistic one. A perspective projection
+    needs a camera at a fixed distance, and `main` on this page is some eighteen
+    thousand pixels tall: whatever point you put the camera at, most of the
+    document ends up behind the lens and renders as garbage. Dropping the camera
+    removes the problem, and an axonometric is what an exploded drawing is
+    anyway: parallel edges stay parallel, and a length is a length wherever it
+    sits on the sheet.
+
+    Each plane is rotated about its own centre rather than a shared one, for the
+    same reason: a single origin somewhere in a document this tall would swing
+    whatever you were reading off the screen the moment the angle changed. Every
+    plane carrying the same two angles is what makes them read as one drawing.
+
+    Nothing here renders for a reader who has not asked for it twice — once for
+    the drawing, once for the explosion.
+  */
+  :root[data-blueprint][data-explode='drag'] {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  :root[data-blueprint] [data-bp-plane] {
+    transition:
+      transform 0.55s var(--ease-out-soft),
+      translate 0.55s var(--ease-out-soft),
+      inset 0.55s var(--ease-out-soft);
+  }
+
+  /*
+    Exploded, the ruled grid stops being a wash across the page and becomes what
+    it is on a drawing: a separate sheet, with edges. Inset so that lifting it
+    toward the reader cannot carry a corner off the screen — being shown the
+    edge of a plane is the whole point of taking one off.
+  */
+  :root[data-blueprint][data-explode] .blueprint-grid {
+    inset: 9% 7%;
+    border: 1px dashed color-mix(in oklab, var(--color-accent) 45%, transparent);
+  }
+
+  :root[data-blueprint][data-explode] [data-bp-plane] {
+    /*
+      `--bp-z` is a RANK, written by the script after it has sorted the planes
+      by the `z-index` it read off each one. The stylesheet multiplies; it never
+      decides who is in front of whom.
+    */
+    transform: rotateX(var(--bp-tilt, 16deg)) rotateY(var(--bp-turn, -24deg))
+      translateZ(calc(var(--bp-z, 0) * 116px));
+    translate: 0 var(--bp-drop, 0px);
+  }
+
+  /*
+    The header is pinned to the top edge, so lifting it toward the reader
+    carries it straight off the screen. In an exploded drawing the parts are
+    moved apart in order to be seen; this one is moved down for the same
+    reason.
+  */
+  :root[data-blueprint][data-explode] header[data-bp-plane] {
+    --bp-drop: 5.5rem;
+  }
+
+  /* Mid-drag the angles arrive every frame; a transition would make the
+     drawing swim a third of a second behind the hand. */
+  :root[data-blueprint][data-explode='drag'] [data-bp-plane] {
+    transition: none;
+  }
+
+  :root[data-blueprint][data-explode] [data-blueprint-layer]::before {
+    content: attr(data-blueprint-layer);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 59;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
+    border-radius: 0 0 0.4rem;
+    background-color: var(--color-surface-deep);
+    color: var(--color-accent-bright);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .blueprint-explode {
+    margin-top: 0.75rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--color-border-strong);
+  }
+
+  .blueprint-explode-toggle {
+    display: block;
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
+    border-radius: 0.5rem;
+    color: var(--color-fg);
+    font-size: 0.7rem;
+    transition: border-color 0.2s var(--ease-out-soft);
+  }
+
+  .blueprint-explode-toggle:hover,
+  .blueprint-explode-toggle[aria-pressed='true'] {
+    border-color: var(--color-accent-alt);
+  }
+
+  .blueprint-dials {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.55rem;
+  }
+
+  .blueprint-dial {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.65rem;
+    color: var(--color-fg-muted);
+  }
+
+  .blueprint-dial input {
+    width: 100%;
+    accent-color: var(--color-accent);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .blueprint-toggle {
+    .blueprint-toggle,
+    .blueprint-explode-toggle {
+      transition: none;
+    }
+
+    /* The exploded view is a position, not a motion — it stays available. What
+       goes is the half-second of travel between the two positions. */
+    :root[data-blueprint] [data-bp-plane] {
       transition: none;
     }
   }

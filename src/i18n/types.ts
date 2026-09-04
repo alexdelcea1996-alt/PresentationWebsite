@@ -509,6 +509,19 @@ export interface Content {
     fonts: string;
     shift: string;
     contrast: string;
+    /** How many stacking layers the drawing found, counted in the browser. */
+    layers: string;
+    /** The control that pulls the layers apart, and the one that puts them back. */
+    explode: string;
+    collapse: string;
+    /** The two dials that turn the exploded stack. */
+    turn: string;
+    tilt: string;
+    /** What each separated plane is called on the drawing. */
+    layerContent: string;
+    layerDock: string;
+    layerChrome: string;
+    layerGrid: string;
   };
 
   colophon: {
