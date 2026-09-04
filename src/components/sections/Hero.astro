@@ -56,11 +56,66 @@ for (const piece of pieces) {
 }
 ---
 
-<section class="relative isolate overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28" data-hero>
+<section class="relative isolate overflow-clip pt-32 pb-20 sm:pt-40 sm:pb-28" data-hero>
   {/*
-    Ambient gradient wash behind the headline. Centred with a negative margin
-    rather than -translate-x-1/2, so the pointer-parallax script below owns
-    `transform` outright and never has to compose with a utility class.
+    The decorative layers, at three different distances.
+
+    They used to be four siblings of the content, each absolutely positioned and
+    each at its own z-index. Same picture, no depth: z-index only says what is
+    in front, never how far. Grouped into a space with a perspective and pushed
+    back by real amounts, the distances become geometry — and a camera that pans
+    as the section crosses the viewport makes them move at different rates
+    because they ARE at different distances, not because a script was told to
+    move them by different amounts.
+
+    Three planes rather than four, because the two washes belong at the same
+    distance. The washes keep their own `transform` for the pointer parallax
+    below; the plane around them owns the depth, so the two never fight over one
+    property.
+
+    Without scroll-driven animation support — Firefox today — none of the depth
+    applies and this is exactly the hero it was before.
+  */}
+  <div class="hero-space" aria-hidden="true">
+    <div class="hero-plane" data-plane="far">
+      {/*
+        The suite, behind the headline.
+
+        Decorative here — no pointer, no names — because the hero has one job and
+        reading check names is not it. What it buys is an object: the hero used to
+        be text and two buttons on an ambient wash, which is the shape of every
+        developer landing page there is. This one is the site's own mark drawn out
+        of its own test count, so the thing you look at first is also the argument.
+        The interactive version, where the dots name themselves, lives on the
+        colophon where the number is the subject.
+      */}
+      <Constellation size={900} class="constellation-hero" />
+    </div>
+
+    {/* Subtle grid, faded out towards the edges */}
+    <div class="hero-plane" data-plane="mid">
+      <div
+        class="absolute inset-0 opacity-[0.035] [background-image:linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
+      >
+      </div>
+    </div>
+
+  </div>
+
+  {/*
+    The two washes stay out of the moving space, and that is a measurement, not
+    a preference.
+
+    Each one is a 90px blur across most of the hero. Inside the perspective they
+    were re-rasterised on every frame the camera moved, and scrolling the hero
+    went from sixty frames to thirty-seven — measured, both ways, in
+    `depth.mjs`. What that bought was parallax on a soft gradient, which is to
+    say nothing anybody can see. Two planes carry the depth; the wash is light,
+    and light does not need a distance.
+
+    Centred with a negative margin rather than -translate-x-1/2, so the
+    pointer-parallax script below owns `transform` outright and never has to
+    compose with a utility class.
   */}
   <div
     class="glow left-1/2 top-[-6rem] ml-[-19rem] size-[38rem] bg-accent/25"
@@ -73,29 +128,6 @@ for (const piece of pieces) {
     class="glow right-[-8rem] top-40 size-[26rem] bg-accent-alt/15"
     data-hero-glow
     data-depth="-0.035"
-    aria-hidden="true"
-  >
-  </div>
-
-  {/*
-    The suite, behind the headline.
-
-    Decorative here — no pointer, no names, `aria-hidden` — because the hero has
-    one job and reading check names is not it. What it buys is an object: the
-    hero used to be text and two buttons on an ambient wash, which is the shape
-    of every developer landing page there is. This one is the site's own mark
-    drawn out of its own test count, so the thing you look at first is also the
-    argument. The interactive version, where the dots name themselves, lives on
-    the colophon where the number is the subject.
-
-    Absolutely positioned and `-z-10`, exactly like the grid below it, so it
-    adds nothing to layout and cannot shift a thing.
-  */}
-  <Constellation size={900} class="constellation-hero" />
-
-  {/* Subtle grid, faded out towards the edges */}
-  <div
-    class="pointer-events-none absolute inset-0 -z-10 opacity-[0.035] [background-image:linear-gradient(to_right,var(--grid-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--grid-line)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black,transparent)]"
     aria-hidden="true"
   >
   </div>

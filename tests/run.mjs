@@ -44,6 +44,7 @@ const SUITES = [
   'hero',
   'signature',
   'motion',
+  'depth',
   'blueprint',
   'colophon',
   'booking',

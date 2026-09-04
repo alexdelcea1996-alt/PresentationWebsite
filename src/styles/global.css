@@ -901,13 +901,21 @@
     background-color: color-mix(in oklab, var(--color-surface-raised) 85%, transparent);
     padding: 1.75rem;
     transition:
-      transform 0.3s var(--ease-out-soft),
+      translate 0.3s var(--ease-out-soft),
       border-color 0.3s var(--ease-out-soft),
       background-color 0.3s var(--ease-out-soft);
   }
 
+  /*
+    Lifted with `translate`, not `transform`.
+
+    They are separate animatable properties and they compose, which is the whole
+    point here: the entry animation below owns `transform` outright, and a card
+    being hovered while it is still arriving does not have the two fighting over
+    one declaration.
+  */
   .card-hover:hover {
-    transform: translateY(-4px);
+    translate: 0 -4px;
     border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-border));
     background-color: var(--color-surface-hover);
   }
@@ -1482,6 +1490,36 @@
   }
 
   /*
+    Two texts, one cell, the taller one deciding the size.
+
+    A grid with both children in cell 1/1 reserves the space the finished
+    sentence will need at whatever width the reader is on, so the short pending
+    phrase sitting there first cannot push anything when it grows. `min-height`
+    would have had to guess at one width and be wrong at the others.
+  */
+  .verdict-stack {
+    display: grid;
+    text-align: center;
+  }
+
+  /*
+    Stretched, not centred. Centring each child sizes it to its own text, so
+    the short phrase and the finished sentence have different widths and the
+    visible box moves sideways when one replaces the other — the vertical
+    reservation was right and the shift stayed, 0.0015 of it, purely
+    horizontal. Both children fill the cell the spacer sized; only the glyphs
+    inside move, and glyphs moving inside a box that did not move is not a
+    layout shift.
+  */
+  .verdict-stack > * {
+    grid-area: 1 / 1;
+  }
+
+  .verdict-spacer {
+    visibility: hidden;
+  }
+
+  /*
     Invisible markers that stand in for reading `window.scrollY`.
 
     Two components need to know "has the reader scrolled past a point": the
@@ -1663,6 +1701,123 @@
   }
 
   /* --- Decorative background glow --- */
+  /*
+    Depth, drawn by the scroll.
+
+    Everything in this block is additive and gated twice over: on
+    `animation-timeline` support, which Firefox stable still keeps behind a
+    flag, and on the reader not having asked for less motion. Fail either and
+    the page is exactly the one that was here before — no fallback to maintain,
+    because the fallback is the original.
+
+    The first build of this put the hero's layers inside a real `perspective`
+    and panned the vanishing point as the section crossed the viewport. It is
+    the honest way to write parallax — nothing tells a layer how far to move,
+    the geometry does — and it cost half the frame rate of the hero: 37 frames
+    against 75, measured both ways. Animating `perspective-origin` changes the
+    projection of everything in the subtree, so every layer is rasterised again
+    on every frame, and one of those layers was a 900px canvas.
+
+    What ships instead declares the same distances and computes the drift from
+    them, which keeps the one property worth keeping — a layer cannot be tuned
+    out of proportion with its depth, because its depth is the only number
+    there is — and animates `translate`, which the compositor moves without
+    redrawing anything. Same picture, 75 frames against 75.
+
+    Real perspective is still used below, on the cards, where the projection
+    changes on a small box with nothing expensive inside it and the measurement
+    says it is free.
+  */
+  .hero-space {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+  }
+
+  .hero-plane {
+    position: absolute;
+    inset: 0;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      /*
+        A plane drifts down the screen by nine hundredths of its own distance as
+        the hero crosses the viewport, so the far one lags furthest behind the
+        text and the near one barely at all. One factor, two distances, and no
+        third number anywhere to disagree with them.
+      */
+      @keyframes plane-drift {
+        from {
+          translate: 0 calc(var(--z, 0) * 0.09px);
+        }
+
+        to {
+          translate: 0 calc(var(--z, 0) * -0.09px);
+        }
+      }
+
+      .hero-plane {
+        animation-name: plane-drift;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+      }
+
+      [data-plane='far'] {
+        --z: -520;
+      }
+
+      [data-plane='mid'] {
+        --z: -300;
+      }
+
+      /*
+        Cards arrive out of the page rather than out of nowhere.
+
+        `perspective()` inside the transform rather than on a parent, so the
+        effect is self-contained: no container anywhere has to become a 3D
+        context, and nothing that happens to be positioned inside a card changes
+        behaviour. The reveal system still owns opacity; this owns transform;
+        hover owns translate. Three properties, three owners, no collisions.
+
+        The range ends at `entry 60%` so a card is flat and square by the time
+        it is anywhere near the middle of the screen — text being read must
+        never be text still turning.
+      */
+      @keyframes card-arrive {
+        from {
+          transform: perspective(900px) translate3d(0, 1.25rem, -110px) rotateX(5deg);
+        }
+      }
+
+      /*
+        Wide screens only, and that is a measurement rather than a taste.
+
+        There are 31 cards on the front page, and a scroll timeline per element
+        is not free to set up: with all of them armed, Lighthouse's mobile
+        profile — a fourfold CPU throttle — went from 92-94 to 86-89, with total
+        blocking time up by about 180ms. Switching them off below 48rem put it
+        back in the baseline band with everything else intact.
+
+        It is also the better design on a phone, which is the part that makes it
+        an easy call. Cards are one per row there, so every one of them would
+        tilt in turn as a single column goes past: thirty-one separate movements
+        on the smallest screen, where the whole page is already one thing moving.
+      */
+      @media (min-width: 48rem) {
+        .card {
+          animation-name: card-arrive;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+          animation-timeline: view();
+          animation-range: entry 0% entry 60%;
+        }
+      }
+    }
+  }
+
   .glow {
     position: absolute;
     z-index: -1;

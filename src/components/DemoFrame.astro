@@ -234,6 +234,48 @@ const t = getContent(locale).demoFrame;
     transition: max-width 0.35s ease;
   }
 
+  /*
+    The frame turns to face the reader as they reach it.
+
+    Product shots are the one place a page is allowed to show something at an
+    angle, and what is at an angle here is not a picture of a site — it is the
+    site, live, in an iframe, three pages deep and clickable. Turning it costs
+    one keyframe and says the thing a caption would have had to claim.
+
+    It ends flat, on purpose and exactly: an iframe is rasterised through
+    whatever transform it carries, so anything left of the rotation at rest
+    would be a permanently soft screenshot of a working page.
+
+    The range is `cover` rather than `entry` for one reason, and it is not the
+    one first written here: measured at 900, 700 and 600px of viewport, the two
+    produce identical numbers, because the frame is fluid and never ends up
+    taller than the screen it is on. What `cover` buys is that it stays correct
+    if it ever does. `entry` runs from an element first touching the viewport
+    to it being wholly inside, which for an element taller than the viewport
+    never happens — the range would not complete, and the frame would sit
+    turned away the whole time anybody looked at it.
+
+    Gated on scroll-driven animation support and on the reader not having asked
+    for less motion. Without either it is the flat frame it has always been.
+  */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes frame-face {
+        from {
+          transform: perspective(1600px) translate3d(0, 0, -90px) rotateY(-10deg) rotateX(3deg);
+        }
+      }
+
+      .demo-frame-shell {
+        animation-name: frame-face;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 32%;
+      }
+    }
+  }
+
   [data-width='mobile'] .demo-frame-shell {
     max-width: 24rem;
   }

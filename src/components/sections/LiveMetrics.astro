@@ -97,7 +97,25 @@ const metrics = [
       class="mt-8 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 border-t border-border pt-5 text-center text-xs leading-relaxed text-fg-subtle"
       data-verdict-row
     >
-      <span data-verdict data-template={t.verdict}>{t.verdictPending}</span>
+      {/*
+        The pending text and the finished sentence occupy the same cell, one on
+        top of the other, and the hidden one is what sizes it.
+
+        Without that, the row is one short phrase until the measurement lands
+        and a full sentence afterwards — and on the way it pushes the source
+        link along the line. Small: 0.002 of layout shift, found by the depth
+        suite scrolling past while it settled, invisible to Lighthouse because
+        the band is below the fold on load. Also exactly the wrong place on this
+        site for a layout shift to live, which is the actual reason it is fixed.
+
+        `aria-hidden` on the spacer: it is a copy of a sentence that is about to
+        be read out properly, and the live region below would otherwise announce
+        it twice.
+      */}
+      <span class="verdict-stack">
+        <span class="verdict-spacer" aria-hidden="true">{t.verdict.replace('{times}', '00')}</span>
+        <span data-verdict data-template={t.verdict}>{t.verdictPending}</span>
+      </span>
       <a
         href={t.sourceHref}
         target="_blank"

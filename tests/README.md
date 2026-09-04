@@ -1,6 +1,6 @@
 # Teste
 
-1293 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1318 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -84,6 +84,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |
 | `signature` | semnătura vizuală: paleta e a ei și trece AA în ambele teme, marca e o mască, fasciculul chiar se rotește când e pe ecran și chiar se oprește când nu e, coloana procesului se desenează la scroll — și supraviețuiește minificării și ștampilele numesc verificări care chiar există | 44 |
 | `motion` | cele două mișcări mici: titlul se culege o singură dată și nu mișcă nimic din layout (CLS 0), virgula nu ajunge niciodată la început de rând, cifrele din banda de măsurători se întorc doar când au și valoare și sunt și pe ecran — iar sub reduced-motion niciuna nu e prinsă vreodată în poziția de start | 40 |
+| `depth` | adâncimea: hero-ul clipește fără să devină container de scroll (altfel toate animațiile dinăuntru se leagă de un scroll care nu se mișcă), straturile derivă exact proporțional cu distanța declarată, cardurile ajung drepte înainte să fie citite, rama demo aterizează exact plată ca iframe-ul să rămână clar, nimic nu mută layoutul și nimic nu costă cadre | 25 |
 | `blueprint` | modul planșă: e oprit până îl ceri, cifrele din panou sunt cele pe care le raportează browserul (nu constante), fiecare secțiune e etichetată cu dimensiunea ei reală, închiderea nu lasă nimic în urmă, și nu apare pe paginile care nu l-au cerut | 29 |
 | `colophon` | colofonul și lista de lansare: cifra de pe pagină e cea din depozit, bugetele citate sunt cele asertate, fiecare suită citată există, pagina nu-și declară niciodată propriile teste trecute, iar lista se tipărește | 55 |
 | `weight` | bugete de octeți pe `dist/`: HTML, CSS, JS, fonturi, imagini OG — brotli calculat local | 30 |
