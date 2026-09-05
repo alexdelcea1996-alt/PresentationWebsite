@@ -1,6 +1,6 @@
 # Teste
 
-1509 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
+1553 de verificări care rulează peste site-ul construit, majoritatea cu un browser real.
 
 ```bash
 npm run build   # testele verifică ce e în dist/, nu codul sursă
@@ -70,8 +70,8 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `theme` | light/dark, persistență, fără flash la încărcare | 15 |
 | `hero` | glow-ul care urmărește cursorul (pe patru pagini, ambele teme) și parallaxul din hero; ambele oprite sub `prefers-reduced-motion` și pe pointer grosier | 20 |
 | `booking` | modalul Cal.com, încărcare la cerere, temă, Escape, click cu modificatori | 18 |
-| `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; că pagina care pleacă e chiar decupată în forma mărcii — citită din stilul calculat al pseudo-elementului și din pixelii de la mijlocul ecranului, în ambele teme; plus că hero-ul nu pornește ascuns | 39 |
-| `pages` | site-ul nu mai e o singură pagină: fiecare dintre cele cinci categorii există în ambele limbi, e legată din header și se marchează ca pagină curentă, are titlu, descriere, hreflang și breadcrumb proprii; nicio secțiune nu apare de două ori la lungime întreagă (rezumatul de pe prima pagină e măsurat față de pagina lui); linkurile publicate înainte de despărțire ajung tot acolo, cu tot cu parametri; iar estimarea și auditul își duc contextul peste navigare și formularul îl uită după ce l-a folosit | 108 |
+| `transitions` | tranzițiile între pagini: că regula ajunge în CSS, că rulează, că nu rulează sub reduced-motion; că pagina care pleacă e chiar decupată în forma mărcii — citită din stilul calculat al pseudo-elementului (doar când tranziția chiar rulează: citit pe o încărcare fără tranziție, pseudo-elementul inexistent omora renderer-ul) și din pixelii de la mijlocul ecranului, în ambele teme; plus că hero-ul nu pornește ascuns | 39 |
+| `pages` | site-ul nu mai e o singură pagină: fiecare dintre cele cinci categorii există în ambele limbi, e legată din header și se marchează ca pagină curentă, are titlu, descriere, hreflang și breadcrumb proprii — iar breadcrumb-ul vizibil spune, cuvânt cu cuvânt, același drum ca cel din JSON-LD, cu ultima treaptă marcată ca pagină curentă și nelegată; nicio secțiune nu apare de două ori la lungime întreagă (rezumatul de pe prima pagină e măsurat față de pagina lui); linkurile publicate înainte de despărțire ajung tot acolo, cu tot cu parametri; iar estimarea și auditul își duc contextul peste navigare și formularul îl uită după ce l-a folosit | 148 |
 | `completeness` | pagina 404, setul de iconuri, manifestul, schema `FAQPage`, `hreflang` în sitemap, `/version.txt`, HSTS, regulile de cache, `security.txt` (inclusiv expirarea recalculată la fiecare build), niciun hostname scris de mână în `src/` sau `tests/`, entitatea de afacere, `OfferCatalog`, breadcrumbs, FAQ-ul de pe prima pagină, secțiunea „Despre mine", fiecare link intern din fiecare articol, și pagina pe care o vede un om când deschide adresa fluxului RSS | 168 |
 | `guarantees` | secțiunea de garanții, ambele coloane, și că nu au rămas casete goale | 18 |
 | `legal` | politica de confidențialitate: există, numește procesatorii pe nume, e legată din formular și footer, și declară ce cere Regulamentul — temeiul legal, transferul în afara SEE, ce se scrie în browser | 52 |
@@ -79,7 +79,7 @@ CHROMIUM_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm
 | `case-study` | capturile, ramele de device, cadranele de scor și că arcul chiar ajunge la valoare | 19 |
 | `demo` | aplicația de programări: chiar se joacă — adaugă, anulează, filtrează, navighează zile, supraviețuiește unui reload; plus butoanele care duc la ea | 91 |
 | `store` | magazinul: variante, stoc epuizat, coș, livrare calculată din primul produs, checkout, comandă, reload | 94 |
-| `examples` | cele două demo-uri cu site întreg: rama, personalizarea prin `postMessage`, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex` și headerele de încadrare; plus că exemplul își parcurge singur secțiunile pe măsură ce treci pe lângă ramă — înainte, niciodată înapoi — fără să atingă scrollul cititorului, că se oprește definitiv din clipa în care omul scrollează el în ramă, și că sub reduced-motion nu e mișcat deloc | 175 |
+| `examples` | cele două demo-uri cu site întreg: rama, personalizarea prin `postMessage`, meniul care chiar navighează în interiorul iframe-ului, formularele, `noindex` și headerele de încadrare; pe pagina de proiecte sunt două rame, două site-uri diferite, fiecare etichetat ca invenție și doar unul cerându-ți numele; plus că exemplul își parcurge singur secțiunile pe măsură ce treci pe lângă ramă — înainte, niciodată înapoi — fără să atingă scrollul cititorului, că se oprește definitiv din clipa în care omul scrollează el în ramă, și că sub reduced-motion nu e mișcat deloc | 179 |
 | `offers` | că aceeași ofertă are același preț în carduri, pe pagina de serviciu, în configurator, în formular și în articolele de blog; plus că linkurile din articole chiar răspund | 103 |
 | `audit` | auditul instant, cu API-ul simulat — sau varianta cu buton, dacă nu e cheie; plus calculatorul costului unui site lent | 18 / 44 |
 | `analytics` | statisticile de trafic: beacon prezent sau absent, CSP pe măsură, politica de confidențialitate pe măsură | 16 / 29 |

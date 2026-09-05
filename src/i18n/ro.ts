@@ -25,6 +25,7 @@ export const ro: Content = {
     ariaPrimary: 'Navigare principală',
     ariaMobile: 'Meniu mobil',
     ariaQuick: 'Contact rapid',
+    ariaBreadcrumb: 'Unde ești pe site',
   },
 
   theme: {
@@ -199,6 +200,9 @@ export const ro: Content = {
     exampleTitle: 'Și un exemplu, cu numele firmei tale pe el',
     exampleBody:
       'Firma de mai jos e inventată — dar site-ul e real și funcționează. Scrie-ți numele și alege o culoare: vezi pe loc cum ar arăta al tău.',
+    exampleLandingTitle: 'Și o pagină de campanie, pentru un singur lucru',
+    exampleLandingBody:
+      'Tot un exemplu, tot o firmă inventată: un atelier cu o singură ofertă și un singur buton. Așa arată un landing page când n-are nimic de ascuns.',
   },
 
   caseStudy: {

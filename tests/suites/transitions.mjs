@@ -240,7 +240,23 @@ for (const theme of ['dark', 'light']) {
   await page.addInitScript((wanted) => {
     try { localStorage.setItem('theme', wanted); } catch {}
     window.__pseudo = null;
-    window.addEventListener('pagereveal', () => {
+    window.addEventListener('pagereveal', (event) => {
+      /*
+        Only when a transition is actually running.
+
+        `pagereveal` also fires on the plain first load of the landing page,
+        where there is no transition and therefore no `::view-transition-*`
+        pseudo-elements to read. Asking Blink for the computed style of a
+        pseudo-element that does not exist is what killed the renderer here:
+        on this first navigation, in about three whole-suite runs out of four
+        and never in isolation, which is why it passed for flakiness for so
+        long. Found by breadcrumbs, not by theory — three earlier theories
+        (the DevTools animation clock, disk, memory) each survived their own
+        removal. With this guard the same reproduction ran clean four times
+        out of four. The values the check needs are the ones captured on the
+        page the transition lands on, where `event.viewTransition` is set.
+      */
+      if (!event.viewTransition) return;
       const cut = getComputedStyle(document.documentElement, '::view-transition-old(root)');
       const pair = getComputedStyle(document.documentElement, '::view-transition-image-pair(root)');
       window.__pseudo = {
@@ -249,14 +265,27 @@ for (const theme of ['dark', 'light']) {
         animation: cut.animationName,
         light: pair.backgroundImage,
       };
+
+      /*
+        The transition is slowed rather than raced: at full speed the sample
+        below would be deciding whether it caught 130ms or 260ms of a 420ms
+        move. Slowed here, through the Web Animations API, and only the
+        animations that belong to the transition — the first version set
+        `Animation.setPlaybackRate(0.06)` on the whole page over the DevTools
+        protocol, which also slowed every scroll-driven animation the landing
+        page has. It was suspected of the renderer crash above for a while; it
+        was not the cause (the crash survived its removal), but asking the
+        transition's own animations to run slowly is what the check meant.
+      */
+      event.viewTransition?.ready.then(() => {
+        for (const animation of document.getAnimations()) {
+          if (animation.effect?.pseudoElement?.startsWith('::view-transition')) {
+            animation.playbackRate = 0.06;
+          }
+        }
+      });
     });
   }, theme);
-
-  // The animation clock is slowed rather than raced: at full speed the sample
-  // below would be deciding whether it caught 130ms or 260ms of a 420ms move.
-  const cdp = await ctx.newCDPSession(page);
-  await cdp.send('Animation.enable');
-  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.06 });
 
   await page.goto(`${BASE}/`, { waitUntil: 'load' });
   await page.waitForTimeout(600);

@@ -1,0 +1,68 @@
+---
+/**
+ * The trail, where a reader can see it.
+ *
+ * Every sub-page has carried a BreadcrumbList in its JSON-LD since the
+ * structured-data pass, and only search engines could read it. The category
+ * pages are the first ones deep enough to need it on screen: a visitor who
+ * landed on the price list from a search result has no idea where in the site
+ * they are, and the header — which marks the current page — is a row of peers,
+ * not a path.
+ *
+ * Built from the same array the page hands to `Base` for the JSON-LD, so the
+ * visible trail and the machine-readable one describe the same route; the
+ * `pages` suite compares them.
+ *
+ * The last crumb is text, not a link. A page linking to itself is a link that
+ * does nothing, and the WAI-ARIA pattern only asks that the current item be
+ * marked, which `aria-current` does.
+ */
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icon from './Icon.astro';
+import { getContent, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Home is added here; pass only what comes after it, as `Base` expects. */
+  trail: { name: string; href: string }[];
+}
+
+const { locale, trail } = Astro.props;
+const t = getContent(locale);
+const crumbs = [{ name: t.nav.home, href: getRelativeLocaleUrl(locale) }, ...trail];
+---
+
+{/*
+  Sits in the flow above the first section, which brings its own top padding.
+  The negative bottom margin lets that padding absorb most of the room the
+  trail would otherwise add, and `z-10` keeps the trail painted above the
+  section that now overlaps its box — a section with a background of its own
+  would otherwise be drawn over the last few pixels of it.
+*/}
+<nav
+  aria-label={t.nav.ariaBreadcrumb}
+  class="container-page relative z-10 -mb-12 pt-24 sm:-mb-20 sm:pt-28"
+  data-breadcrumb
+>
+  <ol class="flex flex-wrap items-center gap-1.5 text-sm text-fg-subtle">
+    {
+      crumbs.map((crumb, index) => {
+        const last = index === crumbs.length - 1;
+        return (
+          <li class="flex items-center gap-1.5">
+            {index > 0 && <Icon name="arrow-right" class="size-3.5 shrink-0" />}
+            {last ? (
+              <span aria-current="page" class="font-medium text-fg-muted">
+                {crumb.name}
+              </span>
+            ) : (
+              <a href={crumb.href} class="transition-colors hover:text-accent-alt">
+                {crumb.name}
+              </a>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

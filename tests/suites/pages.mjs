@@ -107,6 +107,32 @@ for (const [key, paths] of Object.entries(PAGE)) {
     ck(`${locale} ${key}: it carries a breadcrumb`,
       trail?.itemListElement?.length === 2, `${trail?.itemListElement?.length}`);
 
+    /*
+      And the same trail where a reader can see it. Compared item by item
+      against the JSON-LD rather than checked on its own: two breadcrumbs that
+      disagree about where a page is would be worse than one nobody can see.
+    */
+    const visible = await p.$$eval('nav[data-breadcrumb] li', (items) =>
+      items.map((li) => ({
+        name: (li.textContent ?? '').replace(/\s+/g, ' ').trim(),
+        href: li.querySelector('a')?.getAttribute('href') ?? null,
+        current: li.querySelector('[aria-current="page"]') !== null,
+      })));
+    const machine = (trail?.itemListElement ?? []).map((item) => ({
+      name: item.name,
+      path: new URL(item.item).pathname,
+    }));
+    ck(`${locale} ${key}: the trail is visible`, visible.length === 2, `${visible.length} crumbs`);
+    ck(`${locale} ${key}: and says the same thing as the JSON-LD`,
+      visible.length === machine.length &&
+        visible.every((crumb, i) => crumb.name === machine[i].name) &&
+        visible[0]?.href === machine[0]?.path,
+      `${visible.map((c) => c.name).join(' › ')} vs ${machine.map((c) => c.name).join(' › ')}`);
+    ck(`${locale} ${key}: the last crumb is marked current and is not a link`,
+      visible.at(-1)?.current === true && visible.at(-1)?.href === null);
+    ck(`${locale} ${key}: the trail is a labelled landmark`,
+      ((await p.locator('nav[data-breadcrumb]').getAttribute('aria-label')) ?? '').length > 3);
+
     await p.close();
   }
 }

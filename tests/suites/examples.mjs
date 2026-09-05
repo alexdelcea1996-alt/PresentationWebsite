@@ -420,23 +420,35 @@ for (const [label, path] of [['RO', PAGE.projects.ro], ['EN', PAGE.projects.en]]
   const p = await b.newPage(VIEWPORT);
   await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
 
-  const block = p.locator('[data-portfolio-example]');
-  ck(`${label} projects: the portfolio carries a working example`, (await block.count()) === 1);
-  // Fiction standing unlabelled among proof is the one thing this section
-  // must not do — and this is the section where somebody looks for proof.
-  ck(`${label} projects: labelled as invented before you reach it`,
-    /invent/i.test(await block.innerText()));
+  // Two of them now: the three-page business site and the one-page campaign
+  // site. Fiction standing unlabelled among proof is the one thing this section
+  // must not do — and this is the section where somebody looks for proof — so
+  // EACH block is checked for its label, not the section as a whole.
+  const blocks = p.locator('[data-portfolio-example]');
+  ck(`${label} projects: the portfolio carries two working examples`, (await blocks.count()) === 2,
+    `${await blocks.count()}`);
+  const labels = await blocks.evaluateAll((nodes) => nodes.map((n) => /invent/i.test(n.innerText)));
+  ck(`${label} projects: each is labelled as invented before you reach it`,
+    labels.length === 2 && labels.every(Boolean), labels.join(' '));
+  const sources = await blocks.evaluateAll((nodes) =>
+    nodes.map((n) => n.querySelector('iframe')?.getAttribute('src') ?? ''));
+  ck(`${label} projects: and they are two different sites`,
+    new Set(sources).size === 2 && sources.every(Boolean), sources.join(' | '));
 
-  const iframe = block.locator('iframe');
+  const block = p.locator('[data-portfolio-example="site"]');
   ck(`${label} projects: framed lazily, so it costs nothing above the fold`,
-    (await iframe.getAttribute('loading')) === 'lazy');
+    (await blocks.evaluateAll((nodes) => nodes.every((n) => n.querySelector('iframe')?.loading === 'lazy'))));
+
+  // One invitation to put your name on it, not two forms.
+  ck(`${label} projects: only the business site asks for your name`,
+    (await p.locator('[data-portfolio-example] [data-brand-input]').count()) === 1);
 
   // Independence: driving this one must not be driving anything else.
   await block.scrollIntoViewIfNeeded();
   await p.waitForTimeout(600);
   await block.locator('[data-brand-input]').fill('Croitoria Ana');
   await p.waitForTimeout(500);
-  const inside = p.frameLocator('[data-portfolio-example] iframe');
+  const inside = p.frameLocator('[data-portfolio-example="site"] iframe');
   ck(`${label} projects: personalising it works here too`,
     (await inside.locator('[data-ex-brand]').first().innerText()) === 'Croitoria Ana');
 
@@ -444,7 +456,7 @@ for (const [label, path] of [['RO', PAGE.projects.ro], ['EN', PAGE.projects.en]]
   await p.waitForTimeout(500);
   ck(`${label} projects: and its own width switch answers`,
     (await block.locator('[data-demo-frame]').getAttribute('data-width')) === 'mobile' ||
-      (await p.locator('[data-portfolio-example] [data-demo-frame]').getAttribute('data-width')) ===
+      (await p.locator('[data-portfolio-example="site"] [data-demo-frame]').getAttribute('data-width')) ===
         'mobile');
 
   await p.close();

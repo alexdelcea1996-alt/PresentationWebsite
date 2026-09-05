@@ -25,6 +25,7 @@ export const en: Content = {
     ariaPrimary: 'Main navigation',
     ariaMobile: 'Mobile menu',
     ariaQuick: 'Quick contact',
+    ariaBreadcrumb: 'Where you are on the site',
   },
 
   theme: {
@@ -199,6 +200,9 @@ export const en: Content = {
     exampleTitle: 'And an example, with your own name on it',
     exampleBody:
       'The company below is invented — but the site is real and it works. Type your name, pick a colour, and see how yours would look.',
+    exampleLandingTitle: 'And a campaign page, for one thing only',
+    exampleLandingBody:
+      'Also an example, also an invented company: a workshop with a single offer and a single button. This is what a landing page looks like when it has nothing to hide.',
   },
 
   caseStudy: {

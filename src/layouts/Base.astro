@@ -6,6 +6,7 @@ import StickyCta from '../components/StickyCta.astro';
 import { getContent, localeTags, locales, type Locale } from '../i18n';
 import { site, telHref } from '../data/site';
 import { projectTypes } from '../data/configurator';
+import { pricingPath } from '../data/pages';
 
 interface Props {
   locale: Locale;
@@ -92,7 +93,12 @@ const businessUrl = new URL(getRelativeLocaleUrl(locales[0]), Astro.site).href;
 // already asserts are ordered cheapest to dearest.
 const offerFloors = projectTypes.map((type) => type.basePrice).sort((a, b) => a - b);
 
-const isHome = canonical.pathname === getRelativeLocaleUrl(locale);
+/*
+  Where the price list is actually shown. It was the landing page for as long as
+  the landing page was the whole site; since the sections moved out to pages of
+  their own it is the pricing page, and the catalogue below follows it there.
+*/
+const isPricingPage = canonical.pathname === pricingPath(locale);
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -116,9 +122,9 @@ const structuredData = {
   // a fixed figure that is not on offer. The numbers come from the configurator
   // rather than from the copy, so there is no second place to keep them right.
   //
-  // Only on the landing page: that is where the prices are actually shown, and
+  // Only on the pricing page: that is where the prices are actually shown, and
   // repeating the whole catalogue on a blog post would be noise on 24 pages.
-  ...(isHome ? { hasOfferCatalog: {
+  ...(isPricingPage ? { hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: t.pricing.title,
     itemListElement: t.pricing.plans.map((plan, index) => ({

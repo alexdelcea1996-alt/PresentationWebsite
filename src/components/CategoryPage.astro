@@ -16,6 +16,7 @@
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
+import Breadcrumb from './Breadcrumb.astro';
 import NextStep from './NextStep.astro';
 import { getContent, type Locale } from '../i18n';
 import {
@@ -54,6 +55,10 @@ const pages = {
 
 const { path, name } = pages[page];
 const meta = t.pages[page];
+
+// One trail, handed both to the visible breadcrumb and to the JSON-LD one, so
+// what a reader sees and what a search engine reads cannot be two things.
+const trail = [{ name, href: path(locale) }];
 ---
 
 <Base
@@ -61,12 +66,13 @@ const meta = t.pages[page];
   title={meta.metaTitle}
   description={meta.metaDescription}
   alternates={{ ro: path('ro'), en: path('en') }}
-  breadcrumb={[{ name, href: path(locale) }]}
+  breadcrumb={trail}
   extraSchema={extraSchema}
 >
   <Header locale={locale} />
 
   <main id="main">
+    <Breadcrumb locale={locale} trail={trail} />
     <slot />
 
     {page !== 'contact' && <NextStep locale={locale} via={`page-${page}`} secondary={page !== 'estimate'} />}

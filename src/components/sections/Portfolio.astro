@@ -5,7 +5,7 @@ import SectionHeading from '../SectionHeading.astro';
 import { getContent, sectionIds, type Locale } from '../../i18n';
 import { caseStudyPath, getCaseStudies } from '../../data/case-studies';
 import DemoFrame from '../DemoFrame.astro';
-import { contactPath, exampleSitePath } from '../../data/demo';
+import { contactPath, exampleLandingPath, exampleSitePath } from '../../data/demo';
 
 interface Props {
   locale: Locale;
@@ -157,7 +157,7 @@ const single = caseStudies.length === 1 && !example;
     */}
     {
       example && (
-        <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example>
+        <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example="site">
           <Sub class="font-display text-xl font-semibold">{t.exampleTitle}</Sub>
           <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.exampleBody}</p>
 
@@ -167,6 +167,30 @@ const single = caseStudies.length === 1 && !example;
               src={exampleSitePath(locale)}
               displayUrl="termoflux.example"
               ctaHref={contactPath(locale, 'presentation', 'portfolio-example')}
+            />
+          </div>
+        </div>
+      )
+    }
+
+    {/*
+      The second example: the one-page site. Personalisation is switched off
+      here — one card asking for your name is an invitation, two on the same
+      page is a form — and the fake address bar shows the invented company's
+      domain, never this site's, for the same reason it does on the demo pages.
+    */}
+    {
+      example && (
+        <div class="mx-auto mt-20 max-w-4xl" data-reveal data-portfolio-example="landing">
+          <Sub class="font-display text-xl font-semibold">{t.exampleLandingTitle}</Sub>
+          <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-muted">{t.exampleLandingBody}</p>
+
+          <div class="mt-8">
+            <DemoFrame
+              locale={locale}
+              src={exampleLandingPath(locale)}
+              displayUrl={locale === 'en' ? 'rindea.example/workshop' : 'rindea.example/atelier'}
+              personalize={false}
             />
           </div>
         </div>

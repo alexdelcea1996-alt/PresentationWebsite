@@ -469,7 +469,7 @@ for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) 
 // it, so the regression would have been invisible.
 {
   const pages = [
-    '/', '/en/', '/demo/', '/demo/magazin/',
+    '/', '/en/', PAGE.pricing.ro, PAGE.pricing.en, '/demo/', '/demo/magazin/',
     '/servicii/landing-page/', '/blog/de-ce-se-incarca-greu-site-ul-tau/',
     '/confidentialitate/', '/studii-de-caz/acest-site/',
   ];
@@ -492,13 +492,17 @@ for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) 
   ck('pointing at one address, not each page', new Set(seen.map((entry) => entry.url)).size === 1,
     [...new Set(seen.map((entry) => entry.url))].join(' '));
 
-  // The catalogue belongs where the prices are shown, not on every blog post.
+  // The catalogue belongs where the prices are shown, not on every blog post —
+  // and not on the landing page either, now that the prices have left it. A
+  // machine-readable price list on a page with no prices on it is a claim the
+  // page cannot back.
   const withCatalog = seen.filter((entry) => entry.catalog).map((entry) => entry.path);
-  ck('the price list rides on the landing pages only',
-    withCatalog.length === 2 && withCatalog.every((path) => path === '/' || path === '/en/'),
+  ck('the price list rides on the pricing pages only',
+    withCatalog.length === 2 &&
+      withCatalog.every((path) => path === PAGE.pricing.ro || path === PAGE.pricing.en),
     withCatalog.join(' '));
 
-  const floors = (seen.find((entry) => entry.path === '/')?.catalog?.itemListElement ?? []).map(
+  const floors = (seen.find((entry) => entry.path === PAGE.pricing.ro)?.catalog?.itemListElement ?? []).map(
     (offer) => offer.priceSpecification?.minPrice,
   );
   // Same four figures the pricing cards show — `offers` asserts those against

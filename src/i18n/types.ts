@@ -150,6 +150,8 @@ export interface Content {
     ariaMobile: string;
     /** Label of the sticky bottom dock on phones. */
     ariaQuick: string;
+    /** The visible trail at the top of a category page. */
+    ariaBreadcrumb: string;
   };
   theme: {
     switchToLight: string;
@@ -227,6 +229,9 @@ export interface Content {
      */
     exampleTitle: string;
     exampleBody: string;
+    /** The second framed example on the projects page: the one-page site. */
+    exampleLandingTitle: string;
+    exampleLandingBody: string;
   };
   caseStudy: {
     backToWork: string;
