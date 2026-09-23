@@ -936,8 +936,8 @@ export const ro: Content = {
         body: '30 de minute despre afacerea ta, fără obligații. Dacă îmi dau seama că ai nevoie de altceva — sau de nimic — îți spun direct.',
       },
       {
-        title: 'Măsurători, nu afirmații',
-        body: 'Măsor cu Lighthouse înainte de livrare și îți trimit raportul. La optimizări, aceleași măsurători înainte și după.',
+        title: 'Cel puțin 95 la testul de viteză Google',
+        body: 'Fiecare pagină a unui site construit de mine trece, înainte de predare, prin PageSpeed Insights — pe mobil și pe desktop — și primești raportul. Sub 95 din 100 nu îl predau: lucrez până trece, fără cost în plus.',
       },
     ],
     no: [
@@ -952,6 +952,10 @@ export const ro: Content = {
       {
         title: 'Termenul, dacă întârzie conținutul',
         body: 'Respect data din ofertă. Dar dacă textele și pozele vin pe bucăți, se mută și termenul — și îți spun din timp, nu în ultima zi.',
+      },
+      {
+        title: 'Scorul, pe ce nu construiesc eu',
+        body: 'La optimizarea unui site existent promit măsurători înainte și după, nu un prag: cât se câștigă depinde de ce găsesc sub capotă. Iar un chat, un pixel de reclame sau poze grele adăugate după predare pot coborî scorul oricărui site — dacă mă întrebi înainte, îți spun cu cât.',
       },
     ],
   },

@@ -6,9 +6,9 @@ const b = await launch();
 
 // Printed beside the prices, where somebody deciding whether to ask for a quote
 // is actually standing — not eight sections down a landing page.
-for (const [label, path, yes, no] of [
-  ['RO', PAGE.pricing.ro, 'Îți garantez', 'Nu îți garantez'],
-  ['EN', PAGE.pricing.en, 'I guarantee', 'I do not guarantee'],
+for (const [label, path, yes, no, homePath] of [
+  ['RO', PAGE.pricing.ro, 'Îți garantez', 'Nu îți garantez', PAGE.home.ro],
+  ['EN', PAGE.pricing.en, 'I guarantee', 'I do not guarantee', PAGE.home.en],
 ]) {
   const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
   await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
@@ -19,7 +19,7 @@ for (const [label, path, yes, no] of [
   const yesCol = section.locator('[data-guarantee-column="yes"]');
   const noCol = section.locator('[data-guarantee-column="no"]');
   ck(`${label}: six commitments`, (await yesCol.locator('li').count()) === 6);
-  ck(`${label}: three deliberate non-commitments`, (await noCol.locator('li').count()) === 3);
+  ck(`${label}: four deliberate non-commitments`, (await noCol.locator('li').count()) === 4);
   // innerText reflects the CSS `uppercase`, so compare case-insensitively.
   const heading = async (col) => (await col.locator('h3').innerText()).trim().toLocaleLowerCase('ro');
   ck(`${label}: the columns are labelled`,
@@ -36,6 +36,43 @@ for (const [label, path, yes, no] of [
   const bodies = await yesCol.locator('li p:nth-of-type(2)').allInnerTexts();
   ck(`${label}: every commitment is explained`, bodies.length === 6 && bodies.every((t) => t.trim().length > 40),
     `shortest ${Math.min(...bodies.map((t) => t.trim().length))} chars`);
+
+  /*
+    What the landing page calls guaranteed has to be in this list.
+
+    For a long time it was not: "95+ — guaranteed" sat under the headline while
+    the guarantees promised only a Lighthouse report, with no number in it. The
+    figure is read from the hero rather than typed here, so changing either page
+    alone fails — and the written promise has to say how it is measured and on
+    which screen, because a threshold nobody can check is not a promise.
+  */
+  const home = await b.newPage({ viewport: { width: 1440, height: 1000 } });
+  await home.goto(`${BASE}${homePath}`, { waitUntil: 'domcontentloaded' });
+  const promised = await home.$$eval('[data-hero-stats] > div', (cells) =>
+    cells
+      .map((cell) => ({
+        figure: cell.querySelector('dd')?.textContent.trim() ?? '',
+        term: cell.querySelector('dt')?.textContent.trim() ?? '',
+      }))
+      .filter((stat) => /garantat|guaranteed/i.test(stat.term)));
+  await home.close();
+
+  const commitments = await yesCol.locator('li').allInnerTexts();
+  const limits = await noCol.locator('li').allInnerTexts();
+  ck(`${label}: the hero calls something guaranteed`, promised.length > 0,
+    promised.map((stat) => `${stat.figure} ${stat.term}`).join(' | ') || 'nothing');
+  for (const { figure, term } of promised) {
+    const number = figure.match(/\d+/)?.[0] ?? '(none)';
+    const written = commitments.find((text) => new RegExp(`\\b${number}\\b`).test(text));
+    ck(`${label}: "${figure} ${term}" is written in the guarantees`, Boolean(written),
+      written ? written.split('\n')[0] : `no commitment mentions ${number}`);
+    ck(`${label}: with the test named and the phone included`,
+      Boolean(written) && /pagespeed|lighthouse/i.test(written) && /mobil/i.test(written),
+      (written ?? '').replace(/\s+/g, ' ').slice(0, 90));
+    ck(`${label}: and the column beside it says where it stops`,
+      limits.some((text) => /scor|score/i.test(text)),
+      limits.map((text) => text.split('\n')[0]).join(' | '));
+  }
 
   await p.close();
 }

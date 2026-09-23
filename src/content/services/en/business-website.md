@@ -39,8 +39,9 @@ includes:
       void, which is what I find on half the sites I take over.
   - title: Verified speed and accessibility
     description: >-
-      I measure with Lighthouse before handover and send you the report. The site also works for
-      people navigating by keyboard or with a screen reader.
+      Every page goes through PageSpeed Insights before handover, on mobile and on desktop, and you
+      get the report — below 95 out of 100 I do not hand it over. The site also works for people
+      navigating by keyboard or with a screen reader.
   - title: Hosting and domain configured
     description: >-
       I handle the technical side: domain, security certificate, email on your own domain. They stay

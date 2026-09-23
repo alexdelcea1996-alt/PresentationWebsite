@@ -69,7 +69,7 @@ ambele teme. Fonturile: 74 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1666 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1692 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -245,6 +245,17 @@ un loc, unde le citește cineva.
 Coloana `no` nu e decor. Site-ul spune în două locuri că nimeni onest nu poate
 garanta locul întâi în Google; o secțiune de garanții care ar sări peste asta ar
 contrazice restul site-ului și ar arăta ca oricare alta.
+
+**Pragul de viteză e scris aici, nu doar în hero.** Multă vreme prima pagină
+spunea „95+ garantat" sub titlu, iar garanțiile promiteau doar un raport
+Lighthouse, fără nicio cifră. Acum rândul spune exact ce se promite: fiecare
+pagină a unui site construit de tine trece prin PageSpeed Insights, pe mobil și
+pe desktop, înainte de predare, iar sub 95 din 100 nu se predă — lucrezi până
+trece, fără cost în plus. Coloana `no` spune unde se oprește: la optimizarea unui
+site existent se promit măsurători înainte și după, nu un prag, iar scripturile
+sau pozele adăugate după predare ies din garanție. Suita `guarantees` citește
+cifra din hero și cade dacă nu o găsește în garanții, cu testul numit și cu
+telefonul inclus — deci dacă schimbi pragul, îl schimbi în ambele locuri.
 
 ### „Despre mine" și poza
 

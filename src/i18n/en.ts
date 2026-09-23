@@ -936,8 +936,8 @@ export const en: Content = {
         body: '30 minutes on your business, no strings. If I work out that you need something else — or nothing at all — I will say so plainly.',
       },
       {
-        title: 'Measurements, not claims',
-        body: 'I measure with Lighthouse before handover and send you the report. On optimisation work, the same measurements before and after.',
+        title: "At least 95 on Google's speed test",
+        body: 'Every page of a site I build goes through PageSpeed Insights before handover — on mobile and on desktop — and you get the report. Below 95 out of 100 I do not hand it over: I keep working until it passes, at no extra cost.',
       },
     ],
     no: [
@@ -952,6 +952,10 @@ export const en: Content = {
       {
         title: 'The date, if the content is late',
         body: 'I keep to the date in the quote. But if text and images arrive in pieces, the date moves with them — and you hear it early, not on the last day.',
+      },
+      {
+        title: 'The score, on what I did not build',
+        body: "When optimising an existing site I promise measurements before and after, not a threshold: how much there is to gain depends on what I find under the bonnet. And a chat widget, an ad pixel or heavy images added after handover can lower any site's score — ask me first and I will tell you by how much.",
       },
     ],
   },

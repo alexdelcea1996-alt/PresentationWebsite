@@ -300,6 +300,59 @@ ck('the two languages cite the same suites', cited.size >= 6, [...cited].sort().
   await p.close();
 }
 
+// --- The figure has room ------------------------------------------------------------------
+/*
+  The count and the drawing of it are what this page is about, and they used to
+  sit in a card held to the reading column: a 220-pixel drawing and a 36-pixel
+  number in a box built for a paragraph, most of it empty. On a wide screen the
+  card now steps out of the column and the drawing is 420 pixels across. On a
+  phone all of it still has to fit — the first version of the bigger drawing
+  made its column 420 wide on a 390-pixel screen and cut the text off at the
+  edge, which `overflow-clip` on the page hid from the page-width check.
+*/
+for (const [width, path] of [[1440, '/colofon/'], [1024, '/en/colophon/'], [390, '/colofon/'], [320, '/en/colophon/']]) {
+  const p = await b.newPage({ viewport: { width, height: 900 } });
+  await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
+  const m = await p.evaluate(() => {
+    const card = document.querySelector('[data-colophon-figure]');
+    if (!card) return null;
+    const box = card.getBoundingClientRect();
+    const canvas = card.querySelector('[data-constellation]');
+    return {
+      card: box.width,
+      left: box.left,
+      right: box.right,
+      // The section's own paragraph, just above the card, is set at reading width.
+      column: card.parentElement.querySelector('p').getBoundingClientRect().width,
+      drawn: Number(canvas.dataset.size),
+      shown: canvas.getBoundingClientRect().width,
+      count: parseFloat(getComputedStyle(card.querySelector('[data-colophon-checks]')).fontSize),
+      // Only what is drawn: the drawing's own <script> sits in the card with an
+      // empty box at the page's origin, and is not spilling anywhere.
+      spill: [...card.querySelectorAll('*')].filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (!r.width && !r.height) return false;
+        return r.right > box.right + 1 || r.left < box.left - 1;
+      }).map((el) => el.tagName.toLowerCase()),
+      viewport: document.documentElement.clientWidth,
+    };
+  });
+  const tag = `${width}px`;
+  ck(`${tag}: the colophon's figure is on the page`, m !== null);
+  if (!m) { await p.close(); continue; }
+  ck(`${tag}: nothing in it spills out of its card`, m.spill.length === 0, m.spill.join(' ') || 'contained');
+  ck(`${tag}: and the card stays on the screen`, m.left >= 0 && m.right <= m.viewport,
+    `${Math.round(m.left)}–${Math.round(m.right)} of ${m.viewport}`);
+  if (width >= 1024) {
+    ck(`${tag}: the card steps out of the reading column`, m.card >= m.column + 100,
+      `card ${Math.round(m.card)} vs column ${Math.round(m.column)}`);
+    ck(`${tag}: the drawing is drawn and shown at full size`, m.drawn >= 400 && m.shown >= 400,
+      `drawn ${m.drawn}, shown ${Math.round(m.shown)}`);
+    ck(`${tag}: and the count is set large`, m.count >= 56, `${m.count}px`);
+  }
+  await p.close();
+}
+
 // --- Accessibility ------------------------------------------------------------------------
 for (const [label, path, theme] of [
   ['colophon dark', '/colofon/', 'dark'],

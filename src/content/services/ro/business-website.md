@@ -39,8 +39,9 @@ includes:
       în gol, cum găsesc pe jumătate din site-urile pe care le preiau.
   - title: Viteză și accesibilitate verificate
     description: >-
-      Măsor cu Lighthouse înainte de livrare și îți trimit raportul. Site-ul funcționează și pentru
-      cine navighează de la tastatură sau cu cititor de ecran.
+      Fiecare pagină trece prin PageSpeed Insights înainte de predare, pe mobil și pe desktop, și
+      primești raportul — sub 95 din 100 nu predau. Site-ul funcționează și pentru cine navighează de
+      la tastatură sau cu cititor de ecran.
   - title: Găzduire și domeniu configurate
     description: >-
       Mă ocup de partea tehnică: domeniu, certificat de securitate, e-mail pe domeniul tău. Rămân

@@ -102,13 +102,33 @@ const checks = number.format(SUITE_CHECKS);
           <h2 class="font-display text-xl font-semibold">{t.checksTitle}</h2>
           <p class="mt-3 text-sm leading-relaxed text-fg-muted">{t.checksBody}</p>
 
-          <div class="mt-5 grid gap-8 rounded-2xl border border-border bg-surface-raised/60 p-6 sm:grid-cols-[1fr_auto] sm:items-center">
+          {/*
+            The one block on the page that leaves the reading column.
+
+            The text around it is set at a reading width, and this card used to
+            be held to it too: a 220-pixel drawing and a 36-pixel number in a
+            box built for a paragraph, with most of the box empty. The figure is
+            what the page is about, so on a wide screen the card steps out of
+            the column on both sides — the prose keeps its line length — and the
+            drawing gets the room to be seen as the object it is. The breakout
+            is by fixed steps, sized so the card never reaches the edges of the
+            container it sits in.
+
+            `grid-cols-1` is a `minmax(0, 1fr)` track, not decoration: an auto
+            track sizes itself to the widest thing in it, and a 420-pixel canvas
+            on a 390-pixel phone made the whole column 420 wide — text and all,
+            cut off at the edge of the screen.
+          */}
+          <div
+            class="mt-5 grid grid-cols-1 gap-8 rounded-2xl border border-border bg-surface-raised/60 p-6 sm:p-8 lg:-mx-16 lg:grid-cols-[1fr_auto] lg:items-center xl:-mx-32"
+            data-colophon-figure
+          >
             <div class="min-w-0">
-              <p class="font-display text-4xl font-semibold text-gradient" data-colophon-checks>
+              <p class="font-display text-5xl font-semibold text-gradient sm:text-6xl lg:text-7xl" data-colophon-checks>
                 {checks}
               </p>
-              <p class="mt-1 text-sm text-fg-muted">{t.checksLabel}</p>
-              <p class="mt-4 text-xs leading-relaxed text-fg-subtle" data-colophon-note>
+              <p class="mt-2 text-base text-fg-muted">{t.checksLabel}</p>
+              <p class="mt-5 max-w-prose text-sm leading-relaxed text-fg-subtle" data-colophon-note>
                 {t.checksNote}
               </p>
             </div>
@@ -120,9 +140,9 @@ const checks = number.format(SUITE_CHECKS);
               hint underneath is deliberate about the limit — the count is exact,
               the names are a sample, and the page says which is which.
             */}
-            <div class="justify-self-center">
-              <Constellation size={220} interactive label={t.constellationLabel} class="w-[220px] max-w-full" />
-              <p class="mt-1 max-w-[34ch] text-center text-xs leading-relaxed text-fg-subtle">
+            <div class="grid w-full grid-cols-1 justify-items-center">
+              <Constellation size={420} interactive label={t.constellationLabel} class="w-[420px] max-w-full" />
+              <p class="mt-2 max-w-[46ch] text-center text-xs leading-relaxed text-fg-subtle">
                 {t.constellationHint}
               </p>
             </div>
