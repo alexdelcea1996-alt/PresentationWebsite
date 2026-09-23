@@ -69,7 +69,7 @@ ambele teme. Fonturile: 74 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1553 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1666 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -217,7 +217,7 @@ anunțau că nu ai clienți. La primul testimonial real, secțiunea reapare sing
 ### Întrebările de pe prima pagină
 
 `homeFaq` în `src/i18n/ro.ts` și `en.ts`, șase întrebări cu răspuns, afișate ca
-acordeoane deasupra formularului de contact.
+acordeoane pe pagina de prețuri, sub garanții.
 
 **Aceeași regulă ca la garanții: niciun răspuns nu are voie să promită ceva nou.**
 Fiecare reformulează ceva deja publicat — prețurile din carduri, pașii din proces,
@@ -291,6 +291,24 @@ calculează în `Services.astro`, nu e scris de mână.
 
 `pricing.plans` în ambele fișiere de limbă. Valorile actuale sunt orientative
 și trebuie confirmate înainte de lansare.
+
+**Același lucru pentru termene.** Termenul din card, cel din pagina de serviciu,
+cifra din hero și estimarea fără extra din configurator trebuie să spună același
+lucru. Hero-ul spune explicit pentru ce pachet e adevărat („2–4 săptămâni pentru
+un site de prezentare"), iar estimarea unui pachet fără nimic bifat trebuie să
+încapă în termenul de pe card — magazinul spunea „5–7 săptămâni" lângă un card de
+„4–6". `offers` verifică toate patru.
+
+**Prețul de pornire nu se scrie de mână nicăieri în afara cardurilor.** Prima
+pagină („de la 400 €" pe ușa spre prețuri) și descrierea paginii de prețuri din
+Google îl citesc din `pricing.plans` prin `startingPrice()`
+(`src/data/pricing.ts`), care alege cel mai mic preț după valoare, nu după poziție.
+Tot de aceea nicio frază nu mai numără pachetele în cuvinte („trei pachete" a
+rămas scris multă vreme lângă patru carduri).
+
+**Eticheta de pe pachetul evidențiat spune „Recomandat", nu „Cel mai ales".** Ultima
+ar fi o afirmație despre vânzări pe care site-ul nu are cum s-o arate. `offers`
+caută în toate paginile construite formulările care pretind o mulțime de clienți.
 
 ### O pagină nouă de serviciu
 
@@ -367,6 +385,14 @@ articolele, sunt verificate de `completeness` direct în `dist/`, fără browser
 listarea articolelor pe nume nu mai ține pasul de la paisprezece în sus, iar
 Markdown nu are cum să prindă o adresă greșită la build.
 
+**Fiecare articol are o listă „Citește și", aleasă de mână.** O găsești în
+`src/data/reading.ts`, împreună cu listele paginilor care vând (paginile de
+serviciu, Servicii, Prețuri, Estimare). Când adaugi un articol, îi dai o listă de
+două-trei articole și îl pui în cel puțin o listă a altcuiva — altfel
+`completeness` pică: fiecare articol trebuie să aibă o listă și măcar una care să
+ducă la el. Un nume de fișier greșit în listă oprește build-ul, nu scurtează lista
+pe tăcute.
+
 **Tabelele funcționează** în articole (sintaxa obișnuită cu `|`). Sunt stilate în
 `BlogPost.astro` și se strâng singure pe telefon, fără derulare orizontală.
 
@@ -404,12 +430,24 @@ Ca să primești mesajele direct în inbox:
 
 Formularul comută automat pe trimitere reală când cheia există.
 
+**Tipul de proiect și bugetul pornesc goale**, pe o opțiune etichetată („Alege un
+interval"), nu pe prima din listă. Înainte, un formular neatins trimitea fiecare
+vizitator drept „Site de prezentare — Sub 500 €": cel mai mic buget, lipit unui
+om care nu spusese nimic despre bani. O întrebare lăsată goală lipsește acum din
+mesaj, pe ambele rute. Precompletarea din `?from=`, din configurator și din audit
+funcționează ca înainte.
+
 ## Programare directă (Cal.com)
 
 **Activă.** Calendarul conectat e
 `cal.com/delcea-alexandru-arqdvl/30min`, setat prin `calLink` în
-`src/data/site.ts`. Apare un card în secțiunea de contact, iar calendarul se
-deschide într-un modal peste pagină, fără să părăsești site-ul.
+`src/data/site.ts`. Apare un card în secțiunea de contact și pe pagina de
+mulțumire, plus butonul „Rezervă o discuție" lângă „Cere ofertă" în banda de
+final a fiecărei pagini care vinde, a paginilor de serviciu și a articolelor.
+Calendarul se deschide într-un modal peste pagină, fără să părăsești site-ul.
+
+Butoanele sunt `BookingLink.astro`, iar calendarul e `BookingDialog.astro`, randat
+o singură dată pe pagină și legat la toate butoanele de pe ea.
 
 Ca s-o schimbi sau s-o oprești, editezi aceeași linie:
 
@@ -713,27 +751,27 @@ browser și fără cronometru — o picare înseamnă mereu că s-a îngrășat 
 mașina era ocupată. Brotli se calculează local cu `node:zlib`, la calitatea 11,
 adică fix ce livrează Cloudflare pentru un fișier static.
 
-Măsurătorile de azi și pragurile puse peste ele (azi + ~10-15%):
+Măsurătorile de azi și pragurile puse peste ele:
 
 | Ce | Azi | Buget |
 |---|---|---|
-| Prima pagină, comprimată | 19,7 kB | 22 kB |
-| Prima pagină, HTML brut | 138,5 kB | 155 kB |
-| Cea mai grea sub-pagină | 45,4 kB brut | 60 kB |
-| Foaia de stil (una singură) | 8,9 kB / 54,6 kB | 10,5 / 62 kB |
-| Fiecare bundle de demo | 5,6 și 5,0 kB | 7 kB |
-| JS inline pe prima pagină | 14,6 kB | 17 kB |
+| Prima pagină, comprimată | 12,7 kB | 16 kB |
+| Prima pagină, HTML brut | 61,2 kB | 75 kB |
+| Cea mai grea sub-pagină (`/servicii/`) | 63,2 kB brut / 10,0 kB comprimat | 68 / 11 kB |
+| Foaia de stil (una singură) | 12,5 kB / 74,3 kB | 13 / 76 kB |
+| Fiecare bundle de JS (șase) | între 4,3 și 5,6 kB | 7 kB |
+| JS inline pe prima pagină | 12,6 kB | 13 kB |
 | Fonturile, toate patru | 73,9 kB | 80 kB |
-| Cea mai mare imagine OG | 90,9 kB | 120 kB |
+| Cea mai mare imagine OG | 92,7 kB | 120 kB |
 
 Când depășești un buget **intenționat** — o secțiune nouă, o fotografie, un
 demo în plus — îl ridici în `tests/suites/weight.mjs` și actualizezi comentariul
 „azi e X" de deasupra. Editarea aia e evidența deciziei; fără ea, creșterea trece
 neobservată an de an, care e exact felul în care ajung site-urile la 4 MB.
 
-Suita verifică și forma, nu doar cifrele: o singură foaie de stil, exact două
-bundle-uri de JS, exact patru fonturi. Dacă apare al treilea bundle, pică — chiar
-dacă e mic.
+Suita verifică și forma, nu doar cifrele: o singură foaie de stil, exact cele
+șase bundle-uri de JS alese, exact patru fonturi. Dacă apare al șaptelea bundle,
+pică — chiar dacă e mic.
 
 ## Statistici de trafic (Cloudflare Web Analytics)
 

@@ -106,3 +106,10 @@ export const whatsappHref = (message: string) =>
   site.whatsapp
     ? `https://wa.me/${digits(site.whatsapp)}?text=${encodeURIComponent(message)}`
     : '';
+
+/** The public booking page, or an empty string when booking is switched off —
+ *  every booking affordance checks this one value, so none can outlive it. */
+export const bookingUrl = () => {
+  const link = site.calLink.trim().replace(/^\/+/, '');
+  return link ? `https://cal.com/${link}` : '';
+};

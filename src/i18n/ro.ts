@@ -49,9 +49,9 @@ export const ro: Content = {
     ctaPrimary: 'Cere o ofertă gratuită',
     ctaSecondary: 'Vezi cum lucrez',
     stats: [
-      { value: '95+', label: 'Scor Lighthouse garantat' },
-      { value: '2–4', label: 'Săptămâni până la lansare' },
-      { value: '100%', label: 'Adaptat pentru mobil' },
+      { value: '95+', label: 'scor de viteză Google, garantat' },
+      { value: '2–4', label: 'săptămâni pentru un site de prezentare' },
+      { value: '100%', label: 'gândit pentru telefon' },
     ],
   },
 
@@ -234,7 +234,7 @@ export const ro: Content = {
     subtitle:
       'Prețul final depinde de complexitate, dar vreau să știi de la început în ce interval te încadrezi. Fără costuri ascunse.',
     note: 'Prețurile sunt orientative și nu includ TVA. Oferta exactă vine după discuția inițială, în funcție de nevoile tale reale.',
-    popular: 'Cel mai ales',
+    recommended: 'Recomandat',
     plans: [
       {
         name: 'Landing Page',
@@ -498,6 +498,7 @@ export const ro: Content = {
       websitePlaceholder: 'https://site-ul-tau.ro',
       websiteHint: 'Opțional. Completează-l dacă vrei auditul gratuit.',
       projectType: 'Tip de proiect',
+      projectTypePlaceholder: 'Alege tipul proiectului',
       projectTypeOptions: [
         { id: 'presentation', label: 'Site de prezentare' },
         { id: 'landing', label: 'Landing page' },
@@ -508,6 +509,7 @@ export const ro: Content = {
         { id: 'other', label: 'Altceva / nu sunt sigur' },
       ],
       budget: 'Buget estimat',
+      budgetPlaceholder: 'Alege un interval',
       budgetOptions: [
         { id: 'lt500', label: 'Sub 500 €' },
         { id: '500-1500', label: '500 – 1.500 €' },
@@ -565,6 +567,7 @@ export const ro: Content = {
     ctaTitle: 'Ai o întrebare la care nu răspunde articolul?',
     ctaBody: 'Scrie-mi. Răspund personal, chiar dacă răspunsul e că nu ai nevoie de serviciile mele.',
     ctaButton: 'Trimite-mi un mesaj',
+    readNextTitle: 'Citește și',
   },
 
   booking: {
@@ -574,6 +577,7 @@ export const ro: Content = {
     modalTitle: 'Programează o discuție',
     openInNewTab: 'Deschide în filă nouă',
     close: 'Închide',
+    link: 'Rezervă o discuție',
   },
 
   legal: {
@@ -622,7 +626,7 @@ export const ro: Content = {
     pricing: {
       metaTitle: 'Prețuri, pachete și garanții | Alex Delcea',
       metaDescription:
-        'Trei pachete cu prețuri scrise pe pagină, ce intră în fiecare, ce garantez în scris și răspunsuri la întrebările care apar înainte de a cere o ofertă.',
+        'Pachete {price}, cu prețurile scrise pe pagină: ce intră în fiecare, ce garantez în scris și răspunsuri la întrebările de dinaintea unei oferte.',
     },
     estimate: {
       metaTitle: 'Estimare gratuită în 30 de secunde | Alex Delcea',
@@ -648,11 +652,11 @@ export const ro: Content = {
     eyebrow: 'De aici încolo',
     title: 'Trei drumuri, alege-l pe al tău',
     subtitle:
-      'Nu te pun să derulezi paisprezece secțiuni ca să ajungi la ce te interesează. Fiecare are pagina ei, cu tot ce trebuie ca să iei o decizie.',
+      'Nu te pun să derulezi treisprezece secțiuni ca să ajungi la ce te interesează. Fiecare are pagina ei, cu tot ce trebuie ca să iei o decizie.',
     cards: [
       {
         title: 'Vreau să știu cât costă',
-        body: 'Trei pachete cu prețurile scrise pe pagină, ce include fiecare și ce garantez în scris.',
+        body: 'Pachetele, cu prețurile scrise pe pagină, ce include fiecare și ce garantez în scris.',
         action: 'Vezi prețurile',
       },
       {
@@ -838,7 +842,7 @@ export const ro: Content = {
       {
         question: 'Cât costă, de fapt?',
         answer:
-          'Un landing page pornește de la 400 €, un site de prezentare de la 900 €, un magazin online de la 2.200 €, o aplicație web de la 2.500 €. Sunt prețuri de pornire, fără TVA, iar oferta exactă vine după prima discuție, în funcție de ce ai nevoie. Dacă vrei o estimare acum, configuratorul de mai sus îți dă un interval în trei pași.',
+          'Un landing page pornește de la 400 €, un site de prezentare de la 900 €, un magazin online de la 2.200 €, o aplicație web de la 2.500 €. Sunt prețuri de pornire, fără TVA, iar oferta exactă vine după prima discuție, în funcție de ce ai nevoie. Dacă vrei o estimare acum, configuratorul din pagina Estimare îți dă un interval în trei pași.',
       },
       {
         question: 'Cât durează?',
@@ -896,7 +900,7 @@ export const ro: Content = {
       },
       {
         title: 'Spun și ce nu pot',
-        body: 'Nu îți garantez primul loc în Google și nu mă dau avocat pe textele juridice. Lista întreagă cu ce nu promit e chiar deasupra, printre garanții.',
+        body: 'Nu îți garantez primul loc în Google și nu mă dau avocat pe textele juridice. Lista întreagă cu ce nu promit e pe pagina de prețuri, lângă garanții.',
       },
     ],
     photoAlt: 'Alex Delcea, dezvoltator web',

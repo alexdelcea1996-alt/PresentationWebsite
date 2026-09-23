@@ -4,12 +4,17 @@ import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
+import ReadNext from './ReadNext.astro';
+import BookingDialog from './BookingDialog.astro';
+import BookingLink from './BookingLink.astro';
+import { isPostKey, readingForPost } from '../data/reading';
 import { getContent, localeTags, type Locale } from '../i18n';
 import { contactPath } from '../data/demo';
 import {
   blogIndexPath,
   formatDate,
   getPostTranslations,
+  postKey,
   postPath,
   readingMinutes,
   type Post,
@@ -33,6 +38,11 @@ const alternates = Object.fromEntries(
     postPath(code as Locale, translated.data.urlSlug),
   ]),
 ) as Partial<Record<Locale, string>>;
+
+// What to read after this one, if the article has a list — the `completeness`
+// suite fails any published article that does not.
+const key = postKey(entry);
+const reading = isPostKey(key) ? readingForPost[key] : undefined;
 
 // Stamped with its origin, but no preselect: a reader's intent is unknown.
 const contactAnchor = contactPath(locale, undefined, 'blog');
@@ -134,13 +144,22 @@ const articleSchema = {
             <h2 class="font-display text-xl font-semibold">{t.blog.ctaTitle}</h2>
             <p class="mt-2 max-w-md text-sm text-fg-muted">{t.blog.ctaBody}</p>
           </div>
-          <a href={contactAnchor} class="btn btn-primary shrink-0 text-sm">
-            {t.blog.ctaButton}
-            <Icon name="arrow-right" class="size-4" />
-          </a>
+          <div class="flex shrink-0 flex-wrap gap-3">
+            <a href={contactAnchor} class="btn btn-primary text-sm">
+              {t.blog.ctaButton}
+              <Icon name="arrow-right" class="size-4" />
+            </a>
+            <BookingLink class="btn btn-ghost text-sm" where="blog">
+              <Icon name="calendar" class="size-4" />
+              {t.booking.link}
+            </BookingLink>
+          </div>
         </aside>
+        <BookingDialog locale={locale} />
       </div>
     </article>
+
+    {reading && <ReadNext locale={locale} keys={reading} />}
   </main>
 
   <Footer locale={locale} />

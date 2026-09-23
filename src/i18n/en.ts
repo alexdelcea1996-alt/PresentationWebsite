@@ -49,9 +49,9 @@ export const en: Content = {
     ctaPrimary: 'Get a free quote',
     ctaSecondary: 'See how I work',
     stats: [
-      { value: '95+', label: 'Guaranteed Lighthouse score' },
-      { value: '2–4', label: 'Weeks to launch' },
-      { value: '100%', label: 'Mobile ready' },
+      { value: '95+', label: 'Google speed score, guaranteed' },
+      { value: '2–4', label: 'weeks for a business website' },
+      { value: '100%', label: 'built for phones' },
     ],
   },
 
@@ -234,7 +234,7 @@ export const en: Content = {
     subtitle:
       'The final price depends on complexity, but you should know upfront which range you fall into. No hidden costs.',
     note: 'Prices are indicative and exclude VAT. The exact quote follows our first conversation, based on what you actually need.',
-    popular: 'Most chosen',
+    recommended: 'Recommended',
     plans: [
       {
         name: 'Landing page',
@@ -498,6 +498,7 @@ export const en: Content = {
       websitePlaceholder: 'https://your-site.com',
       websiteHint: 'Optional. Fill this in if you want the free audit.',
       projectType: 'Project type',
+      projectTypePlaceholder: 'Choose a project type',
       projectTypeOptions: [
         { id: 'presentation', label: 'Business website' },
         { id: 'landing', label: 'Landing page' },
@@ -508,6 +509,7 @@ export const en: Content = {
         { id: 'other', label: 'Something else / not sure yet' },
       ],
       budget: 'Estimated budget',
+      budgetPlaceholder: 'Choose a range',
       budgetOptions: [
         { id: 'lt500', label: 'Under €500' },
         { id: '500-1500', label: '€500 – €1,500' },
@@ -565,6 +567,7 @@ export const en: Content = {
     ctaTitle: 'Got a question the article does not answer?',
     ctaBody: 'Write to me. I reply personally, even when the answer is that you do not need my services.',
     ctaButton: 'Send me a message',
+    readNextTitle: 'Read next',
   },
 
   booking: {
@@ -574,6 +577,7 @@ export const en: Content = {
     modalTitle: 'Book a conversation',
     openInNewTab: 'Open in a new tab',
     close: 'Close',
+    link: 'Book a call',
   },
 
   legal: {
@@ -622,7 +626,7 @@ export const en: Content = {
     pricing: {
       metaTitle: 'Pricing, packages and guarantees | Alex Delcea',
       metaDescription:
-        'Three packages with the prices written on the page, what goes into each, what I guarantee in writing, and the questions that come before a quote.',
+        'Packages {price}, with the prices on the page: what goes into each, what I guarantee in writing, and the questions that come before a quote.',
     },
     estimate: {
       metaTitle: 'Free estimate in 30 seconds | Alex Delcea',
@@ -648,11 +652,11 @@ export const en: Content = {
     eyebrow: 'From here',
     title: 'Three ways on — pick yours',
     subtitle:
-      'You are not made to scroll through fourteen sections to reach the one you came for. Each has a page of its own, with everything needed to make a decision.',
+      'You are not made to scroll through thirteen sections to reach the one you came for. Each has a page of its own, with everything needed to make a decision.',
     cards: [
       {
         title: 'I want to know what it costs',
-        body: 'Three packages with the prices written on the page, what each includes, and what I guarantee in writing.',
+        body: 'The packages, with the prices on the page, what each includes, and what I guarantee in writing.',
         action: 'See the prices',
       },
       {
@@ -838,7 +842,7 @@ export const en: Content = {
       {
         question: 'What does it actually cost?',
         answer:
-          'A landing page starts at €400, a business website at €900, an online store at €2,200, a web application at €2,500. Those are starting prices, before VAT, and the exact quote follows the first conversation, based on what you actually need. If you want a figure now, the configurator above gives you a range in three steps.',
+          'A landing page starts at €400, a business website at €900, an online store at €2,200, a web application at €2,500. Those are starting prices, before VAT, and the exact quote follows the first conversation, based on what you actually need. If you want a figure now, the configurator on the Estimate page gives you a range in three steps.',
       },
       {
         question: 'How long does it take?',
@@ -896,7 +900,7 @@ export const en: Content = {
       },
       {
         title: "I also say what I can't do",
-        body: "I don't guarantee first place on Google and I don't play lawyer with your legal texts. The full list of what I won't promise is right above, among the guarantees.",
+        body: "I don't guarantee first place on Google and I don't play lawyer with your legal texts. The full list of what I won't promise is on the pricing page, next to the guarantees.",
       },
     ],
     photoAlt: 'Alex Delcea, web developer',

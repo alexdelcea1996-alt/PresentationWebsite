@@ -706,6 +706,82 @@ ck('the 404 page is axe-clean', axeResult.violations.length === 0,
     stranded.length === 0, stranded.join(', '));
 }
 
+// --- The pages that sell say what to read next, and so does every article -----
+/*
+  Every article links to a page that sells; until the reading lists, no page
+  that sells linked back. The two articles about cost had one link between them
+  from the rest of the site, while the price list — where that question is
+  asked — pointed at neither.
+
+  The lists are chosen by hand (`src/data/reading.ts`), so what is checked is
+  their shape: two or three per page, every one a real article in the page's own
+  language, never the page itself, and no article left without a single list
+  pointing at it. Read from the built files, like the checks above.
+*/
+{
+  const pages = (dir) =>
+    readdirSync(join(dist, dir), { withFileTypes: true }).flatMap((entry) => {
+      const rel = dir ? `${dir}/${entry.name}` : entry.name;
+      return entry.isDirectory() ? pages(rel) : [rel];
+    });
+  const all = pages('');
+  const articles = all.filter((rel) => /^(en\/)?blog\/[^/]+\/index\.html$/.test(rel));
+  const selling = [
+    ...all.filter((rel) => /^(servicii|en\/services)\/[^/]+\/index\.html$/.test(rel)),
+    ...[PAGE.services, PAGE.pricing, PAGE.estimate].flatMap((paths) =>
+      [paths.ro, paths.en].map((path) => `${path.slice(1)}index.html`)),
+  ];
+  const addressOf = (rel) => `/${rel.replace(/index\.html$/, '')}`;
+  const listOn = (rel) => {
+    const html = readFileSync(join(dist, rel), 'utf8');
+    const start = html.indexOf('data-read-next');
+    if (start < 0) return null;
+    const block = html.slice(start, html.indexOf('</section>', start));
+    return [...block.matchAll(/<a[^>]*\bhref="([^"]+)"[^>]*\bdata-read-next-link/g)].map(([, href]) => href);
+  };
+
+  ck('the pages that sell were found', selling.length === 16, `${selling.length}`);
+
+  const wrong = [];
+  const pointedAt = new Set();
+  for (const rel of [...selling, ...articles]) {
+    const here = addressOf(rel);
+    const english = here.startsWith('/en/');
+    const list = listOn(rel);
+    if (!list) { wrong.push(`${here}: no list`); continue; }
+    if (list.length < 2 || list.length > 3) wrong.push(`${here}: ${list.length} article(s)`);
+    if (new Set(list).size !== list.length) wrong.push(`${here}: the same article twice`);
+    for (const href of list) {
+      pointedAt.add(href);
+      if (href === here) wrong.push(`${here}: recommends itself`);
+      if (english !== href.startsWith('/en/') || !/^\/(en\/)?blog\/[^/]+\/$/.test(href)) {
+        wrong.push(`${here}: ${href} is not an article in the page's language`);
+      } else if (!existsSync(join(dist, href, 'index.html'))) {
+        wrong.push(`${here}: ${href} is not published`);
+      }
+    }
+  }
+  ck('every page that sells and every article ends with two or three real articles to read next',
+    wrong.length === 0, wrong.join(' | ') || `${selling.length + articles.length} lists`);
+
+  const orphans = articles.map(addressOf).filter((address) => !pointedAt.has(address));
+  ck('and no article is left without a list pointing at it',
+    orphans.length === 0, orphans.join(' ') || `${articles.length} articles reachable`);
+
+  // The question the price list raises is the one the cost articles answer.
+  const onPricing = [PAGE.pricing.ro, PAGE.pricing.en].map((path) => listOn(`${path.slice(1)}index.html`) ?? []);
+  ck('the price list points at both cost articles, in both languages',
+    onPricing[0].includes('/blog/cat-costa-un-site-de-prezentare/') &&
+      onPricing[0].includes('/blog/cat-costa-un-magazin-online/') &&
+      onPricing[1].includes('/en/blog/how-much-does-a-business-website-cost/') &&
+      onPricing[1].includes('/en/blog/how-much-does-an-online-store-cost/'),
+    onPricing.map((list) => list.join(' ')).join(' | '));
+
+  // The form is the destination; a reading list there would be a way out of it.
+  ck('the contact page carries no reading list',
+    [PAGE.contact.ro, PAGE.contact.en].every((path) => listOn(`${path.slice(1)}index.html`) === null));
+}
+
 // --- The feed is readable by people too --------------------------------------
 /*
   An RSS feed opened in a browser prints its own source. That is correct — a

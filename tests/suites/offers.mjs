@@ -13,7 +13,12 @@
  * in more than one place must carry the same number in all of them, and must
  * not vanish from one of them.
  */
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { launch, BASE, PAGE } from '../harness.mjs';
+
+const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -25,6 +30,26 @@ const VIEWPORT = { viewport: { width: 1440, height: 1000 } };
 const amount = (text) => {
   const match = text.replace(/[.,  ](?=\d{3}\b)/g, '').match(/\d+/);
   return match ? Number(match[0]) : null;
+};
+
+/**
+ * The timeline inside a sentence, as written: "livrare în 2–4 săptămâni" → "2–4",
+ * "delivered in ~1 week" → "~1", "timeline agreed together" → null.
+ */
+const span = (text) =>
+  text.replace(/\s+/g, '').match(/~?\d+(?:[–-]\d+)?/)?.[0].replace('-', '–') ?? null;
+
+/**
+ * A published timeline as [low, high] weeks. "~N" is the one approximate
+ * figure, and it is read with the estimator's own margin — the ×1.3 every
+ * estimate carries — because "about a week" and "1–2 weeks" are the same
+ * promise written two ways, and a check that called them a contradiction
+ * would be enforcing typography rather than honesty.
+ */
+const weeks = (token, margin) => {
+  if (!token) return null;
+  const [low, high] = token.replace('~', '').split('–').map(Number);
+  return token.startsWith('~') ? [low, Math.ceil(low * margin)] : [low, high ?? low];
 };
 
 /*
@@ -102,6 +127,53 @@ for (const [label, locale, priceLabel, services] of [
 
   const priced = new Map(cards.map((c) => [c.name.toLocaleLowerCase('ro'), amount(c.price)]));
 
+  // --- Where the prices start, said before the price list ---------------------
+  // The landing page's "what does it cost" door used to carry no figure, and the
+  // pricing page's own search snippet said "three packages" beside four cards.
+  // Both are now read from the plans; these hold them to the cards as printed.
+  const cheapest = cards.reduce((low, c) => (amount(c.price) < amount(low.price) ? c : low));
+  const description = await p.$eval('meta[name="description"]', (el) => el.content);
+  ck(`${label}: the pricing snippet quotes where the prices start`,
+    description.includes(cheapest.price) && !description.includes('{'), description);
+
+  const counted = /\b(două|trei|patru|cinci|two|three|four|five)\s+(pachete|packages)\b/i;
+  const home = await b.newPage(VIEWPORT);
+  await home.goto(`${BASE}${PAGE.home[locale]}`, { waitUntil: 'domcontentloaded' });
+  const doors = await home.$$eval('[data-home-hub] [data-hub-price]', (nodes) =>
+    nodes.map((n) => ({ text: n.textContent.trim(), href: n.closest('article')?.querySelector('a')?.getAttribute('href') })),
+  );
+  ck(`${label}: the landing page names the starting price`,
+    doors.length === 1 && doors[0].text === cheapest.price,
+    `${JSON.stringify(doors)} vs card "${cheapest.price}"`);
+  ck(`${label}: on the door that leads to the price list`,
+    doors[0]?.href === PAGE.pricing[locale], String(doors[0]?.href));
+  // --- The hero's timeline says which package it is true for ----------------
+  // It used to read "2–4 / weeks to launch" above a price list where a landing
+  // page takes about one and a store four to six: true for exactly one of the
+  // four packages, and silent about which.
+  const stats = await home.$$eval('[data-hero-stats] > div', (nodes) =>
+    nodes.map((n) => ({
+      term: n.querySelector('dt')?.textContent.trim() ?? '',
+      value: n.querySelector('dd')?.textContent.trim() ?? '',
+    })),
+  );
+  const timed = stats.filter((stat) => /săptăm|week/i.test(stat.term));
+  const named = timed.length === 1
+    ? cards.find((c) => timed[0].term.toLocaleLowerCase('ro').includes(c.name.toLocaleLowerCase('ro')))
+    : undefined;
+  ck(`${label}: the hero's timeline names the package it is true for`, Boolean(named),
+    timed.map((stat) => `${stat.value} ${stat.term}`).join(' | ') || '(no timeline stat)');
+  if (named) {
+    ck(`${label}: and quotes that package's timeline`, span(timed[0].value) === span(named.note),
+      `hero "${timed[0].value}" vs card "${named.note}"`);
+  }
+
+  const homeText = await home.locator('main').innerText();
+  ck(`${label}: nothing counts the packages in words that can go stale`,
+    !counted.test(homeText) && !counted.test(description),
+    (homeText.match(counted) ?? description.match(counted) ?? ['clean'])[0]);
+  await home.close();
+
   // --- Against the service pages ----------------------------------------------
   // Whatever a service page states as its starting price has to be the number on
   // the card: a visitor can have both open, and two figures read as a bait price.
@@ -124,6 +196,14 @@ for (const [label, locale, priceLabel, services] of [
         card[1] === amount(stated[1]),
         `card ${card[1]} vs page ${amount(stated[1])}`,
       );
+      // And one delivery time. "Agreed together" on both sides is agreement too.
+      const note = cards.find((c) => c.name.toLocaleLowerCase('ro') === card[0]).note;
+      const term = highlights.find(([t]) => /livrare|termen|delivery|timeline/i.test(t));
+      ck(
+        `${label}: "${name}" quotes one timeline, not two`,
+        Boolean(term) && span(term[1]) === span(note),
+        `card "${note}" vs page "${term?.[1] ?? '(none)'}"`,
+      );
     }
   }
 
@@ -136,6 +216,8 @@ for (const [label, locale, priceLabel, services] of [
   await cfgPage.goto(`${BASE}${PAGE.estimate[locale]}`, { waitUntil: 'domcontentloaded' });
   const types = await cfgPage.$$eval('input[data-type-input]', (inputs) => inputs.map((i) => i.value));
   ck(`${label}: the configurator offers four project types`, types.length === 4, types.join(','));
+  const margin = JSON.parse(await cfgPage.$eval('[data-config]', (el) => el.dataset.config)).rangeMultiplier;
+  let timedTypes = 0;
 
   for (const type of types) {
     const cfg = cfgPage.locator('[data-configurator]');
@@ -152,9 +234,27 @@ for (const [label, locale, priceLabel, services] of [
       `${base} not among ${[...priced.values()].join(', ')}`,
     );
 
+    // With nothing added, the estimate IS the package on the card — so its
+    // timeline has to fit inside the card's. The store's said 5–7 beside 4–6.
+    const time = (await cfg.locator('[data-result-time]').textContent()).trim();
+    const plan = cards.find((c) => amount(c.price) === base);
+    const promised = weeks(span(plan?.note ?? ''), margin);
+    if (promised) {
+      timedTypes += 1;
+      const [low, high] = (time.match(/\d+/g) ?? []).map(Number);
+      ck(
+        `${label}: the ${type} estimate stays inside the published timeline`,
+        low >= promised[0] && high <= promised[1],
+        `estimate "${time}" vs card "${plan.note}"`,
+      );
+    }
+
     await cfg.locator('[data-action="restart"]').click();
     await cfgPage.waitForTimeout(150);
   }
+  // Only the web application's term is "agreed together"; the other three must
+  // actually have been compared, or the loop above proved nothing.
+  ck(`${label}: three packages had their timeline held to the estimate`, timedTypes === 3, `${timedTypes}`);
   await cfgPage.close();
 
   // --- Against the contact form -------------------------------------------------
@@ -234,6 +334,41 @@ for (const [label, locale, priceLabel, services] of [
 
     await a.close();
   }
+}
+
+// --- No popularity the site cannot show --------------------------------------
+// The featured package used to wear "Cel mai ales" — most chosen. That is a
+// statement about sales, on a site with no sales history on it and a standing
+// rule against numbers nobody measured. The badge now says what it can back:
+// that I recommend it. This sweeps every built page, articles included, for the
+// phrasings that claim a crowd, in both languages.
+{
+  const html = (dir) =>
+    readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory()
+        ? html(join(dir, entry.name))
+        : entry.name.endsWith('.html')
+          ? [join(dir, entry.name)]
+          : [],
+    );
+  const crowd =
+    /cel mai (ales|popular|vândut|cerut)|cele mai (alese|populare|vândute|cerute)|alegerea clienților|preferatul clienților|most (chosen|popular|requested)|best[- ]?sell|customers'? (choice|favou?rite)|clients'? (choice|favou?rite)/i;
+  const pages = html(dist);
+  const claims = pages
+    .map((file) => [file.slice(dist.length), readFileSync(file, 'utf8').match(crowd)?.[0]])
+    .filter(([, hit]) => hit);
+  ck('no page claims a popularity it cannot show',
+    pages.length > 20 && claims.length === 0,
+    claims.map(([file, hit]) => `${file}: "${hit}"`).join(' | ') || `${pages.length} pages clean`);
+
+  const p = await b.newPage(VIEWPORT);
+  for (const locale of ['ro', 'en']) {
+    await p.goto(`${BASE}${PAGE.pricing[locale]}`, { waitUntil: 'domcontentloaded' });
+    const badge = await p.$eval('#pricing [data-plan-beam] > p:first-child', (el) => el.textContent.trim());
+    ck(`${locale.toUpperCase()}: the highlighted package is marked as advice`,
+      /^(recomandat|recommended)$/i.test(badge), badge);
+  }
+  await p.close();
 }
 
 console.log(R.join('\n'));

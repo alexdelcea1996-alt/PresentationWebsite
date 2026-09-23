@@ -16,6 +16,7 @@ import SectionHeading from '../SectionHeading.astro';
 import { getContent, type Locale } from '../../i18n';
 import { demoPath } from '../../data/demo';
 import { estimatePath, pricingPath } from '../../data/pages';
+import { startingPrice } from '../../data/pricing';
 
 interface Props {
   locale: Locale;
@@ -27,7 +28,11 @@ const t = getContent(locale).hub;
 // The copy is a list and the destinations are a list; zipped here rather than
 // carried in the translation files, because a URL is not a thing to translate.
 const hrefs = [pricingPath(locale), estimatePath(locale), demoPath(locale)];
-const cards = t.cards.map((card, index) => ({ ...card, href: hrefs[index]! }));
+// The door for "what does it cost" says where the prices start, on the spot.
+// Before, the landing page carried no figure at all: the one question every
+// visitor has cost them a click to get any answer to.
+const figures = [startingPrice(locale)];
+const cards = t.cards.map((card, index) => ({ ...card, href: hrefs[index]!, figure: figures[index] }));
 ---
 
 <section id="next" class="py-20 sm:py-28" data-home-hub>
@@ -50,6 +55,12 @@ const cards = t.cards.map((card, index) => ({ ...card, href: hrefs[index]! }));
                 {card.title}
               </a>
             </h3>
+
+            {card.figure && (
+              <p class="mt-3 font-display text-2xl font-semibold text-fg" data-hub-price>
+                {card.figure}
+              </p>
+            )}
 
             <p class="mt-3 flex-1 text-sm leading-relaxed text-fg-muted">{card.body}</p>
 

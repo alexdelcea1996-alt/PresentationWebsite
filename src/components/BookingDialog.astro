@@ -1,0 +1,119 @@
+---
+/**
+ * The booking calendar, in a modal, for every "book a call" link on the page.
+ *
+ * It used to live inside `BookingCard` with a script that looked for exactly
+ * one trigger — fine while the contact page was the only place a visitor could
+ * book. The closing bands now offer a call too, so the dialog is its own piece:
+ * rendered once per page, bound to every `[data-booking-open]` on it.
+ *
+ * Nothing about cal.com is fetched until somebody asks — and nothing is built
+ * either: the frame does not exist until the first click. It used to ship as an
+ * empty `<iframe>` inside the closed dialog, which was harmless on the one page
+ * that had it and measurable once every closing band did: an iframe with no
+ * `src` still creates a browsing context, and on a throttled phone that showed
+ * up as ~50 ms of blocking time on the landing page. Each trigger is a plain
+ * link to the booking page, so without JavaScript — or with the embed refused —
+ * booking still works, in a tab.
+ */
+import Icon from './Icon.astro';
+import { getContent, localeTags, type Locale } from '../i18n';
+import { bookingUrl } from '../data/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getContent(locale).booking;
+const url = bookingUrl();
+---
+
+{
+  url && (
+    <dialog
+      class="booking-dialog"
+      data-booking-dialog
+      data-embed-url={`${url}?embed=true&layout=month_view`}
+      data-locale={localeTags[locale]}
+      aria-label={t.modalTitle}
+    >
+      <div class="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
+        <p class="font-display text-sm font-semibold text-fg">{t.modalTitle}</p>
+        <div class="flex items-center gap-3">
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-medium text-fg-muted underline transition-colors hover:text-accent-alt"
+          >
+            {t.openInNewTab}
+          </a>
+          <button
+            type="button"
+            class="grid size-8 place-items-center rounded-lg border border-border text-fg-muted transition-colors hover:text-fg"
+            aria-label={t.close}
+            data-booking-close
+          >
+            <Icon name="close" class="size-4" />
+          </button>
+        </div>
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-booking-dialog]');
+  const triggers = document.querySelectorAll<HTMLAnchorElement>('[data-booking-open]');
+
+  // <dialog>.showModal gives focus trapping and Escape for free; without it the
+  // links keep their default behaviour and open the booking page in a new tab.
+  if (dialog && triggers.length && typeof dialog.showModal === 'function') {
+    let frame: HTMLIFrameElement | null = null;
+
+    const themedUrl = () => {
+      const url = new URL(dialog.dataset.embedUrl!);
+      url.searchParams.set('theme', document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+      const locale = dialog.dataset.locale;
+      if (locale) url.searchParams.set('embed-locale', locale.split('-')[0]!);
+      return url.href;
+    };
+
+    for (const trigger of triggers) {
+      trigger.addEventListener('click', (event) => {
+        // Let modified clicks (new tab, new window) behave normally.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+        event.preventDefault();
+
+        // Built on the first open, loaded once, then reused: reopening should
+        // not refetch the calendar.
+        if (!frame) {
+          frame = document.createElement('iframe');
+          frame.className = 'booking-frame';
+          frame.title = dialog.getAttribute('aria-label') ?? '';
+          frame.dataset.bookingFrame = '';
+          dialog.append(frame);
+        }
+        if (!frame.src) frame.src = themedUrl();
+        dialog.showModal();
+      });
+    }
+
+    dialog.querySelector('[data-booking-close]')?.addEventListener('click', () => dialog.close());
+
+    // The calendar is themed through its URL, so a theme change after it has
+    // loaded would otherwise leave it on the old palette. Drop the frame when
+    // it is not on screen; the next open refetches with the right theme.
+    new MutationObserver(() => {
+      if (!frame?.src) return;
+      if (dialog.open) frame.src = themedUrl();
+      else frame.removeAttribute('src');
+    }).observe(document.documentElement, { attributeFilter: ['data-theme'] });
+
+    // Clicking the backdrop closes it, the way people expect from a modal.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+</script>

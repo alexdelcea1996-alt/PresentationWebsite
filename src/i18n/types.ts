@@ -259,7 +259,13 @@ export interface Content {
     title: string;
     subtitle: string;
     note: string;
-    popular: string;
+    /**
+     * The badge on the featured plan. It says what I advise, not what others
+     * bought: a "most chosen" label is a claim about sales, and with no sales
+     * history on the page to back it, it would be the one invented number on a
+     * site that otherwise refuses to show any.
+     */
+    recommended: string;
     plans: PricingPlan[];
   };
   comparison: {
@@ -391,8 +397,16 @@ export interface Content {
       websitePlaceholder: string;
       websiteHint: string;
       projectType: string;
+      /**
+       * The empty first choice of each select. Both questions are optional, so
+       * an untouched form must say nothing rather than whatever option happens
+       * to be listed first — which used to file every silent visitor as a
+       * presentation site with the smallest budget on offer.
+       */
+      projectTypePlaceholder: string;
       projectTypeOptions: SelectOption<ContactProjectTypeId>[];
       budget: string;
+      budgetPlaceholder: string;
       budgetOptions: SelectOption<BudgetId>[];
       message: string;
       messagePlaceholder: string;
@@ -456,6 +470,8 @@ export interface Content {
     ctaTitle: string;
     ctaBody: string;
     ctaButton: string;
+    /** The hand-picked articles at the end of a page that sells, and of every article. */
+    readNextTitle: string;
   };
   booking: {
     title: string;
@@ -464,6 +480,8 @@ export interface Content {
     modalTitle: string;
     openInNewTab: string;
     close: string;
+    /** The second action in a closing band, next to "ask for a quote". */
+    link: string;
   };
   /** The privacy policy page and the links that reach it. */
   legal: {

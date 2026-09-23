@@ -7,6 +7,8 @@
  * promise that ends up worded six ways.
  */
 import Icon from './Icon.astro';
+import BookingDialog from './BookingDialog.astro';
+import BookingLink from './BookingLink.astro';
 import { getContent, type Locale } from '../i18n';
 import { contactPath } from '../data/demo';
 import { estimatePath } from '../data/pages';
@@ -21,6 +23,7 @@ interface Props {
 
 const { locale, via, secondary = true } = Astro.props;
 const t = getContent(locale).pages.next;
+const booking = getContent(locale).booking;
 ---
 
 <section class="pb-20 sm:pb-28">
@@ -39,10 +42,22 @@ const t = getContent(locale).pages.next;
         </div>
 
         <div class="flex shrink-0 flex-col items-start gap-3 sm:items-end">
-          <a href={contactPath(locale, undefined, via)} class="btn btn-primary">
-            {t.action}
-            <Icon name="arrow-right" class="size-4" />
-          </a>
+          {/*
+            Two ways to take the step, side by side: write, or pick a time.
+            Some people would rather talk than type, and until now the calendar
+            was only offered at the bottom of the contact page — one page later
+            than anybody who prefers a call had already left.
+          */}
+          <div class="flex flex-wrap gap-3">
+            <a href={contactPath(locale, undefined, via)} class="btn btn-primary">
+              {t.action}
+              <Icon name="arrow-right" class="size-4" />
+            </a>
+            <BookingLink class="btn btn-ghost" where="next-step">
+              <Icon name="calendar" class="size-4" />
+              {booking.link}
+            </BookingLink>
+          </div>
 
           {
             secondary && (
@@ -58,4 +73,6 @@ const t = getContent(locale).pages.next;
       </div>
     </aside>
   </div>
+
+  <BookingDialog locale={locale} />
 </section>

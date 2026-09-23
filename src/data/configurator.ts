@@ -46,10 +46,15 @@ export interface FeatureOption {
 // service page — a visitor can have all three open, and two numbers for one job
 // read as a bait price. The `offers` suite checks it on every run; it was added
 // after the store went a while with a page, a price and no card at all.
+//
+// The same goes for time. With no add-ons ticked, the estimate is the package on
+// the card, so its range has to sit inside the card's timeline: the store's base
+// was 5 weeks, which the ×1.3 margin turned into "5–7 weeks" next to a card and a
+// service page that both say 4–6. The `offers` suite now checks that too.
 export const projectTypes: readonly ProjectTypeOption[] = [
   { id: 'landing', basePrice: 400, baseWeeks: 1 },
   { id: 'presentation', basePrice: 900, baseWeeks: 3 },
-  { id: 'shop', basePrice: 2200, baseWeeks: 5 },
+  { id: 'shop', basePrice: 2200, baseWeeks: 4 },
   { id: 'webapp', basePrice: 2500, baseWeeks: 8 },
 ];
 

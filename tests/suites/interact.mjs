@@ -15,7 +15,9 @@ const check = (name, pass, detail = '') =>
  * stepping — but they must still reach the fields the way a real person can,
  * or they would pass on a form nobody can get through.
  */
-async function fillContact(page, { name, email, message }) {
+async function fillContact(page, { name, email, message, type, budget }) {
+  if (type) await page.locator('#field-type').selectOption({ label: type });
+  if (budget) await page.locator('#field-budget').selectOption({ label: budget });
   await page.locator('[data-step-next]').click();
   await page.locator('#field-name').fill(name);
   await page.locator('#field-email').fill(email);
@@ -238,6 +240,20 @@ if (rescueShown) {
     (waHref ?? '').slice(0, 60),
   );
 
+  /*
+   * The two selects were never touched, so the message must not answer them.
+   *
+   * They used to open on their first option, and an untouched form therefore
+   * filed every visitor as "Site de prezentare — Sub 500 €": the cheapest
+   * bracket, attached to a lead that never said a word about money. The line
+   * is now left out rather than printed half-empty.
+   */
+  const composed = decodeURIComponent((waHref ?? '').split('?text=')[1] ?? '');
+  check('an untouched form states no budget and no project type',
+    !/Sub 500|500 –|Peste 3|Încă nu știu|Site de prezentare —|null|undefined/.test(composed) &&
+      !/^\s*—|—\s*$/m.test(composed),
+    composed.split('\n').slice(0, 3).join(' / '));
+
   // The clipboard exit. Chromium grants clipboard permissions per context.
   await desktop.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await desktop.locator('[data-fallback-copy]').click();
@@ -386,6 +402,38 @@ if (rescueShown) {
     (await desktop.locator('[data-prefill-note]').isHidden()) &&
       (await desktop.locator('[data-contact-form] input[name="origin"]').count()) === 0,
   );
+  // And no answer the visitor did not give: both optional questions start on
+  // an empty choice that is still labelled, so the select never looks broken.
+  const blank = await desktop.$$eval('#field-type, #field-budget', (selects) =>
+    selects.map((s) => ({ value: s.value, label: s.options[s.selectedIndex]?.textContent.trim() })),
+  );
+  check('both selects open on an empty, labelled choice',
+    blank.length === 2 && blank.every((s) => s.value === '' && s.label.length > 3),
+    JSON.stringify(blank));
+}
+
+// --- The real path, with the optional questions left alone ---
+// Web3Forms mails every field it receives, so an empty one would arrive as a
+// labelled blank — and before the empty first option existed, as the first
+// real option instead. Neither is what the visitor said.
+{
+  await desktop.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
+  let silent = null;
+  await desktop.route('https://api.web3forms.com/submit', async (route) => {
+    silent = route.request().postData();
+    // Refused on purpose: a success would redirect to the thank-you page.
+    await route.fulfill({ status: 500, contentType: 'application/json', body: '{}' });
+  });
+  await desktop.evaluate(() => {
+    document.querySelector('[data-contact-form]').dataset.accessKey = 'test-key-123';
+  });
+  await fillContact(desktop, { name: 'Ana Pop', email: 'ana@example.ro', message: 'Salut.' });
+  await desktop.locator('[data-submit]').click();
+  await desktop.waitForTimeout(700);
+  check('an untouched form posts no budget and no project type',
+    silent !== null && !/name="(budget|project_type)"/.test(silent) && !silent.includes('Sub 500'),
+    silent === null ? 'nothing posted' : (silent.match(/name="(budget|project_type)"/g) ?? []).join(' ') || 'clean');
+  await desktop.unroute('https://api.web3forms.com/submit');
 }
 
 // --- Contact form: the real Web3Forms path, once a key is configured ---
@@ -402,12 +450,14 @@ await fillContact(desktop, {
   name: 'Test SRL',
   email: 'test@example.com',
   message: 'Vreau un site de prezentare.',
+  type: 'Site de prezentare',
+  budget: '500 – 1.500 €',
 });
 await desktop.locator('[data-submit]').click();
 await desktop.waitForTimeout(700);
 
 check('form posts to Web3Forms when a key is set', posted !== null);
-for (const field of ['test-key-123', 'Test SRL', 'test@example.com', 'Site de prezentare']) {
+for (const field of ['test-key-123', 'Test SRL', 'test@example.com', 'Site de prezentare', '500 – 1.500 €']) {
   check(`  payload carries "${field}"`, (posted ?? '').includes(field));
 }
 // A confirmed send — and only a confirmed send — lands on the thank-you page,

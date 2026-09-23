@@ -221,6 +221,46 @@ for (const [theme, expected] of [
   await ctx.close();
 }
 
+// --- the three figures under the headline ---
+/*
+  On a phone they used to stack into three full-width slabs — a screen and a
+  half for three numbers — and each label was read out twice, once from a
+  hidden term and once from a visible copy beside the figure. Now: one row at
+  every width, nothing spilling out of its cell at the narrowest phone, and the
+  term in the markup exactly once, ahead of its figure.
+*/
+for (const width of [320, 390, 1280]) {
+  const ctx = await b.newContext({ viewport: { width, height: 900 } });
+  const p = await ctx.newPage();
+  for (const path of ['/', '/en/']) {
+    await p.goto(`${BASE}${path}`, { waitUntil: 'load' });
+    const stats = await p.$$eval('[data-hero-stats] > div', (cells) =>
+      cells.map((cell) => {
+        const term = cell.querySelector('dt');
+        const figure = cell.querySelector('dd');
+        const label = term?.textContent.trim() ?? '';
+        return {
+          top: Math.round(cell.getBoundingClientRect().top),
+          termFirst: cell.firstElementChild === term && term?.nextElementSibling === figure,
+          figureAbove: figure && term ? figure.getBoundingClientRect().bottom <= term.getBoundingClientRect().top + 1 : false,
+          spill: [term, figure].some((el) => el && el.scrollWidth > el.clientWidth + 1),
+          said: label ? cell.textContent.split(label).length - 1 : 0,
+          hidden: cell.querySelector('.sr-only') !== null,
+        };
+      }),
+    );
+    const tag = `${width}px ${path}`;
+    ck(`${tag}: three figures in one row`,
+      stats.length === 3 && stats.every((s) => s.top === stats[0].top), stats.map((s) => s.top).join(','));
+    ck(`${tag}: none spills out of its cell`, stats.every((s) => !s.spill));
+    ck(`${tag}: each label is in the markup once, ahead of its figure`,
+      stats.every((s) => s.termFirst && s.said === 1 && !s.hidden),
+      JSON.stringify(stats.map((s) => [s.termFirst, s.said, s.hidden])));
+    ck(`${tag}: and drawn under it`, stats.every((s) => s.figureAbove));
+  }
+  await ctx.close();
+}
+
 console.log(R.join('\n'));
 await b.close();
 

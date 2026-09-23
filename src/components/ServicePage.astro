@@ -4,7 +4,11 @@ import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import Icon from './Icon.astro';
+import ReadNext from './ReadNext.astro';
+import BookingDialog from './BookingDialog.astro';
+import BookingLink from './BookingLink.astro';
 import { getContent, type Locale } from '../i18n';
+import { readingForService } from '../data/reading';
 import { estimatePath, servicesIndexPath } from '../data/pages';
 import { contactPath } from '../data/demo';
 import { getServiceTranslations, servicePath, type ServicePage } from '../data/services';
@@ -218,6 +222,10 @@ const faqSchema = {
         </div>
       </section>
 
+      {/* The reading comes before the closing band, not after it: on a page
+          that sells, the last thing on screen is still the way to ask. */}
+      <ReadNext locale={locale} keys={readingForService[d.key]} />
+
       <!-- Closing CTA -->
       <section class="pb-20 sm:pb-28">
         <div class="container-page">
@@ -232,13 +240,20 @@ const faqSchema = {
                 <h2 class="font-display text-2xl font-semibold">{d.ctaTitle}</h2>
                 <p class="mt-3 max-w-lg text-sm leading-relaxed text-fg-muted">{d.ctaBody}</p>
               </div>
-              <a href={contactPath(locale, d.key, `service-${d.key}`)} class="btn btn-primary shrink-0">
-                {d.ctaButton}
-                <Icon name="arrow-right" class="size-4" />
-              </a>
+              <div class="flex shrink-0 flex-wrap gap-3">
+                <a href={contactPath(locale, d.key, `service-${d.key}`)} class="btn btn-primary">
+                  {d.ctaButton}
+                  <Icon name="arrow-right" class="size-4" />
+                </a>
+                <BookingLink class="btn btn-ghost" where="service">
+                  <Icon name="calendar" class="size-4" />
+                  {t.booking.link}
+                </BookingLink>
+              </div>
             </div>
           </aside>
         </div>
+        <BookingDialog locale={locale} />
       </section>
     </article>
   </main>

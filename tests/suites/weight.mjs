@@ -84,11 +84,15 @@ ck('the landing page compresses under budget', home.br <= 16 * KB, `${kb(home.br
 ck('and its markup stays under budget', home.raw <= 75 * KB, `${kb(home.raw)} raw`);
 
 // No page may quietly become a second landing page. Today the largest after the
-// two home pages is the colophon at 41.8 kB raw / 9.9 kB brotli.
+// two home pages is the services page, at 63.2 kB raw / 10.0 kB brotli — up from
+// just under 60 kB raw when every page that sells gained a hand-picked reading
+// list (3 kB of markup) and the closing bands a way to book a call (2 kB, most
+// of it the calendar dialog). Raised to 68 kB for that, deliberately; the
+// brotli ceiling below is the transfer guard and did not move.
 const inner = weighed.filter((page) => !/^\/(en\/)?index\.html$/.test(page.name));
 const heaviestInner = inner[0];
 ck('no sub-page approaches the landing page in weight',
-  heaviestInner.raw <= 60 * KB, `${heaviestInner.name} at ${kb(heaviestInner.raw)} raw`);
+  heaviestInner.raw <= 68 * KB, `${heaviestInner.name} at ${kb(heaviestInner.raw)} raw`);
 const INNER_BROTLI_BUDGET = 11 * KB;
 ck('and none of them compresses badly',
   inner.every((page) => page.br <= INNER_BROTLI_BUDGET),
@@ -99,7 +103,7 @@ ck('and none of them compresses badly',
 // Still one stylesheet for the whole site, shared across every page. The example
 // sites bring their own, but it is small enough that Astro inlines it into those
 // pages rather than emitting a file — which is why the count stays at one.
-// Today: 70.3 kB raw, 11.9 kB brotli.
+// Today: 74.3 kB raw, 12.5 kB brotli.
 //
 // Raised 12 -> 13 brotli and 70 -> 76 raw for the movement: the page-to-page
 // aperture, the headline that sets itself, and the measurement figures that

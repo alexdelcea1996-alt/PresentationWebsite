@@ -1,0 +1,65 @@
+---
+/**
+ * "Read next": two or three articles, chosen by hand in `data/reading.ts`.
+ *
+ * A section with no `id` on purpose. It appears on a dozen pages with the same
+ * heading, and it is not a part of the site anybody links to by anchor — the
+ * `pages` suite treats a repeated section id as a copy of the same content, and
+ * this is a signpost, not content.
+ *
+ * Plain server-rendered links, like the hub on the landing page. The titles and
+ * descriptions are the articles' own front matter, so the promise on the card is
+ * the article's promise, word for word. No "read the article →" line under
+ * them: the title already says where the card goes, and on a page that sells
+ * those three lines were a kilobyte of markup repeating it.
+ */
+import { getContent, type Locale } from '../i18n';
+import { getPostByKey, postPath } from '../data/blog';
+
+interface Props {
+  locale: Locale;
+  keys: readonly string[];
+}
+
+const { locale, keys } = Astro.props;
+const t = getContent(locale).blog;
+
+const posts = await Promise.all(
+  keys.map(async (key) => {
+    const post = await getPostByKey(locale, key);
+    // Loud on purpose: a renamed or unpublished article would otherwise
+    // shorten this list without anyone noticing.
+    if (!post) throw new Error(`ReadNext: no published ${locale} article "${key}"`);
+    return post;
+  }),
+);
+---
+
+<section class="pb-16 sm:pb-20" aria-labelledby="read-next-title" data-read-next>
+  <div class="container-page">
+    <h2 id="read-next-title" class="font-display text-2xl font-semibold sm:text-3xl" data-reveal>
+      {t.readNextTitle}
+    </h2>
+
+    <ul class="mt-10 grid gap-6 sm:grid-cols-3">
+      {
+        posts.map((post, index) => (
+          <li class="card card-hover" data-reveal data-reveal-delay={index * 80}>
+            <p class="eyebrow text-xs">{post.data.category}</p>
+            <h3 class="mt-3 font-display text-lg font-semibold">
+              {/* Stretched over the card, as on the landing page's hub. */}
+              <a
+                href={postPath(locale, post.data.urlSlug)}
+                class="after:absolute after:inset-0 hover:text-accent-alt"
+                data-read-next-link
+              >
+                {post.data.title}
+              </a>
+            </h3>
+            <p class="mt-3 text-sm leading-relaxed text-fg-muted">{post.data.description}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

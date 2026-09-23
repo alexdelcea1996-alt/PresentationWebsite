@@ -190,6 +190,60 @@ for (const [key, paths] of Object.entries(PAGE)) {
   ck('every section exists in both languages', lopsided.length === 0, lopsided.join(' '));
 }
 
+// --- A sentence that points up or down the page finds what it points at -----------
+/*
+  Copy written while everything shared one page could lean on its neighbours,
+  and two sentences still did after the split: the price questions offered "the
+  configurator above", and the principles under the contact form pointed at the
+  guarantees "right above". Both had moved to other pages, so both sent the
+  reader looking for something that was no longer there.
+
+  Every sentence that pairs a direction with the name of a section is checked
+  on the page it is printed on: the section has to exist there, on the side the
+  sentence says.
+*/
+{
+  const sections = [
+    ['configurator', '[data-configurator]'],
+    ['garanți|guarantee', '#guarantees'],
+    ['formular|the form\\b', '[data-contact-form]'],
+    ['întrebăr|the questions', '#faq'],
+    ['audit', '#audit'],
+  ];
+  const directions = [['de mai sus|chiar deasupra|\\babove\\b', 'above'], ['de mai jos|dedesubt|\\bbelow\\b', 'below']];
+  const stray = [];
+  let resolved = 0;
+  for (const paths of Object.values(PAGE)) {
+    for (const path of Object.values(paths)) {
+      const p = await b.newPage(VIEWPORT);
+      await p.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+      const found = await p.evaluate(({ sections, directions }) => {
+        const out = { stray: [], resolved: 0 };
+        for (const block of document.querySelectorAll('main :is(p, li, dd, td)')) {
+          for (const sentence of (block.textContent ?? '').split(/(?<=[.!?])\s+/)) {
+            const way = directions.find(([words]) => new RegExp(words, 'i').test(sentence));
+            const named = sections.find(([words]) => new RegExp(words, 'i').test(sentence));
+            if (!way || !named) continue;
+            const target = document.querySelector(named[1]);
+            if (target?.contains(block)) continue; // A section describing itself.
+            const side = target
+              ? block.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_PRECEDING ? 'above' : 'below'
+              : null;
+            if (side === way[1]) out.resolved += 1;
+            else out.stray.push(`"${sentence.trim().slice(0, 70)}" → ${named[1]} ${side ? `is ${side}` : 'is not on this page'}`);
+          }
+        }
+        return out;
+      }, { sections, directions });
+      resolved += found.resolved;
+      stray.push(...found.stray.map((line) => `${path}: ${line}`));
+      await p.close();
+    }
+  }
+  ck('a sentence that points up or down the page finds what it points at',
+    stray.length === 0, stray.join(' | ') || `${resolved} pointer(s), all resolved`);
+}
+
 // --- Links published before the split still arrive --------------------------------
 for (const [from, want, why] of [
   ['/#contact', PAGE.contact.ro, 'the form'],
@@ -286,8 +340,14 @@ for (const id of ['services', 'portfolio']) {
   // wizard, and a form that fills itself from stale state is a form that sends
   // somebody else's answers.
   await p.goto(`${BASE}${PAGE.contact.ro}`, { waitUntil: 'networkidle' });
+  // The selects included: while they opened on their first option, "empty"
+  // meant a presentation site under €500 — and the two checks above could not
+  // tell a hand-over that worked from one that silently failed.
+  const later = await p.$$eval('#field-type, #field-budget, #field-message', (fields) =>
+    fields.map((field) => field.value.trim()),
+  );
   ck('and a later visit starts on an empty form',
-    (await p.locator('#field-message').inputValue()).trim() === '');
+    later.every((value) => value === ''), JSON.stringify(later));
   await p.close();
 }
 

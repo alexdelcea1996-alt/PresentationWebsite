@@ -1,0 +1,33 @@
+---
+/**
+ * A "book a call" link. Opens the calendar in `BookingDialog` when that is on
+ * the page and JavaScript is running; otherwise it is simply a link to the
+ * booking page, in a new tab. Renders nothing until a booking link is set, so
+ * no page ever shows a button that leads nowhere.
+ */
+import { bookingUrl } from '../data/site';
+
+interface Props {
+  class?: string;
+  /** Names the band it sits in, for the checks. */
+  where?: string;
+}
+
+const { class: className, where } = Astro.props;
+const url = bookingUrl();
+---
+
+{
+  url && (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class={className}
+      data-booking-open
+      data-booking-where={where}
+    >
+      <slot />
+    </a>
+  )
+}

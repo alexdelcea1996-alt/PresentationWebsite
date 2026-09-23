@@ -170,19 +170,24 @@ for (const piece of pieces) {
       </div>
     </div>
 
+    {/*
+      One row of three at every width. On a phone they used to stack into three
+      full-width slabs, a screen and a half of scrolling for three numbers.
+
+      The term comes first in the markup and is drawn under its figure by
+      `flex-col-reverse`, so a screen reader hears "label, figure" once. It used
+      to hear the label twice: once from a hidden `dt`, then again inside the
+      `dd`, which carried a visible copy of it next to the number.
+    */}
     <dl
-      class="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3"
+      class="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border"
+      data-hero-stats
     >
       {
         t.stats.map((stat) => (
-          <div class="bg-surface-raised px-6 py-7 text-center">
-            <dt class="sr-only">{stat.label}</dt>
-            <dd>
-              <span class="block font-display text-3xl font-semibold text-gradient sm:text-4xl">
-                {stat.value}
-              </span>
-              <span class="mt-2 block text-sm text-fg-muted">{stat.label}</span>
-            </dd>
+          <div class="flex flex-col-reverse justify-end bg-surface-raised px-2 py-5 text-center sm:px-6 sm:py-7">
+            <dt class="mt-2 text-xs leading-snug text-fg-muted sm:text-sm">{stat.label}</dt>
+            <dd class="font-display text-3xl font-semibold text-gradient sm:text-4xl">{stat.value}</dd>
           </div>
         ))
       }

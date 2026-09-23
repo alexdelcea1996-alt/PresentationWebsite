@@ -147,8 +147,11 @@ const labelClass = 'block text-sm font-medium text-fg';
           <div>
             <label class={labelClass} for="field-type">{t.form.projectType}</label>
             {/* value stays human-readable for the email; data-id is the stable
-                handle the configurator and audit band select by. */}
+                handle the configurator and audit band select by. The empty
+                first option is the answer an untouched select gives: nothing,
+                rather than whichever offer is listed first. */}
             <select class={`mt-2 ${fieldClass}`} id="field-type" name="project_type">
+              <option value="">{t.form.projectTypePlaceholder}</option>
               {
                 t.form.projectTypeOptions.map((option) => (
                   <option value={option.label} data-id={option.id}>
@@ -162,6 +165,7 @@ const labelClass = 'block text-sm font-medium text-fg';
           <div>
             <label class={labelClass} for="field-budget">{t.form.budget}</label>
             <select class={`mt-2 ${fieldClass}`} id="field-budget" name="budget">
+              <option value="">{t.form.budgetPlaceholder}</option>
               {
                 t.form.budgetOptions.map((option) => (
                   <option value={option.label} data-id={option.id}>
@@ -594,6 +598,13 @@ const labelClass = 'block text-sm font-medium text-fg';
       const data = new FormData(form);
       const accessKey = form.dataset.accessKey;
 
+      // An optional question left on its empty first option was not answered,
+      // and the message should not pretend otherwise — neither as a blank field
+      // in the Web3Forms email nor as a dangling dash in the mailto one.
+      for (const name of ['project_type', 'budget']) {
+        if (!String(data.get(name) ?? '').trim()) data.delete(name);
+      }
+
       // No form service configured yet: hand the message over to the visitor's
       // mail client instead of silently dropping it.
       //
@@ -604,9 +615,10 @@ const labelClass = 'block text-sm font-medium text-fg';
       if (!accessKey) {
         const website = String(data.get('website') ?? '').trim();
         const origin = String(data.get('origin') ?? '').trim();
+        const offer = [data.get('project_type'), data.get('budget')].filter(Boolean).join(' — ');
         const lines = [
           `${data.get('name')} <${data.get('email')}>`,
-          `${data.get('project_type')} — ${data.get('budget')}`,
+          ...(offer ? [offer] : []),
           ...(website ? [website] : []),
           // Same stamp as the Web3Forms path carries, so both routes tell me
           // which page did the convincing.

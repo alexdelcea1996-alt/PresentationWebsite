@@ -267,8 +267,8 @@ for (const [name, tokens] of [['dark', dark], ['light', light]]) {
   const beams = p.locator('.beam');
   ck('exactly one thing on the page wears it', (await beams.count()) === 1,
     `${await beams.count()}`);
-  ck('and it is the plan marked as the popular one',
-    (await beams.first().innerText()).toLowerCase().includes('cel mai ales'),
+  ck('and it is the plan marked as the recommended one',
+    (await beams.first().innerText()).toLowerCase().includes('recomandat'),
     (await beams.first().innerText()).split('\n')[0]);
 
   const ring = await beams.first().evaluate((el) => {
