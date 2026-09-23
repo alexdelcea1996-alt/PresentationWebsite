@@ -892,7 +892,7 @@ export const ro: Content = {
     principles: [
       {
         title: 'Măsurători, nu adjective',
-        body: 'Măsor cu Lighthouse înainte de livrare și îți trimit raportul. La optimizări, aceleași măsurători înainte și după — ca să vezi diferența, nu ca să mă crezi pe cuvânt.',
+        body: 'Înainte de predare, fiecare pagină trece prin PageSpeed Insights, pe mobil și pe desktop, și primești raportul — sub 95 din 100 nu predau. La optimizări, aceleași măsurători înainte și după — ca să vezi diferența, nu ca să mă crezi pe cuvânt.',
       },
       {
         title: 'Ce construiesc rămâne al tău',

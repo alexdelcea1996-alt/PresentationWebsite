@@ -892,7 +892,7 @@ export const en: Content = {
     principles: [
       {
         title: 'Measurements, not adjectives',
-        body: 'I measure with Lighthouse before delivery and send you the report. For optimisation work, the same measurements before and after — so you can see the difference instead of taking my word for it.',
+        body: 'Before handover every page goes through PageSpeed Insights, on mobile and on desktop, and you get the report — below 95 out of 100 I do not hand it over. For optimisation work, the same measurements before and after — so you can see the difference instead of taking my word for it.',
       },
       {
         title: 'What I build stays yours',

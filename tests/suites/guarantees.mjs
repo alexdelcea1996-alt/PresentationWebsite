@@ -1,4 +1,9 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { launch, BASE, PAGE, axePath, runAxe, settleAnimations } from '../harness.mjs';
+
+const dist = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
 
 const R = [];
 const ck = (n, ok, d = '') => R.push(`${ok ? 'PASS' : 'FAIL'}  ${n}${d ? ` — ${d}` : ''}`);
@@ -75,6 +80,61 @@ for (const [label, path, yes, no, homePath] of [
   }
 
   await p.close();
+}
+
+// --- The same threshold wherever the promise is repeated -----------------------
+/*
+  The speed promise is stated in more than one place — the guarantees, the
+  principles under the contact form, the service pages — because that is where
+  different readers meet it. Repeated promises drift: the principle used to say
+  "I measure with Lighthouse before delivery" with no number, beside a list that
+  now says 95. So every paragraph on the built site that pairs the speed test
+  with handing the site over has to carry the threshold the landing page calls
+  guaranteed — read from the hero, like the checks above, never typed here.
+*/
+{
+  const pages = (dir) =>
+    readdirSync(join(dist, dir), { withFileTypes: true }).flatMap((entry) => {
+      const rel = dir ? `${dir}/${entry.name}` : entry.name;
+      return entry.isDirectory() ? pages(rel) : entry.name.endsWith('.html') ? [rel] : [];
+    });
+  const text = (markup) =>
+    markup.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+
+  const threshold = (rel) =>
+    readFileSync(join(dist, rel), 'utf8')
+      .match(/<dt[^>]*>[^<]*(?:garantat|guaranteed)[^<]*<\/dt>\s*<dd[^>]*>\s*(\d+)/)?.[1];
+  const figure = { ro: threshold('index.html'), en: threshold('en/index.html') };
+  ck('the guaranteed figure is read off both landing pages', Boolean(figure.ro && figure.en),
+    JSON.stringify(figure));
+
+  const stated = new Map();
+  const unnumbered = [];
+  for (const rel of pages('')) {
+    const html = readFileSync(join(dist, rel), 'utf8');
+    const expected = rel.startsWith('en/') ? figure.en : figure.ro;
+    for (const [, block] of html.matchAll(/<(?:p|dd)\b[^>]*>([\s\S]*?)<\/(?:p|dd)>/g)) {
+      const words = text(block);
+      if (!/pagespeed|lighthouse/i.test(words)) continue;
+      if (!/predare|predau|livrare|handover|hand it over|delivery/i.test(words)) continue;
+      const address = `/${rel.replace(/index\.html$/, '')}`;
+      stated.set(address, (stated.get(address) ?? 0) + 1);
+      if (!new RegExp(`\\b${expected}\\b`).test(words)) unnumbered.push(`${address}: "${words.slice(0, 60)}…"`);
+    }
+  }
+  ck('every paragraph that promises the speed test at handover names the same threshold',
+    stated.size > 0 && unnumbered.length === 0,
+    unnumbered.join(' | ') || `${[...stated.values()].reduce((a, n) => a + n, 0)} paragraph(s) on ${stated.size} page(s)`);
+
+  // Where it has to be stated at all: the list itself, the principles beside
+  // the contact form, and the two service pages that talk about speed.
+  for (const address of [
+    PAGE.pricing.ro, PAGE.pricing.en, PAGE.contact.ro, PAGE.contact.en,
+    '/servicii/landing-page/', '/en/services/landing-page/',
+    '/servicii/site-de-prezentare/', '/en/services/business-website/',
+  ]) {
+    ck(`${address} states the threshold`, (stated.get(address) ?? 0) > 0, `${stated.get(address) ?? 0} paragraph(s)`);
+  }
 }
 
 // --- The empty testimonial boxes are gone ------------------------------------

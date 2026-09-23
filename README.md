@@ -69,7 +69,7 @@ ambele teme. Fonturile: 74 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1692 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1702 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -255,7 +255,13 @@ trece, fără cost în plus. Coloana `no` spune unde se oprește: la optimizarea
 site existent se promit măsurători înainte și după, nu un prag, iar scripturile
 sau pozele adăugate după predare ies din garanție. Suita `guarantees` citește
 cifra din hero și cade dacă nu o găsește în garanții, cu testul numit și cu
-telefonul inclus — deci dacă schimbi pragul, îl schimbi în ambele locuri.
+telefonul inclus.
+
+Același prag e repetat în principiile din „Despre mine" (pagina de contact) și pe
+paginile de serviciu Landing page și Site de prezentare. Suita caută în tot site-ul
+construit orice paragraf care leagă testul de viteză de predare și cade dacă nu
+poartă cifra din hero — deci dacă schimbi pragul, îl schimbi peste tot, sau
+testele îți spun unde a rămas cel vechi.
 
 ### „Despre mine" și poza
 

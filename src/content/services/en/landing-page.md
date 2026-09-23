@@ -34,7 +34,8 @@ includes:
   - title: Speed, so it does not burn your ad budget
     description: >-
       You pay for every click. If the page takes five seconds on mobile data, a good share of those
-      clicks are money thrown away. The pages I build load in under a second.
+      clicks are money thrown away. Before handover the page goes through PageSpeed Insights —
+      Google's speed test — on mobile and on desktop: below 95 out of 100 I do not hand it over.
   - title: Measurement, so you know whether it worked
     description: >-
       Wired to Google Analytics, with the form completion tracked as an event. Without that you have

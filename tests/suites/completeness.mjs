@@ -349,9 +349,12 @@ for (const [label, path] of [['RO', PAGE.pricing.ro], ['EN', PAGE.pricing.en]]) 
 // --- The one human element -----------------------------------------------------
 // The section exists to put a person behind the promises, which is exactly why
 // it is the easiest place on the site for an unverifiable claim to appear. The
-// number check below is the guard: the only figures allowed are the two the
-// site already publishes everywhere (24 hours, 30 minutes). A line like "10
-// years of experience" or "200 projects delivered" fails here.
+// number check below is the guard: the only figures allowed are the ones the
+// site already commits to in its guarantees — 24 hours, 30 minutes and, since
+// the speed threshold was written down, 95 out of 100. They are read from the
+// guarantees rather than listed here, so the section may repeat a promise but
+// never add a number. A line like "10 years of experience" or "200 projects
+// delivered" fails here.
 // Printed under the form, where somebody about to write wants to know who reads it.
 for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) {
   const a = await b.newPage();
@@ -380,10 +383,16 @@ for (const [label, path] of [['RO', PAGE.contact.ro], ['EN', PAGE.contact.en]]) 
     paragraphs.length === 3 && paragraphs.every((text) => text.length > 150),
     `${paragraphs.length} paragraph(s)`);
 
+  const committed = await b.newPage();
+  await committed.goto(`${BASE}${PAGE.pricing[label.toLowerCase()]}`, { waitUntil: 'domcontentloaded' });
+  const published = new Set([...(await committed
+    .locator('#guarantees [data-guarantee-column="yes"]')
+    .innerText()).matchAll(/\d+/g)].map(([n]) => n));
+  await committed.close();
   const numbers = [...(await about.innerText()).matchAll(/\d+/g)].map(([n]) => n);
   ck(`${label} about: no figure the site does not already publish`,
-    numbers.every((n) => n === '24' || n === '30'),
-    numbers.filter((n) => n !== '24' && n !== '30').join(' ') || 'only 24 and 30');
+    published.size > 0 && numbers.every((n) => published.has(n)),
+    numbers.filter((n) => !published.has(n)).join(' ') || `only ${[...new Set(numbers)].join(', ')}, all in the guarantees`);
 
   // The portrait is optional; when one is added it must still be described.
   const photo = a.locator('#about [data-about-photo]');

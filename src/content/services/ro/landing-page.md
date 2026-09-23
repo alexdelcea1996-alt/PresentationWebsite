@@ -34,7 +34,8 @@ includes:
   - title: Viteză, ca să nu îți ardă bugetul de reclame
     description: >-
       Plătești pe fiecare click. Dacă pagina se încarcă în cinci secunde pe internet mobil, o parte
-      din clickurile alea sunt bani aruncați. Paginile pe care le fac se încarcă sub o secundă.
+      din clickurile alea sunt bani aruncați. Înainte de predare, pagina trece prin PageSpeed
+      Insights — testul de viteză al Google — pe mobil și pe desktop: sub 95 din 100 nu o predau.
   - title: Măsurare, ca să știi dacă a mers
     description: >-
       Conectată la Google Analytics, cu completarea formularului marcată ca eveniment. Fără asta ai
