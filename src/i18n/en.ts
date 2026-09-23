@@ -90,7 +90,7 @@ export const en: Content = {
         features: [
           'A structure built for one action',
           'Copy written for this page, not lifted from a brochure',
-          'Loads in under a second on mobile data',
+          "At least 95 on Google's speed test",
           'Measurement, so you know whether it worked',
         ],
       },
@@ -1015,7 +1015,7 @@ export const en: Content = {
       'A landing page is not a smaller website. It has one job — converting the people you bring from ads or a list — and everything that does not serve that job comes out of the page, including true and flattering things about the business.',
     builtTitle: 'How it is built',
     builtBody:
-      'The same way as the site you are reading: static HTML, no framework, with the text visible even if the JavaScript never runs. It loads in under a second on mobile data, which matters directly when you pay for every click.',
+      "The same way as the site you are reading: static HTML, no framework, with the text visible even if the JavaScript never runs. Like every page I hand over, it scores at least 95 out of 100 on Google's speed test, on mobile and on desktop — which matters directly when you pay for every click.",
     cta: 'I want a landing page like this',
   },
 

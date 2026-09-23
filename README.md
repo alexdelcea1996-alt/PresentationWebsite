@@ -69,7 +69,7 @@ ambele teme. Fonturile: 74 kB pentru tot site-ul. Zero JavaScript de framework.
 | `npm run build` | Generează site-ul în `dist/` |
 | `npm run preview` | Servește local build-ul de producție |
 | `npm run check` | Verifică tipurile (TypeScript + Astro) |
-| `npm test` | Rulează cele 1702 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
+| `npm test` | Rulează cele 1707 de verificări peste build (vezi [`tests/`](./tests/README.md)) |
 | `npm run fonts` | Redescarcă și resubsetează fonturile (vezi mai jos) |
 | `npm run icons` | Regenerează setul de iconuri și manifestul din `favicon.svg` |
 | `npm run shots` | Refotografiază site-ul pentru propriul studiu de caz |
@@ -257,11 +257,16 @@ sau pozele adăugate după predare ies din garanție. Suita `guarantees` citeșt
 cifra din hero și cade dacă nu o găsește în garanții, cu testul numit și cu
 telefonul inclus.
 
-Același prag e repetat în principiile din „Despre mine" (pagina de contact) și pe
-paginile de serviciu Landing page și Site de prezentare. Suita caută în tot site-ul
+Același prag e repetat în principiile din „Despre mine" (pagina de contact), pe
+paginile de serviciu Landing page și Site de prezentare, pe cardul Landing page din
+lista de servicii și pe pagina demo de landing. Suita caută în tot site-ul
 construit orice paragraf care leagă testul de viteză de predare și cade dacă nu
 poartă cifra din hero — deci dacă schimbi pragul, îl schimbi peste tot, sau
 testele îți spun unde a rămas cel vechi.
+
+Tot ea cade dacă vreo pagină promite un timp de încărcare în secunde („se încarcă
+sub o secundă"). Promisiunea de viteză e pragul, pe care oricine îl poate
+verifica; un timp în secunde se raportează doar acolo unde e măsurat.
 
 ### „Despre mine" și poza
 

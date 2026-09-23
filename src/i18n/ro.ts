@@ -90,7 +90,7 @@ export const ro: Content = {
         features: [
           'O structură făcută pentru o singură acțiune',
           'Text scris pentru pagina asta, nu luat din broșură',
-          'Se încarcă sub o secundă pe internet mobil',
+          'Cel puțin 95 la testul de viteză Google',
           'Măsurare, ca să știi dacă a mers',
         ],
       },
@@ -1015,7 +1015,7 @@ export const ro: Content = {
       'Un landing page nu e un site mai mic. Are o singură treabă — să transforme oamenii pe care îi aduci tu din reclame sau dintr-o listă — și tot ce nu ajută treaba aia iese din pagină, inclusiv lucruri adevărate și bune despre firmă.',
     builtTitle: 'Cum e construit',
     builtBody:
-      'Aceeași tehnologie ca site-ul pe care îl citești: HTML static, fără framework, cu textul vizibil chiar dacă JavaScript-ul nu pornește. Se încarcă sub o secundă pe internet mobil — ceea ce contează direct când plătești fiecare click.',
+      'Aceeași tehnologie ca site-ul pe care îl citești: HTML static, fără framework, cu textul vizibil chiar dacă JavaScript-ul nu pornește. Ca orice pagină pe care o predau, ia cel puțin 95 din 100 la testul de viteză Google, pe mobil și pe desktop — ceea ce contează direct când plătești fiecare click.',
     cta: 'Vreau un landing page ca ăsta',
   },
 

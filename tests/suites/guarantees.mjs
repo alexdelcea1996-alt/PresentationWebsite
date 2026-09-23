@@ -115,8 +115,8 @@ for (const [label, path, yes, no, homePath] of [
     const expected = rel.startsWith('en/') ? figure.en : figure.ro;
     for (const [, block] of html.matchAll(/<(?:p|dd)\b[^>]*>([\s\S]*?)<\/(?:p|dd)>/g)) {
       const words = text(block);
-      if (!/pagespeed|lighthouse/i.test(words)) continue;
-      if (!/predare|predau|livrare|handover|hand it over|delivery/i.test(words)) continue;
+      if (!/pagespeed|lighthouse|testul de viteză|speed test/i.test(words)) continue;
+      if (!/predare|predau|livrare|handover|hand it over|hand over|delivery/i.test(words)) continue;
       const address = `/${rel.replace(/index\.html$/, '')}`;
       stated.set(address, (stated.get(address) ?? 0) + 1);
       if (!new RegExp(`\\b${expected}\\b`).test(words)) unnumbered.push(`${address}: "${words.slice(0, 60)}…"`);
@@ -127,14 +127,54 @@ for (const [label, path, yes, no, homePath] of [
     unnumbered.join(' | ') || `${[...stated.values()].reduce((a, n) => a + n, 0)} paragraph(s) on ${stated.size} page(s)`);
 
   // Where it has to be stated at all: the list itself, the principles beside
-  // the contact form, and the two service pages that talk about speed.
+  // the contact form, the two service pages that talk about speed, and the
+  // landing-page demo, which describes how its example is built.
   for (const address of [
     PAGE.pricing.ro, PAGE.pricing.en, PAGE.contact.ro, PAGE.contact.en,
     '/servicii/landing-page/', '/en/services/landing-page/',
     '/servicii/site-de-prezentare/', '/en/services/business-website/',
+    '/demo/landing-page/', '/en/demo/landing-page/',
   ]) {
     ck(`${address} states the threshold`, (stated.get(address) ?? 0) > 0, `${stated.get(address) ?? 0} paragraph(s)`);
   }
+
+  // The landing-page card in the services list makes its speed promise as a
+  // bullet, with no handover in it, so it is checked by name: the card that
+  // links to the landing-page offer has to carry the same number.
+  for (const [rel, offer, locale] of [
+    ['servicii/index.html', '/servicii/landing-page/', 'ro'],
+    ['en/services/index.html', '/en/services/landing-page/', 'en'],
+  ]) {
+    const card = readFileSync(join(dist, rel), 'utf8')
+      .split('<article')
+      .find((chunk) => chunk.includes(`href="${offer}"`)) ?? '';
+    ck(`the landing-page card on /${rel.replace(/index\.html$/, '')} promises the threshold`,
+      new RegExp(`\\b${figure[locale]}\\b`).test(text(card.split('</article>')[0])),
+      card ? 'card found' : 'no card links the offer');
+  }
+
+  /*
+    And no promise in seconds beside it.
+
+    "Loads in under a second on mobile data" was printed on the services list,
+    the landing-page service and its demo — a figure with no network, no page
+    and no test behind it, where the rest of the site promises a score anybody
+    can check. The speed promise is the threshold; a load time in seconds may be
+    reported where it is measured (the live band on the landing page does that,
+    in the visitor's own browser), never promised in the copy.
+
+    What counts as a promise is a page loading within a time: a loading verb,
+    then an upper bound in seconds. The article on slow sites explaining that an
+    LCP "under 2.5 seconds is fine" is Google's guidance, not an offer, and the
+    first, broader version of this check could not tell the two apart.
+  */
+  const seconds = /(?:se încarcă|se deschide|\bloads?\b|\bopens?\b)[^.]{0,40}?\b(?:sub|în mai puțin de|under|in less than|less than)\s+(?:o|un|one|a|\d+(?:[.,]\d+)?)\s+(?:secund|second)/i;
+  const timed = pages('').flatMap((rel) => {
+    const body = readFileSync(join(dist, rel), 'utf8').replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, ' ');
+    const hit = text(body).match(seconds);
+    return hit ? [`/${rel.replace(/index\.html$/, '')}: "${hit[0]}"`] : [];
+  });
+  ck('no page promises a load time in seconds', timed.length === 0, timed.join(' | ') || 'none');
 }
 
 // --- The empty testimonial boxes are gone ------------------------------------
