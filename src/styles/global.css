@@ -5,8 +5,8 @@
 
    The surface scale is named by ROLE, not by darkness, because the values flip
    between themes: `surface-deep` is the darkest panel in dark mode and the
-   subtly tinted one in light mode. Only `on-accent` is fixed — it sits on the
-   bright indigo→cyan gradient, which needs dark text in both themes.
+   subtly tinted one in light mode. `on-accent` flips too: near-black on the
+   bright dark-theme gradient, white on the deeper light-theme one.
 
    Dark is the brand default and lives on bare `:root`; the light theme
    overrides the same names. Nothing else in the codebase knows a theme exists.
@@ -19,6 +19,15 @@
   --color-surface-hover: #131a29;
   --color-border: #1c2436;
   --color-border-strong: #2a3448;
+
+  /*
+     The edge of anything you type into or tick. `border` is a divider — about
+     1.2:1 against a card, which is right for a hairline and wrong for the only
+     outline a text field has: WCAG asks 3:1 of a control's boundary. This clears
+     it on every surface in both themes (3.1:1 on a card here, 3.9:1 on paper),
+     and nothing that is not a control uses it.
+  */
+  --color-border-control: #56647e;
 
   /* Foreground */
   --color-fg: #f1f5f9;
@@ -44,8 +53,46 @@
   --color-accent-bright: #9c95fe; /* oklch(0.720 0.151 285) */
   --color-accent-alt: #56deb2; /* oklch(0.815 0.135 168) */
 
-  /* Always dark: this sits on top of the accent gradient in both themes. */
+  /*
+     Text and marks on the gradient or a solid accent fill. Near-black here
+     (5.5:1 on iris); the light theme swaps it for white, because near-black on
+     that theme's deeper iris is 2.9:1. The primary button used to carry its
+     own light-theme override for this; now the logo tile, the Recommended pill
+     and the configurator's checked marks get the same answer from one place.
+  */
   --color-on-accent: #05070d;
+
+  /*
+     The accent at four strengths, and only four. There were seventeen — 5, 8,
+     10, 12, 14, 15, 18, 20, 22, 25, 30, 35, 40, 45, 50, 55 and 60% — each
+     picked on the spot, so two hover borders side by side could disagree by a
+     few points for no reason anyone could name. Now a tint says what it is for:
+
+       wash  10%  quiet fills: icon tiles, checked options, pressed chips, notes
+       glow  20%  the blurred ambient washes (`.glow`) and nothing else
+       line  25%  tinted borders at rest, and the current item's fill
+       edge  50%  hover and selected edges, text selection
+
+     Derived from the accent rather than written out, so they follow it into
+     the light theme without a second list to keep in step.
+  */
+  --color-accent-wash: color-mix(in oklab, var(--color-accent) 10%, transparent);
+  --color-accent-glow: color-mix(in oklab, var(--color-accent) 20%, transparent);
+  --color-accent-line: color-mix(in oklab, var(--color-accent) 25%, transparent);
+  --color-accent-edge: color-mix(in oklab, var(--color-accent) 50%, transparent);
+  --color-accent-alt-wash: color-mix(in oklab, var(--color-accent-alt) 10%, transparent);
+  --color-accent-alt-glow: color-mix(in oklab, var(--color-accent-alt) 20%, transparent);
+  --color-accent-alt-edge: color-mix(in oklab, var(--color-accent-alt) 50%, transparent);
+
+  /*
+     Errors and middling results. These used to be Tailwind's red-300/red-400
+     and a literal amber, the same in both themes — which on paper put the
+     audit's error message at 1.7:1 and the score arcs at 1.9 and 2.5:1. Now
+     they are brand colours with a value per theme, like everything else.
+  */
+  --color-danger: #f87171;
+  --color-danger-wash: color-mix(in oklab, var(--color-danger) 10%, transparent);
+  --color-warning: #f59e0b;
 
   /* Typography — families come from Astro's font pipeline (self-hosted) */
   --font-display: var(--ff-display);
@@ -54,6 +101,8 @@
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Tailwind's `transition-colors` and friends, aligned with `--duration-fast`. */
+  --default-transition-duration: 200ms;
 }
 
 /* Non-colour theme knobs that Tailwind does not need to generate utilities for. */
@@ -62,6 +111,17 @@
   /* Ambient gradient washes read as heavy smudges on a light page. */
   --glow-opacity: 1;
   --grid-line: rgb(255 255 255 / 0.6);
+
+  /*
+    Three durations, one easing. Colour and border changes and the 2px lift are
+    fast; cards, the header and the dock are base; reveals, the glow and the
+    button's glint are slow. The few signature movements — the dial sweep, the
+    figures turning over, the page transition, the beam — keep their own
+    lengths, because each of those was tuned to what it shows.
+  */
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
 
   /*
     The brand mark as a mask: the same eight-ray spark as `public/favicon.svg`
@@ -113,6 +173,7 @@
   --color-surface-hover: #f2ece0;
   --color-border: #e2d9c8;
   --color-border-strong: #cdc0a9;
+  --color-border-control: #8c7d64;
 
   --color-fg: #1c1814;
   --color-fg-muted: #524a3f;
@@ -134,6 +195,13 @@
   --color-accent: #5b3fd0; /* oklch(0.487 0.213 287) */
   --color-accent-bright: #4a2eb4; /* oklch(0.422 0.201 287) */
   --color-accent-alt: #0a6b50; /* oklch(0.470 0.093 168) */
+
+  /* White on this theme's deeper gradient: 6.9:1 on iris, 6.5:1 on jade. */
+  --color-on-accent: #ffffff;
+
+  /* 5.3:1 and 5.0:1 on paper, the weakest of the four surfaces. */
+  --color-danger: #b91c1c;
+  --color-warning: #a14a06;
 
   /*
      The grain, and the only reason this reads as stock rather than as a beige
@@ -184,8 +252,8 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     transition:
-      background-color 0.25s var(--ease-out-soft),
-      color 0.25s var(--ease-out-soft);
+      background-color var(--duration-fast) var(--ease-out-soft),
+      color var(--duration-fast) var(--ease-out-soft);
   }
 
   /*
@@ -221,7 +289,7 @@
   }
 
   ::selection {
-    background-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
+    background-color: var(--color-accent-edge);
     color: #fff;
   }
 
@@ -229,7 +297,7 @@
   :focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 
   /* --- The bookings demo ------------------------------------------------- */
@@ -242,8 +310,8 @@
     border: 1px solid var(--color-border);
     color: var(--color-fg-muted);
     transition:
-      color 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft);
+      color var(--duration-fast) var(--ease-out-soft),
+      border-color var(--duration-fast) var(--ease-out-soft);
   }
 
   .demo-icon-btn:hover {
@@ -258,14 +326,14 @@
     font-size: 0.75rem;
     color: var(--color-fg-muted);
     transition:
-      color 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft),
-      background-color 0.2s var(--ease-out-soft);
+      color var(--duration-fast) var(--ease-out-soft),
+      border-color var(--duration-fast) var(--ease-out-soft),
+      background-color var(--duration-fast) var(--ease-out-soft);
   }
 
   .demo-chip[aria-pressed='true'] {
-    border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
-    background-color: color-mix(in oklab, var(--color-accent) 12%, transparent);
+    border-color: var(--color-accent-edge);
+    background-color: var(--color-accent-wash);
     color: var(--color-fg);
   }
 
@@ -279,8 +347,8 @@
   .demo-field select {
     margin-top: 0.35rem;
     width: 100%;
-    border-radius: 0.6rem;
-    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border-control);
     background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);
     padding: 0.5rem 0.7rem;
     font-size: 0.85rem;
@@ -297,12 +365,12 @@
     border-radius: 9999px;
     border: 1px solid var(--color-border);
     padding: 0.15rem 0.6rem;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: var(--color-fg-muted);
   }
 
   .demo-badge[data-status='arrived'] {
-    border-color: color-mix(in oklab, var(--color-accent-alt) 45%, transparent);
+    border-color: var(--color-accent-alt-edge);
     color: var(--color-accent-alt);
   }
 
@@ -340,14 +408,14 @@
     place-items: center;
     width: 1.65rem;
     height: 1.65rem;
-    border-radius: 0.45rem;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
     font-size: 0.9rem;
     line-height: 1;
     color: var(--color-fg-muted);
     transition:
-      color 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft);
+      color var(--duration-fast) var(--ease-out-soft),
+      border-color var(--duration-fast) var(--ease-out-soft);
   }
 
   .shop-step:hover {
@@ -359,19 +427,19 @@
     display: flex;
     align-items: center;
     gap: 0.55rem;
-    border-radius: 0.6rem;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--color-border);
     padding: 0.55rem 0.75rem;
     font-size: 0.8rem;
     color: var(--color-fg-muted);
     cursor: pointer;
     transition:
-      color 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft);
+      color var(--duration-fast) var(--ease-out-soft),
+      border-color var(--duration-fast) var(--ease-out-soft);
   }
 
   .shop-pay:has(input:checked) {
-    border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+    border-color: var(--color-accent-edge);
     color: var(--color-fg);
   }
 
@@ -422,11 +490,11 @@
 
   /* A score below Lighthouse's "good" threshold should not wear the brand colour. */
   .score-gauge[data-band='ok'] .gauge-arc {
-    stroke: #f59e0b;
+    stroke: var(--color-warning);
   }
 
   .score-gauge[data-band='poor'] .gauge-arc {
-    stroke: #f87171;
+    stroke: var(--color-danger);
   }
 
 
@@ -616,10 +684,10 @@
     line-height: 1;
     white-space: nowrap;
     transition:
-      transform 0.2s var(--ease-out-soft),
-      box-shadow 0.2s var(--ease-out-soft),
-      background-color 0.2s var(--ease-out-soft),
-      border-color 0.2s var(--ease-out-soft);
+      transform var(--duration-fast) var(--ease-out-soft),
+      box-shadow var(--duration-fast) var(--ease-out-soft),
+      background-color var(--duration-fast) var(--ease-out-soft),
+      border-color var(--duration-fast) var(--ease-out-soft);
   }
 
   /*
@@ -673,11 +741,6 @@
     box-shadow: 0 6px 24px -8px color-mix(in oklab, var(--color-accent) 70%, transparent);
   }
 
-  /* The light palette darkens the gradient, so light text reads better on it. */
-  :root[data-theme='light'] .btn-primary {
-    color: #fff;
-  }
-
   /*
     A glint across the primary button on hover.
 
@@ -711,7 +774,7 @@
   }
 
   .btn-primary:hover::after {
-    transition: translate 0.65s var(--ease-out-soft);
+    transition: translate var(--duration-slow) var(--ease-out-soft);
     translate: 340% 0;
   }
 
@@ -735,7 +798,7 @@
 
   .btn-ghost:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in oklab, var(--color-accent) 60%, transparent);
+    border-color: var(--color-accent-edge);
     background-color: var(--color-surface-hover);
   }
 
@@ -864,8 +927,8 @@
   .spine-link {
     background-image: linear-gradient(
       to bottom,
-      color-mix(in oklab, var(--color-accent-alt) 55%, transparent),
-      color-mix(in oklab, var(--color-accent) 45%, transparent)
+      var(--color-accent-alt-edge),
+      var(--color-accent-edge)
     );
     transform-origin: top;
   }
@@ -901,9 +964,9 @@
     background-color: color-mix(in oklab, var(--color-surface-raised) 85%, transparent);
     padding: 1.75rem;
     transition:
-      translate 0.3s var(--ease-out-soft),
-      border-color 0.3s var(--ease-out-soft),
-      background-color 0.3s var(--ease-out-soft);
+      translate var(--duration-base) var(--ease-out-soft),
+      border-color var(--duration-base) var(--ease-out-soft),
+      background-color var(--duration-base) var(--ease-out-soft);
   }
 
   /*
@@ -916,7 +979,7 @@
   */
   .card-hover:hover {
     translate: 0 -4px;
-    border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-border));
+    border-color: var(--color-accent-edge);
     background-color: var(--color-surface-hover);
   }
 
@@ -1047,11 +1110,40 @@
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-body);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-accent-alt);
+  }
+
+  /*
+    Every other uppercase label on the site, at two sizes.
+
+    There were seven — from 9px on the stamp's small print to 14px on the
+    guarantee column heads — with tracking anywhere from 0.05 to 0.16em and three
+    weights, which is how a set of labels ends up looking like it came from three
+    sites. Now a label is 12px (`label`) or, for the stamp and the blueprint's
+    annotations, 11px (`label-sm`), both at 0.14em, and nothing on the page is
+    smaller than 11px. Colour is left to the caller: jade for a label that heads
+    something, `fg-subtle` for one that names a value.
+
+    Always the sans. The serif states what the site asserts; a label says what
+    kind of thing you are looking at, and a label set in the serif reads as a
+    small heading competing with the real one.
+  */
+  .label,
+  .label-sm {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .label-sm {
+    font-size: 0.6875rem;
   }
 
   /*
@@ -1147,9 +1239,10 @@
   }
 
   .slip-label {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    line-height: 1.25;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-fg-subtle);
   }
@@ -1167,7 +1260,7 @@
     gap: 0.45rem;
     font-size: 0.75rem;
     color: var(--color-fg-subtle);
-    transition: color 0.2s var(--ease-out-soft);
+    transition: color var(--duration-fast) var(--ease-out-soft);
   }
 
   .blueprint-toggle:hover {
@@ -1187,12 +1280,12 @@
     background-image:
       repeating-linear-gradient(
         to right,
-        color-mix(in oklab, var(--color-accent) 22%, transparent) 0 1px,
+        var(--color-accent-line) 0 1px,
         transparent 1px 32px
       ),
       repeating-linear-gradient(
         to bottom,
-        color-mix(in oklab, var(--color-accent) 22%, transparent) 0 1px,
+        var(--color-accent-line) 0 1px,
         transparent 1px 32px
       );
   }
@@ -1258,7 +1351,7 @@
 
   .blueprint-note {
     margin: 0.7rem 0 0;
-    font-size: 0.65rem;
+    font-size: 0.6875rem;
     line-height: 1.45;
     color: var(--color-fg-subtle);
   }
@@ -1272,7 +1365,7 @@
     its layout shift two centimetres away.
   */
   :root[data-blueprint] main > section {
-    outline: 1px dashed color-mix(in oklab, var(--color-accent) 60%, transparent);
+    outline: 1px dashed var(--color-accent-edge);
     outline-offset: -1px;
   }
 
@@ -1283,11 +1376,11 @@
     right: 0;
     z-index: 59;
     padding: 0.15rem 0.45rem;
-    border: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
-    border-radius: 0 0 0 0.4rem;
+    border: 1px solid var(--color-accent-edge);
+    border-radius: 0 0 0 var(--radius-md);
     background-color: var(--color-surface-deep);
     color: var(--color-accent-bright);
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -1325,9 +1418,9 @@
 
   :root[data-blueprint] [data-bp-plane] {
     transition:
-      transform 0.55s var(--ease-out-soft),
-      translate 0.55s var(--ease-out-soft),
-      inset 0.55s var(--ease-out-soft);
+      transform var(--duration-slow) var(--ease-out-soft),
+      translate var(--duration-slow) var(--ease-out-soft),
+      inset var(--duration-slow) var(--ease-out-soft);
   }
 
   /*
@@ -1338,7 +1431,7 @@
   */
   :root[data-blueprint][data-explode] .blueprint-grid {
     inset: 9% 7%;
-    border: 1px dashed color-mix(in oklab, var(--color-accent) 45%, transparent);
+    border: 1px dashed var(--color-accent-edge);
   }
 
   :root[data-blueprint][data-explode] [data-bp-plane] {
@@ -1375,11 +1468,11 @@
     left: 0;
     z-index: 59;
     padding: 0.15rem 0.45rem;
-    border: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
-    border-radius: 0 0 0.4rem;
+    border: 1px solid var(--color-accent-edge);
+    border-radius: 0 0 var(--radius-md);
     background-color: var(--color-surface-deep);
     color: var(--color-accent-bright);
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
     pointer-events: none;
@@ -1395,11 +1488,11 @@
     display: block;
     width: 100%;
     padding: 0.35rem 0.6rem;
-    border: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
-    border-radius: 0.5rem;
+    border: 1px solid var(--color-accent-edge);
+    border-radius: var(--radius-lg);
     color: var(--color-fg);
     font-size: 0.7rem;
-    transition: border-color 0.2s var(--ease-out-soft);
+    transition: border-color var(--duration-fast) var(--ease-out-soft);
   }
 
   .blueprint-explode-toggle:hover,
@@ -1418,7 +1511,7 @@
     grid-template-columns: 4.5rem 1fr;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.65rem;
+    font-size: 0.6875rem;
     color: var(--color-fg-muted);
   }
 
@@ -1455,22 +1548,24 @@
     gap: 0.1rem;
     padding: 0.3rem 0.6rem;
     border: 2px solid var(--color-accent-alt);
-    border-radius: 0.45rem;
+    border-radius: var(--radius-lg);
     rotate: -1.5deg;
     color: var(--color-accent-alt);
     text-align: center;
     /* The inner hairline is what makes it read as ink rather than as a chip. */
     box-shadow:
       inset 0 0 0 1px var(--color-surface),
-      inset 0 0 0 2.5px color-mix(in oklab, var(--color-accent-alt) 55%, transparent);
+      inset 0 0 0 2.5px var(--color-accent-alt-edge);
   }
 
+  /* 600, not 700: the Inter file carries 400 to 600, so 700 was a synthesised
+     bold — thicker strokes smeared on by the browser, not the face's own. */
   .stamp-label {
-    font-size: 0.6rem;
-    font-weight: 700;
+    font-size: 0.6875rem;
+    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    line-height: 1.2;
+    line-height: 1.25;
   }
 
   /*
@@ -1480,7 +1575,7 @@
     A stamp that certifies a claim is a poor place to have an unreadable line.
   */
   .stamp-detail {
-    font-size: 0.5625rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     line-height: 1.25;
@@ -1749,15 +1844,15 @@
        has finished is what makes "hidden" mean hidden to focus AND to tests,
        instead of "still sliding, technically visible off-screen". */
     transition:
-      transform 0.3s var(--ease-out-soft),
-      visibility 0s 0.35s;
+      transform var(--duration-base) var(--ease-out-soft),
+      visibility 0s calc(var(--duration-base) + 50ms);
   }
 
   .sticky-cta[data-shown] {
     visibility: visible;
     transform: translateY(0);
     transition:
-      transform 0.3s var(--ease-out-soft),
+      transform var(--duration-base) var(--ease-out-soft),
       visibility 0s;
   }
 
@@ -1803,14 +1898,14 @@
     border-radius: 9999px;
     background: radial-gradient(
       circle closest-side,
-      color-mix(in oklab, var(--color-accent-alt) 14%, transparent),
-      color-mix(in oklab, var(--color-accent) 8%, transparent) 45%,
+      var(--color-accent-alt-glow),
+      var(--color-accent-wash) 45%,
       transparent 72%
     );
     mix-blend-mode: screen;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.6s var(--ease-out-soft);
+    transition: opacity var(--duration-slow) var(--ease-out-soft);
   }
 
   .cursor-glow[data-active] {
@@ -2001,8 +2096,8 @@
     opacity: 0;
     transform: translateY(18px);
     transition:
-      opacity 0.6s var(--ease-out-soft),
-      transform 0.6s var(--ease-out-soft);
+      opacity var(--duration-slow) var(--ease-out-soft),
+      transform var(--duration-slow) var(--ease-out-soft);
   }
 
   .js [data-reveal].is-visible {
@@ -2044,10 +2139,14 @@
     --color-fg-subtle: #444;
     --color-border: #bbb;
     --color-border-strong: #888;
+    --color-border-control: #888;
     /* Accents keep their hue but go dark enough to survive a mono printer. */
     --color-accent: #2d1e6b;
     --color-accent-bright: #2d1e6b;
     --color-accent-alt: #14453a;
+    --color-on-accent: #fff;
+    --color-danger: #b91c1c;
+    --color-warning: #a14a06;
   }
 
   body {

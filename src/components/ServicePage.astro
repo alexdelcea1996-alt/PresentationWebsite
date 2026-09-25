@@ -64,7 +64,7 @@ const faqSchema = {
       <!-- Hero -->
       <section class="relative overflow-hidden pt-32 pb-16 sm:pt-40">
         <div
-          class="glow left-1/2 top-[-6rem] size-[36rem] -translate-x-1/2 bg-accent/20"
+          class="glow left-1/2 top-[-6rem] size-[36rem] -translate-x-1/2 bg-accent-glow"
           aria-hidden="true"
         >
         </div>
@@ -110,7 +110,7 @@ const faqSchema = {
             {
               d.highlights.map((highlight) => (
                 <div class="bg-surface-raised px-6 py-5">
-                  <dt class="text-xs uppercase tracking-wider text-fg-subtle">{highlight.label}</dt>
+                  <dt class="label text-fg-subtle">{highlight.label}</dt>
                   <dd class="mt-1.5 font-display text-lg font-semibold text-fg">
                     {highlight.value}
                   </dd>
@@ -159,7 +159,7 @@ const faqSchema = {
       <section class="pb-16 sm:pb-20">
         <div class="container-page">
           <div class="grid gap-6 lg:grid-cols-2">
-            <div class="card border-accent/30 bg-accent/5" data-reveal>
+            <div class="card border-accent-line bg-accent-wash" data-reveal>
               <h2 class="font-display text-lg font-semibold text-fg">{d.idealForTitle}</h2>
               <ul class="mt-5 space-y-3">
                 {
@@ -199,7 +199,7 @@ const faqSchema = {
             {
               d.faq.map((item, index) => (
                 <details
-                  class="group card cursor-pointer [&[open]]:border-accent/40"
+                  class="group card cursor-pointer [&[open]]:border-accent-edge"
                   data-reveal
                   data-reveal-delay={index * 40}
                 >
@@ -230,10 +230,10 @@ const faqSchema = {
       <section class="pb-20 sm:pb-28">
         <div class="container-page">
           <aside
-            class="relative overflow-hidden rounded-3xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
+            class="relative overflow-hidden rounded-3xl border border-accent-line bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
             data-reveal
           >
-            <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent/20" aria-hidden="true">
+            <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent-glow" aria-hidden="true">
             </div>
             <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
