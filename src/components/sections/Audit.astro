@@ -45,10 +45,10 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
 >
   <div class="container-page">
     <div
-      class="relative overflow-hidden rounded-3xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
+      class="relative overflow-hidden rounded-3xl border border-accent-line bg-linear-110 from-surface-raised to-surface p-8 sm:p-12"
       data-reveal
     >
-      <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent/20" aria-hidden="true"></div>
+      <div class="glow right-[-6rem] top-[-6rem] size-[22rem] bg-accent-glow" aria-hidden="true"></div>
 
       <div class="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
         <div>
@@ -87,7 +87,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
                   autocomplete="url"
                   required
                   placeholder={tool.placeholder}
-                  class="mt-2 w-full rounded-xl border border-border bg-surface/70 px-4 py-3 text-sm text-fg placeholder:text-fg-subtle transition-colors focus:border-accent focus:outline-none"
+                  class="mt-2 w-full rounded-xl border border-border-control bg-surface/70 px-4 py-3 text-sm text-fg placeholder:text-fg-subtle transition-colors focus:border-accent focus:outline-none"
                 />
                 {/*
                   Which device. Google returns two very different sets of
@@ -98,7 +98,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
                   seeing at once, and the chosen one is stamped on the result.
                 */}
                 <fieldset class="mt-4">
-                  <legend class="text-xs uppercase tracking-wider text-fg-subtle">
+                  <legend class="label text-fg-subtle">
                     {tool.strategyLabel}
                   </legend>
                   <div class="mt-2 flex gap-2" data-audit-strategy>
@@ -137,7 +137,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
                 </button>
                 <p class="mt-2 text-xs leading-relaxed text-fg-subtle">{tool.selfTestNote}</p>
                 <p
-                  class="mt-3 hidden text-xs leading-relaxed text-red-300"
+                  class="mt-3 hidden text-xs leading-relaxed text-danger"
                   role="alert"
                   data-audit-error
                 />
@@ -221,7 +221,7 @@ const PSI_ENDPOINT = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed
         </form>
 
         <div class="mt-6 hidden" data-cost-result role="status">
-          <p class="text-xs uppercase tracking-wider text-fg-subtle">{t.cost.resultLabel}</p>
+          <p class="label text-fg-subtle">{t.cost.resultLabel}</p>
           <p
             class="mt-1 font-display text-2xl font-semibold text-gradient sm:text-3xl"
             data-cost-amount

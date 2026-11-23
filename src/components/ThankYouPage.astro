@@ -44,7 +44,7 @@ const alternates = Object.fromEntries(
 
   <main id="main" class="relative overflow-hidden">
     <div
-      class="glow left-1/2 top-[-6rem] size-[32rem] -translate-x-1/2 bg-accent/18"
+      class="glow left-1/2 top-[-6rem] size-[32rem] -translate-x-1/2 bg-accent-glow"
       aria-hidden="true"
     >
     </div>
@@ -62,7 +62,7 @@ const alternates = Object.fromEntries(
           {
             t.steps.map((step, index) => (
               <li class="flex items-start gap-3" data-thanks-step>
-                <span class="grid size-6 shrink-0 place-items-center rounded-full bg-accent/10 font-display text-xs font-semibold text-accent-alt">
+                <span class="grid size-6 shrink-0 place-items-center rounded-full bg-accent-wash font-display text-xs font-semibold text-accent-alt">
                   {index + 1}
                 </span>
                 <span class="text-sm leading-relaxed text-fg-muted">{step}</span>

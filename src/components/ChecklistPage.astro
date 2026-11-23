@@ -38,7 +38,7 @@ const total = t.groups.reduce((sum, group) => sum + group.items.length, 0);
 
   <main id="main" class="relative overflow-clip">
     <div
-      class="glow left-1/2 top-[-8rem] size-[34rem] -translate-x-1/2 bg-accent-alt/12"
+      class="glow left-1/2 top-[-8rem] size-[34rem] -translate-x-1/2 bg-accent-alt-glow"
       aria-hidden="true"
     >
     </div>
@@ -68,7 +68,7 @@ const total = t.groups.reduce((sum, group) => sum + group.items.length, 0);
                       reads the state of is a control that lies about itself.
                     */}
                     <span
-                      class="mt-0.5 size-4 shrink-0 rounded border border-border-strong"
+                      class="mt-0.5 size-4 shrink-0 rounded border border-border-control"
                       aria-hidden="true"
                     />
                     <span class="min-w-0 grow text-sm leading-relaxed text-fg-muted">
@@ -99,7 +99,7 @@ const total = t.groups.reduce((sum, group) => sum + group.items.length, 0);
         <div class="rule-mark mt-14 print:hidden" aria-hidden="true"><span></span></div>
 
         <aside
-          class="mt-10 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 print:hidden sm:flex-row sm:items-center sm:justify-between"
+          class="mt-10 flex flex-col items-start gap-5 rounded-2xl border border-accent-line bg-linear-110 from-surface-raised to-surface p-8 print:hidden sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2 class="font-display text-xl font-semibold">{t.ctaTitle}</h2>

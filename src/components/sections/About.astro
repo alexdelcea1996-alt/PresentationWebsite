@@ -39,7 +39,7 @@ const contactHref = `#${sectionIds.contact}`;
 ---
 
 <section id={sectionIds.about} class="relative overflow-hidden py-20 sm:py-28">
-  <div class="glow left-[-12rem] bottom-0 size-[26rem] bg-accent/10" aria-hidden="true"></div>
+  <div class="glow left-[-12rem] bottom-0 size-[26rem] bg-accent-glow" aria-hidden="true"></div>
 
   <div class="container-page">
     {/*
@@ -79,7 +79,7 @@ const contactHref = `#${sectionIds.contact}`;
           {
             t.facts.map((fact) => (
               <li class="flex items-start gap-3 text-sm text-fg-muted">
-                <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-accent/10 text-accent-alt">
+                <span class="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-accent-wash text-accent-alt">
                   <Icon name="check" class="size-3" />
                 </span>
                 {fact}

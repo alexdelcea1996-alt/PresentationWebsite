@@ -33,7 +33,7 @@ const columns = [
 ---
 
 <section id={sectionIds.guarantees} class="relative overflow-hidden py-20 sm:py-28">
-  <div class="glow right-[-10rem] top-1/4 size-[24rem] bg-accent-alt/10" aria-hidden="true"></div>
+  <div class="glow right-[-10rem] top-1/4 size-[24rem] bg-accent-alt-glow" aria-hidden="true"></div>
 
   <div class="container-page">
     <SectionHeading eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
@@ -52,7 +52,7 @@ const columns = [
           >
             <h3
               class:list={[
-                'flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-[0.14em]',
+                'label flex items-center gap-2',
                 column.id === 'yes' ? 'text-accent-alt' : 'text-fg-subtle',
               ]}
             >
@@ -66,7 +66,7 @@ const columns = [
                     class:list={[
                       'mt-0.5 grid size-6 shrink-0 place-items-center rounded-full',
                       column.id === 'yes'
-                        ? 'bg-accent/10 text-accent-alt'
+                        ? 'bg-accent-wash text-accent-alt'
                         : 'border border-border-strong text-fg-subtle',
                     ]}
                   >

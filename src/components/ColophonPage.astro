@@ -41,7 +41,7 @@ const checks = number.format(SUITE_CHECKS);
 
   <main id="main" class="relative overflow-clip">
     <div
-      class="glow left-1/2 top-[-8rem] size-[34rem] -translate-x-1/2 bg-accent/14"
+      class="glow left-1/2 top-[-8rem] size-[34rem] -translate-x-1/2 bg-accent-glow"
       aria-hidden="true"
     >
     </div>
@@ -60,7 +60,7 @@ const checks = number.format(SUITE_CHECKS);
           <p class="mt-3 text-sm leading-relaxed text-fg-muted">{t.commitBody}</p>
 
           <div class="mt-5 rounded-2xl border border-border bg-surface-raised/60 p-6">
-            <p class="text-xs uppercase tracking-wider text-fg-subtle">{t.commitLabel}</p>
+            <p class="label text-fg-subtle">{t.commitLabel}</p>
             {
               build.commit ? (
                 <a
@@ -212,7 +212,7 @@ const checks = number.format(SUITE_CHECKS);
         <div class="rule-mark mt-16" aria-hidden="true"><span></span></div>
 
         <aside
-          class="mt-10 flex flex-col items-start gap-5 rounded-2xl border border-accent/25 bg-linear-110 from-surface-raised to-surface p-8 sm:flex-row sm:items-center sm:justify-between"
+          class="mt-10 flex flex-col items-start gap-5 rounded-2xl border border-accent-line bg-linear-110 from-surface-raised to-surface p-8 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2 class="font-display text-xl font-semibold">{t.ctaTitle}</h2>

@@ -36,7 +36,7 @@ const prepHref = prep ? postPath(locale, prep.data.urlSlug) : undefined;
       {
         t.items.map((item, index) => (
           <details
-            class="group card cursor-pointer [&[open]]:border-accent/40"
+            class="group card cursor-pointer [&[open]]:border-accent-edge"
             data-faq-item
             data-reveal
             data-reveal-delay={index * 40}
